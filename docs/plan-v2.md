@@ -165,7 +165,7 @@
 - **읽음의 기준:** 핵심 문서는 열면 읽은 것으로 본다(`unlockAfterDocs`). 더 읽기 문서는 단서를 하나 이상 칠해야 별 ③에 들어간다(5.6).
 - **단서:** 문서마다 1~2개의 단서 구절. 구절을 한 번 탭(또는 Enter)하면 구절 전체가 칠해지고 단서 쪽지가 책상 위 트레이로 날아간다. 단서가 아닌 곳을 누르면 아무 일도 일어나지 않는다(감점 없음).
 - **자동 힌트:** 문서를 연 지 20초가 지나도 단서를 칠하지 않으면 단서 구절이 살짝 빛난다.
-- **낱말 풀이:** 어려운 낱말은 점선 밑줄. 누르면 쉬운 풀이가 뜬다. 처음 나올 때만 밑줄을 긋는다. 후보: 냉전, 열전, 진영, 철의 장막, 공산주의, 정전, 비동맹, 제3 세계, 해상 봉쇄, 핵실험, 국경, 협정, 수교, 국교, 페레스트로이카, 독립 국가 연합, 유엔. 풀이 문구는 `TODO(교사 작성 또는 검토)`.
+- **낱말 풀이:** 어려운 낱말은 점선 밑줄. 누르면 쉬운 풀이가 뜬다. 처음 나올 때만 밑줄을 긋는다. 후보: 냉전, 열전, 진영, 철의 장막, 공산주의, 정전, 비동맹, 제3 세계, 해상 봉쇄, 핵실험, 국경, 협정, 수교, 국교, 페레스트로이카, 독립 국가 연합, 유엔, 국제전, 성명, 정상(3장 문서 초안에서 더함, 2026-10-22). 풀이 문구는 `TODO(교사 작성 또는 검토)`.
 - **공개 시점:** 일부 문서는 시계 지점 뒤에 열린다(`revealAfter`).
 
 ### 5.2 관계 보드
@@ -731,7 +731,7 @@ interface SaveSlot {
 
 ### 10.4 예시: `ch3.json` (버티컬 슬라이스)
 
-문서 `body`와 일부 문구는 자리표시다. 교사가 쓴 내용으로 바꾸기 전까지는 `TODO(교사 작성)`을 남긴다.
+문서 `body`와 일부 문구는 자리표시다. 교사가 쓴 내용으로 바꾸기 전까지는 `TODO(교사 작성)`을 남긴다. 3장 문서 본문은 `docs/drafts/ch3.md`에 있다(2026-10-22 제안 확정). M1에서 그 글을 `body`로 옮긴다.
 
 ```json
 {
@@ -766,7 +766,7 @@ interface SaveSlot {
     { "id": "3-2", "type": "newspaper", "tier": "core", "year": 1965, "title": "베트남 전쟁, 국제전으로", "body": "TODO(교사 작성)", "clues": ["국제전"], "source": "교과서 218쪽, 219쪽 지도" },
     { "id": "3-3", "type": "telegram", "tier": "core", "year": 1969, "title": "중국과 소련, 국경에서 충돌", "body": "TODO(교사 작성: 전면 전쟁으로 번지지는 않았다는 문장 포함)", "clues": ["국경 충돌"], "outsideTextbook": true },
     { "id": "3-5", "type": "radio", "tier": "core", "year": 1971, "title": "미국 탁구 선수단, 중국 방문", "body": "TODO(교사 작성)", "clues": ["미국 선수단"], "source": "교과서 222쪽 자료 2" },
-    { "id": "3-6", "type": "newspaper", "tier": "core", "year": 1972, "yearLabel": "1971~1972년", "title": "남과 북, 처음으로 마주 앉다", "body": "TODO(교사 작성)", "clues": ["공동 성명", "적십자 회담"], "source": "교과서 222쪽 같이 보기(역사② 194쪽)" },
+    { "id": "3-6", "type": "newspaper", "tier": "core", "year": 1972, "yearLabel": "1971~1972년", "title": "남과 북, 마주 앉다", "body": "TODO(교사 작성)", "clues": ["공동 성명", "적십자 회담"], "source": "교과서 222쪽 같이 보기(역사② 194쪽)" },
     { "id": "3-7", "type": "telegram", "tier": "core", "year": 1972, "title": "미국·소련, 전략 무기 제한 협정 서명", "body": "TODO(교사 작성)", "clues": ["전략 무기 제한"], "source": "교과서 222쪽" },
     { "id": "3-1", "type": "radio", "tier": "extra", "year": 1964, "title": "중국, 첫 핵실험", "body": "TODO(교사 작성)", "clues": ["핵실험"], "outsideTextbook": true },
     { "id": "3-4", "type": "newspaper", "tier": "extra", "year": 1969, "title": "닉슨 대통령의 새 아시아 정책", "body": "TODO(교사 작성)", "clues": ["아시아의 힘으로"], "source": "교과서 222쪽 자료 1" }
@@ -774,8 +774,8 @@ interface SaveSlot {
   "edgeTasks": [
     { "pair": ["CN", "SU"], "from": "ALLY", "to": "COLD", "mode": "direct", "year": 1969, "evidence": ["국경 충돌"], "options": ["COLD", "ALLY", "TALK"], "explanation": "같은 공산주의 진영이던 두 나라가 국경에서 총을 겨누게 되었다." },
     { "pair": ["US", "CN"], "from": "COLD", "to": "TALK", "mode": "direct", "year": 1971, "evidence": ["미국 선수단"], "options": ["TALK", "NORMAL", "ALLY"], "explanation": "탁구 경기가 두 나라 사이의 얼음을 깨는 신호탄이 되었다." },
-    { "pair": ["KR", "NK"], "from": "COLD", "to": "TALK", "mode": "direct", "year": 1972, "evidence": ["공동 성명", "적십자 회담"], "options": ["TALK", "NORMAL", "ALLY"], "explanation": "주변 강대국들이 대화를 시작하자 남과 북도 처음으로 대화에 나섰다." },
-    { "pair": ["US", "SU"], "from": "COLD", "to": "TALK", "mode": "direct", "year": 1972, "evidence": ["전략 무기 제한"], "options": ["TALK", "NORMAL", "ALLY"], "explanation": "두 나라가 핵무기 경쟁에 처음으로 함께 제한을 걸었다." }
+    { "pair": ["KR", "NK"], "from": "COLD", "to": "TALK", "mode": "direct", "year": 1972, "evidence": ["공동 성명", "적십자 회담"], "options": ["TALK", "NORMAL", "ALLY"], "explanation": "주변 강대국들이 대화를 시작하자 남과 북도 대화에 나섰다." },
+    { "pair": ["US", "SU"], "from": "COLD", "to": "TALK", "mode": "direct", "year": 1972, "evidence": ["전략 무기 제한"], "options": ["TALK", "NORMAL", "ALLY"], "explanation": "두 나라가 핵무기를 늘리는 경쟁에 처음으로 함께 한도를 정했다." }
   ],
   "clock": [
     {
