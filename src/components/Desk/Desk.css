@@ -1,0 +1,28 @@
+/* 플레이 중의 창 안: 코드로 그린 하늘(장별 창빛 색) */
+.desk-sky {
+  background: linear-gradient(180deg, var(--light-window) 0%, var(--light-shade) 160%);
+}
+
+/* 그림 비율이 layout.json 칸과 다를 때 찌그러뜨리지 않는다(일력) */
+.desk-contain {
+  object-fit: contain;
+}
+
+/* 크림색 차트 종이(조명을 받지 않는 L8). 종이 결은 혼합 모드 없이 옅게 겹친다 */
+.desk-chart-paper {
+  background: var(--board-paper);
+  box-shadow: 0 2px 6px rgba(42, 33, 24, 0.35);
+}
+.desk-chart-paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--paper-grain);
+  background-size: 512px 512px;
+  opacity: 0.12;
+}
+
+.desk-clock-face {
+  border-radius: 50%;
+  background: var(--clock-face);
+}

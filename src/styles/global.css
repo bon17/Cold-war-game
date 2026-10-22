@@ -1,0 +1,72 @@
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #120d0a;
+}
+
+body {
+  font-family: 'IBM Plex Sans KR', sans-serif;
+  color: var(--ink);
+}
+
+/* 레터박스: 남는 곳은 검은 띠 대신 흐린 방 그림으로 채운다(아트 계획서 4.6) */
+.letterbox {
+  position: fixed;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+}
+.letterbox::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 13, 10, 0.45);
+}
+
+/* 무대: 1536×1024 무대 px로 그리고 transform 하나로 줄이거나 늘린다 */
+.stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  transform-origin: 0 0;
+}
+.stage > * {
+  position: absolute;
+}
+.stage img {
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 무대 밖 층: 실제 화면 px 글자(본문 20px, 최소 18px) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+.overlay > * {
+  pointer-events: auto;
+}
+
+.rotate-notice {
+  display: none;
+}
+@media (orientation: portrait) and (pointer: coarse) {
+  .rotate-notice {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #120d0a;
+    color: var(--tag-paper);
+    font-size: 22px;
+    text-align: center;
+  }
+}

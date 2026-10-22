@@ -1,0 +1,29 @@
+{
+  "stage": { "w": 1536, "h": 1024 },
+  "deskTopY": 700,
+  "board":  { "src": "shared/board.webp", "x": 215, "y": 36, "w": 945, "h": 630,
+              "paper": { "x": 257, "y": 78, "w": 861, "h": 546 } },
+  "neutralZone": { "x": 270, "y": 92, "w": 230, "h": 238 },
+  "legend":      { "x": 880, "y": 92, "w": 224, "h": 228 },
+  "clock":  { "src": "shared/clock-bezel.webp", "cx": 1345, "cy": 205, "r": 148, "faceR": 108,
+              "nail":   { "x": 1345, "y": 62 },
+              "plaque": { "x": 1265, "y": 372, "w": 160, "h": 48 } },
+  "window": { "src": "shared/frame-wood.webp", "x": 22, "y": 52, "w": 188, "h": 264,
+              "pane": { "x": 49, "y": 79, "w": 134, "h": 209 } },
+  "calendar": { "x": 40, "y": 336, "w": 130, "h": 124 },
+  "lamp":   { "src": "shared/lamp.webp", "x": 14, "y": 517, "w": 259, "h": 240,
+              "pool": { "cx": 330, "cy": 760, "rx": 520, "ry": 300 } },
+  "eraProps": { "x": 1180, "y": 450, "w": 350, "h": 350 },
+  "hotspots": {
+    "docs":    { "x": 230,  "y": 716, "w": 240, "h": 140 },
+    "clues":   { "x": 300,  "y": 870, "w": 720, "h": 120 },
+    "report":  { "x": 1050, "y": 830, "w": 240, "h": 170 },
+    "archive": { "x": 690,  "y": 994, "w": 160, "h": 30 }
+  },
+  "eraOverrides": {
+    "room-1980s": { "window": { "src": "shared/frame-metal.webp", "x": 31, "y": 52, "w": 171, "h": 264,
+                                "pane": { "x": 51, "y": 70, "w": 132, "h": 224 } } },
+    "room-now":   { "window": { "src": "shared/frame-metal.webp", "x": 31, "y": 52, "w": 171, "h": 264,
+                                "pane": { "x": 51, "y": 70, "w": 132, "h": 224 } } }
+  }
+}

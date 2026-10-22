@@ -1,6 +1,6 @@
 # 바늘과 실: 자정의 분석실
 
-중2 역사① 냉전 단원 수업용 웹 게임. 교사와 함께 기획 중이며, 아직 코드는 없다.
+중2 역사① 냉전 단원 수업용 웹 게임. 기획과 그림은 끝났고, 코드는 M0(체험판 뼈대)까지 있다. 다음은 M1 3장 체험판이다.
 
 ## 먼저 읽을 것
 
@@ -16,3 +16,9 @@
 - 공통 화풍 문구 `[화풍 고정 v1]`(`art-direction.md` 8.1)은 바꾸지 않는다. 모든 그림 요청에 `art-src/_ref/anchor-desk.png`를 첨부하게 한다.
 - 게임 속 사실(연도, 시계 값, 교과서 쪽수)은 기획서의 표를 따르고, 확실하지 않은 것은 `TODO(교사 확인)`으로 표시한다.
 - 결정이 바뀌면 해당 문서와 `docs/status.md`를 함께 고친다.
+
+## 코드
+
+- Vite + React + TypeScript. 화면의 한국어 글은 모두 `src/data/`의 데이터 파일에 둔다(기획서 0장).
+- 처음: `npm install` → `npm run assets`(그림 빌드, `art-src/` → `public/assets/`, 저장소에 올리지 않음).
+- 실행 `npm run dev`. 커밋 전 `npm run typecheck`, `npm test`, `npm run build`.

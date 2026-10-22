@@ -1,0 +1,29 @@
+/* 색 토큰. 값은 docs/art-direction.md 3.4(장별 빛), 3.5(고정 색)와 원본 기획서 v1의 시대 색을 따른다. */
+:root {
+  --string-ally: #2F5D8C;
+  --string-cold: #6E6E6A;
+  --string-war: #B3261E;
+  --string-talk: #B8862B;
+  --string-normal: #3E7D4F;
+  --string-outline: #2A2118;
+  --board-paper: #E8E1CF;
+  --tag-paper: #F4EFE4;
+  --clock-face: #F3ECDD;
+  --brass: #9C7A3C;
+  --highlighter: #F3E37A;
+  --ink: #23262B;
+  --paper: #E8E1CF;
+  --era-1950s: #6B6A45;
+  --era-1970s: #B5653A;
+  --era-1980s: #3F6475;
+  --era-now: #5E6670;
+}
+
+/* 장별 조명 값: 램프 빛, 그림자, 창빛 */
+[data-chapter='prologue'] { --light-key: #F3D9A0; --light-shade: #3A3628; --light-window: #F0D2A0; }
+[data-chapter='ch1']      { --light-key: #E8B86A; --light-shade: #1C2228; --light-window: #8FA3B5; }
+[data-chapter='ch2']      { --light-key: #EAC98C; --light-shade: #26281F; --light-window: #9AA79A; }
+[data-chapter='ch3']      { --light-key: #F0B26E; --light-shade: #35261C; --light-window: #E9A66A; }
+[data-chapter='ch4']      { --light-key: #E7B46A; --light-shade: #17212A; --light-window: #3C5566; }
+[data-chapter='ch5']      { --light-key: #EFC79A; --light-shade: #222C35; --light-window: #4E6A80; }
+[data-chapter='epilogue'] { --light-key: #F0D3A0; --light-shade: #3A3F45; --light-window: #C9CFC6; }
