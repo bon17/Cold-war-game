@@ -3,6 +3,7 @@ import { assetUrl } from '../../lib/assets';
 import { chapterById, glossary, strings } from '../../lib/data';
 import { glossaryByDoc, splitBody, type Chunk } from '../../lib/docText';
 import { fmt } from '../../lib/format';
+import { availableDocs } from '../../lib/docFlow';
 import { hasClue, useGame } from '../../store/gameStore';
 import type { Doc } from '../../types';
 import './DocumentViewer.css';
@@ -31,14 +32,14 @@ function docDate(doc: Doc): string {
 }
 
 export function DocumentViewer() {
-  const { chapterId, openDocId, readDocs, clues, openDocument, closeDocument, collectClue } = useGame();
+  const { chapterId, openDocId, readDocs, clues, revealed, openDocument, closeDocument, collectClue } = useGame();
   const chapter = chapterById(chapterId);
   const wordsByDoc = useMemo(() => glossaryByDoc(chapter, Object.keys(glossary)), [chapter]);
   const doc = chapter.documents.find((d) => d.id === openDocId);
-  const ordered = useMemo(
-    () => [...chapter.documents.filter((d) => d.tier === 'core'), ...chapter.documents.filter((d) => d.tier === 'extra')],
-    [chapter],
-  );
+  const ordered = useMemo(() => {
+    const docs = availableDocs(chapter, revealed);
+    return [...docs.filter((d) => d.tier === 'core'), ...docs.filter((d) => d.tier === 'extra')];
+  }, [chapter, revealed]);
 
   const [popup, setPopup] = useState<{ word: string; x: number; y: number } | null>(null);
   const [hint, setHint] = useState(false);

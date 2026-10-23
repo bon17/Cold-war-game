@@ -128,3 +128,26 @@ button.edge-tag {
     opacity: 0.8;
   }
 }
+
+.edge-tag-hidden {
+  min-width: 60px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* 보드 틀 오른쪽 아래의 '표로 보기' 종이 탭(무대 px 28) */
+.board-table-tab {
+  transform: translate(-100%, -100%);
+  padding: 2px 12px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px 3px 0 0;
+  background: var(--tag-paper);
+  color: var(--ink);
+  font: 700 28px/1.2 'Gowun Batang', serif;
+  cursor: pointer;
+  box-shadow: 1px 2px 3px rgba(42, 33, 24, 0.3);
+}
+.board-table-tab:focus-visible {
+  outline: 4px solid var(--brass);
+  outline-offset: 2px;
+}

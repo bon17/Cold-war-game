@@ -1,0 +1,429 @@
+/* 화면 흐름(타이틀, 시작, 고지, 표지, 인계 메모, 창밖, 평정표, 끝): 무대 밖, 실제 px. 글자 18px 이상 */
+.title-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background: radial-gradient(ellipse at 22% 70%, rgba(240, 178, 110, 0.1), rgba(8, 6, 4, 0.93) 55%);
+  color: var(--tag-paper);
+  transition: background 1.2s ease-in-out;
+}
+.title-screen.lit {
+  background: radial-gradient(ellipse at 22% 70%, rgba(240, 178, 110, 0.22), rgba(12, 9, 6, 0.82) 65%);
+}
+.title-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: min(560px, 94vw);
+}
+.title-logo {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+.title-screen.lit .title-trial {
+  display: none;
+}
+.title-logo-top {
+  font-size: clamp(36px, 7vh, 64px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.title-logo-bottom {
+  font-size: clamp(24px, 4vh, 34px);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+.title-trial {
+  margin-top: 6px;
+  font-family: 'Gowun Batang', serif;
+  font-size: 18px;
+  opacity: 0.85;
+}
+.title-question {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+.title-sound-buttons,
+.start-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.big-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 150px;
+  padding: 12px 22px;
+  border: 2px solid var(--string-outline);
+  border-radius: 4px;
+  background: var(--tag-paper);
+  color: var(--ink);
+  font: 700 22px 'Gowun Batang', serif;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+.big-button span {
+  font-weight: 400;
+  font-size: 18px;
+  color: #5a4a36;
+}
+.big-button.quiet {
+  background: #d9d0bd;
+}
+.big-button:focus-visible,
+.start-input:focus-visible {
+  outline: 4px solid var(--brass);
+  outline-offset: 2px;
+}
+.lamp-button {
+  background: #f3e2b0;
+  font-size: 26px;
+  padding: 16px 30px;
+}
+.title-notices {
+  width: min(900px, 94vw);
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.45;
+  opacity: 0.8;
+}
+.title-notices p {
+  margin: 2px 0;
+}
+
+.start-form {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 16px 18px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 4px;
+  background: rgba(244, 239, 228, 0.96);
+  color: var(--ink);
+  font-size: 18px;
+}
+.start-label {
+  display: block;
+  font-weight: 700;
+  font-size: 20px;
+  margin: 6px 0 4px;
+}
+.start-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid var(--string-outline);
+  border-radius: 3px;
+  background: #fffdf6;
+  font: 22px 'Gowun Batang', serif;
+  color: var(--ink);
+}
+.start-input.code {
+  width: auto;
+  flex: 1;
+  min-width: 160px;
+  letter-spacing: 0.2em;
+}
+.start-hint {
+  margin: 4px 0 12px;
+  color: #5a4a36;
+  line-height: 1.5;
+}
+.start-message {
+  min-height: 1.4em;
+  margin: 4px 0 0;
+  font-weight: 700;
+  color: #5b2b12;
+}
+.start-ask {
+  font-size: 20px;
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+
+.screen-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 9, 6, 0.72);
+}
+.screen-card {
+  box-sizing: border-box;
+  width: min(640px, 94vw);
+  padding: 20px 24px 16px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 4px;
+  background: var(--tag-paper);
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.7;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+}
+.screen-card p {
+  margin: 6px 0;
+  word-break: keep-all;
+}
+.screen-card .reveal-ok {
+  font: 700 18px 'Gowun Batang', serif;
+  cursor: pointer;
+}
+
+/* 장 표지 */
+.cover-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 16;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: #0c0906;
+  cursor: pointer;
+  color: var(--tag-paper);
+  font-family: 'Gowun Batang', serif;
+}
+.cover-screen img,
+.window-scene img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.kenburns {
+  animation: kenburns 8s ease-out forwards;
+}
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+.cover-text {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  transform: translateX(-50%);
+  width: min(900px, 92vw);
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+}
+.cover-chapter {
+  font-size: 24px;
+  letter-spacing: 0.2em;
+}
+.cover-title {
+  font: 800 clamp(44px, 9vh, 80px)/1.15 'Nanum Myeongjo', serif;
+  letter-spacing: 0.1em;
+}
+.cover-question {
+  margin-top: 10px;
+  font-size: clamp(20px, 3.4vh, 28px);
+}
+.cover-code {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  font-size: 18px;
+  opacity: 0.85;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+/* 인계 메모: 책상 위(보드가 보이게 아래쪽) */
+.handover-block {
+  position: fixed;
+  inset: 0;
+  z-index: 13;
+}
+.handover-card {
+  position: fixed;
+  left: 50%;
+  bottom: 2vh;
+  z-index: 14;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  width: min(680px, 94vw);
+  padding: 14px 20px 12px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px;
+  background: #f4efe0;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.6;
+}
+.handover-head {
+  font-weight: 700;
+  font-size: 18px;
+  color: #5a4a36;
+  border-bottom: 1px dashed var(--brass);
+  margin-bottom: 6px;
+}
+.handover-lines p {
+  margin: 2px 0;
+  word-break: keep-all;
+}
+.handover-blank {
+  display: inline-block;
+  min-width: 4em;
+  padding: 0 6px;
+  border-bottom: 3px solid var(--string-outline);
+  text-align: center;
+}
+.handover-blank.filled {
+  background: rgba(243, 227, 122, 0.85);
+  font-weight: 700;
+}
+.handover-sign {
+  text-align: right;
+  font: 700 26px 'Gaegu', cursive;
+}
+.handover-q {
+  margin-top: 6px;
+  font-weight: 700;
+}
+.handover-options {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+.handover-options .big-button {
+  min-width: 110px;
+  padding: 8px 16px;
+}
+.handover-result {
+  margin: 8px 0 0;
+  font-weight: 700;
+}
+.handover-result.right {
+  color: #2f5a36;
+}
+.handover-foot {
+  display: flex;
+  justify-content: flex-end;
+}
+.handover-foot .reveal-ok {
+  margin-top: 6px;
+  font: 700 18px 'Gowun Batang', serif;
+  cursor: pointer;
+}
+.quiet-button {
+  margin-top: 6px;
+  padding: 6px 14px;
+  border: 1px solid rgba(42, 33, 24, 0.5);
+  border-radius: 3px;
+  background: transparent;
+  font: 18px 'Gowun Batang', serif;
+  color: #5a4a36;
+  cursor: pointer;
+}
+
+/* 창밖 장면 */
+.window-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 16;
+  overflow: hidden;
+  background: #0c0906;
+}
+.kenburns.slow {
+  animation-duration: 8s;
+}
+.window-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 7%;
+  transform: translateX(-50%);
+  width: min(820px, 92vw);
+  margin: 0;
+  padding: 10px 18px;
+  border-radius: 3px;
+  background: rgba(12, 9, 6, 0.72);
+  color: var(--tag-paper);
+  font: 22px/1.6 'Gowun Batang', serif;
+  text-align: center;
+  word-break: keep-all;
+}
+.window-ai {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  padding: 2px 8px;
+  background: rgba(12, 9, 6, 0.6);
+  color: var(--tag-paper);
+  font-size: 18px;
+}
+.window-skip {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--tag-paper);
+  border-radius: 3px;
+  background: rgba(12, 9, 6, 0.6);
+  color: var(--tag-paper);
+  font: 18px 'Gowun Batang', serif;
+  cursor: pointer;
+}
+
+/* 근무 평정표 */
+.result-title {
+  font-size: 24px;
+  font-weight: 700;
+  border-bottom: 3px double rgba(42, 33, 24, 0.6);
+  padding-bottom: 4px;
+}
+.result-name {
+  margin: 6px 0 10px;
+  color: #5a4a36;
+}
+.result-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.result-rows li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(42, 33, 24, 0.3);
+}
+.result-star {
+  flex: none;
+  width: 44px;
+  text-align: center;
+  font-size: 36px;
+  line-height: 1;
+  color: #b5a991;
+}
+.result-rows li.on .result-star {
+  color: var(--brass);
+  animation: stamp-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--delay);
+}
+@keyframes stamp-in {
+  from { transform: scale(1.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.result-others {
+  color: #5a4a36;
+}
+.result-grade {
+  font-weight: 700;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kenburns, .result-rows li.on .result-star { animation: none; }
+}

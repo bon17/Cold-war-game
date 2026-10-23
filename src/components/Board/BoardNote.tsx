@@ -14,8 +14,8 @@ import './BoardNote.css';
 // '지금 할 일' 쪽지(무대 밖, 실제 px). 보드와 단서 쪽지 사이 책상 위에 늘 떠 있다(기획서 1.2 '뭘 해야 할지 모름' 대책).
 // 실이 걸리면 잠깐 그 실의 한 줄 설명을 보여 준다.
 const RESULT_MS = 9000;
-const NOTE_CENTER_X = 870;
-const NOTE_WIDTH = 600;
+const NOTE_CENTER_X = 815;
+const NOTE_WIDTH = 500;
 
 export function BoardNote() {
   const { chapterId, clues, selectedClue, done, event, openDocId, dialogEdge, readDocs, revealed, reveal, reportOpen, aboutClock } = useGame();
@@ -66,7 +66,7 @@ export function BoardNote() {
   else if (clues.length === 0) text = strings.board.guide.readFirst;
   else text = strings.board.guide.pickEdge;
 
-  // 문서 더미 라벨과 찻잔 사이(무대 x 560~1180)에 둔다
+  // 문서 더미 라벨과 보고서 라벨 사이(무대 x 565~1065)에 둔다
   const p = stageToScreen(fit, NOTE_CENTER_X, layout.deskTopY + 75);
   return (
     <div

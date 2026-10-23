@@ -41,6 +41,7 @@ interface GameState {
   bonus: { edge: string; correct: boolean } | null;
   achievements: string[];
   aboutClock: boolean;             // 시계 설명 카드
+  table: { focus: string | null } | null;   // 표로 보기(실 이력표). focus: 강조할 실
   openDocument: (docId: string) => void;
   closeDocument: () => void;
   collectClue: (docId: string, clue: string) => void;
@@ -55,6 +56,8 @@ interface GameState {
   setClockShown: (minutes: number, year: number) => void;
   answerBonus: (edge: string) => void;
   setAboutClock: (open: boolean) => void;
+  openTable: (focus?: string) => void;
+  closeTable: () => void;
 }
 
 let eventId = 0;
@@ -92,6 +95,7 @@ export function initialState(chapterId: string) {
     bonus: null,
     achievements: [],
     aboutClock: false,
+    table: null,
   };
 }
 
@@ -244,6 +248,10 @@ export const useGame = create<GameState>((set, get) => ({
   },
 
   setAboutClock: (open) => set({ aboutClock: open }),
+
+  openTable: (focus) => set({ table: { focus: focus ?? null } }),
+
+  closeTable: () => set({ table: null }),
 }));
 
 export function hasClue(clues: CollectedClue[], docId: string, clue: string): boolean {

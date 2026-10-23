@@ -6,6 +6,7 @@ import '@fontsource/nanum-myeongjo/400.css';
 import '@fontsource/nanum-myeongjo/800.css';
 import '@fontsource/nanum-gothic-coding/400.css';
 import '@fontsource/nanum-gothic-coding/700.css';
+import '@fontsource/gaegu/700.css';
 import './styles/tokens.css';
 import './styles/global.css';
 import { strings } from './lib/data';

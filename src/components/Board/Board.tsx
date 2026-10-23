@@ -25,7 +25,10 @@ export interface BoardPlay {
   armed: boolean;           // 단서 쪽지를 고른 상태: 점선 이름표가 살짝 빛난다
   helped: Set<string>;      // 도움받아 걸린 실
   anim?: { key: string; kind: 'ok' | 'wrong'; rel?: Rel; id: number };   // 맞으면 출렁, 틀리면 고른 종류로 잠깐 보였다가 흔들리며 돌아감
-  onPick: (key: string) => void;
+  onPick: (key: string) => void;       // 바꿀 실 → 실 걸기 창
+  onInfo: (key: string) => void;       // 그 밖의 실 → 실 이력표(표로 보기)
+  onTable: () => void;
+  hiddenLabel?: string;                // 인계 메모 동안 가리는 실 이름표
 }
 
 // 이름표 폭은 실제 글꼴로 잰다. 글꼴이 늦게 내려오면 다시 잰다.
@@ -97,7 +100,10 @@ export function Board({ chapter, edges: shown, play }: { chapter: Chapter; edges
       {puzzle.map((e) => {
         const key = pairKey(e.pair);
         const p = pointAt(edgeCurve(e), labels.get(key)?.t ?? 0.5);
-        const content = (
+        const hidden = play?.hiddenLabel === key;
+        const content = hidden ? (
+          <span className="edge-tag-hidden">?</span>
+        ) : (
           <>
             <RelSwatch rel={e.rel} width={SWATCH_W} />
             <span>{edgeName(e, helped?.has(key))}</span>
@@ -120,6 +126,19 @@ export function Board({ chapter, edges: shown, play }: { chapter: Chapter; edges
             </button>
           );
         }
+        if (play && !hidden) {
+          return (
+            <button
+              key={`${key}:${anim?.key === key ? anim.id : 0}`}
+              type="button"
+              className={`edge-tag${animClass(key)}`}
+              style={style}
+              onClick={() => play.onInfo(key)}
+            >
+              {content}
+            </button>
+          );
+        }
         return (
           <div key={`${key}:${anim?.key === key ? anim.id : 0}`} className={`edge-tag${animClass(key)}`} style={style}>
             {content}
@@ -135,6 +154,16 @@ export function Board({ chapter, edges: shown, play }: { chapter: Chapter; edges
         );
       })}
 
+      {play && (
+        <button
+          type="button"
+          className="board-table-tab"
+          style={{ left: layout.board.x + layout.board.w - 30, top: layout.board.y + layout.board.h - 4 }}
+          onClick={play.onTable}
+        >
+          {strings.boardTable.open}
+        </button>
+      )}
       <div className="legend-card" style={{ left: layout.legend.x, top: layout.legend.y, width: layout.legend.w }}>
         <div className="legend-title">{strings.legendTitle}</div>
         {chapterRels(chapter).map((rel) => (

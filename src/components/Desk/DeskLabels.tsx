@@ -2,6 +2,7 @@ import { layout } from '../../lib/assets';
 import { chapterById, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { stageToScreen } from '../../lib/stageFit';
+import { availableDocs } from '../../lib/docFlow';
 import { useGame } from '../../store/gameStore';
 import { useStageFit } from '../Stage/Stage';
 import './DeskLabels.css';
@@ -22,8 +23,8 @@ function ObjectLabel({ sx, sy, text, align = 'center', badge }: { sx: number; sy
 }
 
 export function DeskLabels() {
-  const { chapterId, readDocs } = useGame();
-  const unread = chapterById(chapterId).documents.filter((d) => d.tier === 'core' && !readDocs.includes(d.id)).length;
+  const { chapterId, readDocs, revealed } = useGame();
+  const unread = availableDocs(chapterById(chapterId), revealed).filter((d) => d.tier === 'core' && !readDocs.includes(d.id)).length;
   const { calendar, clock, hotspots } = layout;
   const docs = hotspots.docs;
   return (

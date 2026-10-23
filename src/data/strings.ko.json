@@ -128,5 +128,98 @@
     "correct": "맞아요!",
     "wrong": "정답은 {a}–{b} 실이에요.",
     "ok": "확인"
+  },
+  "notices": {
+    "fiction": "분석실, 본샘일보, 당직자는 수업을 위해 만든 가상의 설정입니다. 문서 속 사건, 연도, 시계 값은 실제 기록을 따릅니다.",
+    "ai": "이 게임의 그림은 AI로 만든 일러스트이며 실제 역사 사진이 아닙니다.",
+    "aiShort": "AI 일러스트 · 실제 사진 아님",
+    "windowRule": "이 방의 창은 그해 한반도의 한 장면을 보여 준다."
+  },
+  "titleScreen": {
+    "logoTop": "바늘과 실",
+    "logoBottom": "자정의 분석실",
+    "trial": "체험판 · 3장",
+    "soundQuestion": "소리를 켤까요?",
+    "soundOn": "소리 켜기",
+    "soundOff": "소리 끄기",
+    "soundOnNote": "이어폰을 꽂아 주세요",
+    "lamp": "램프를 켜세요",
+    "lampNote": "누르면 전체 화면으로 시작합니다"
+  },
+  "startScreen": {
+    "nameLabel": "이름",
+    "nameHint": "반-번호-이름을 적어 주세요(예: 2-12-김민수). 이 컴퓨터에만 저장되고 다른 곳으로 보내지지 않아요.",
+    "fresh": "처음부터",
+    "resume": "이어하기",
+    "codeLabel": "막 시작 코드",
+    "codeHint": "선생님이 알려 준 네 글자를 넣으세요.",
+    "codeStart": "코드로 시작",
+    "needName": "먼저 이름을 적어 주세요.",
+    "noRecord": "이 이름의 기록이 없어요. '처음부터'를 누르거나 막 시작 코드를 넣으세요.",
+    "resumeAsk": "{name} · {chapter} · 별 {stars}개 — 이어서 할까요?",
+    "resumeYes": "이어서 하기",
+    "cancel": "취소",
+    "freshAsk1": "이 이름의 기록이 있어요. 새로 시작하면 지워집니다.",
+    "freshAsk2": "정말 지울까요? 지운 기록은 되돌릴 수 없어요.",
+    "freshYes": "새로 시작",
+    "badCode": "코드를 다시 확인해 주세요.",
+    "chapterName": "{n}장 {title}"
+  },
+  "notice": {
+    "ok": "확인"
+  },
+  "cover": {
+    "chapter": "{n}장",
+    "code": "막 시작 코드 · {code}",
+    "tap": "누르면 바로 시작"
+  },
+  "handover": {
+    "envelope": "지난 당직자의 인계 메모",
+    "intro": "지난 시간 보드를 떠올려 보세요. 빈칸에 들어갈 관계는?",
+    "right": "맞아요!",
+    "wrong": "정답은 '{answer}' 관계예요.",
+    "go": "책상으로",
+    "skip": "건너뛰기"
+  },
+  "windowScene": {
+    "skip": "넘어가기"
+  },
+  "result": {
+    "title": "근무 평정표 · {chapter}",
+    "name": "당직자 {name}",
+    "star1": "바꿀 실을 두 번 안에 모두 맞혔다",
+    "star2": "보고서의 근거 실이 과학자들의 판단과 같았다",
+    "star3": "더 읽기 문서의 단서를 모았거나 보너스 질문을 맞혔다",
+    "gradeLine": "등급: {grade} (끝낸 장의 별 {got}/{max})",
+    "grades": {
+      "apprentice": "견습 분석관",
+      "regular": "정식 분석관",
+      "chief": "수석 분석관"
+    },
+    "ok": "확인",
+    "othersLine": "다른 장의 별: {list}",
+    "othersNone": "– (아직 하지 않음)"
+  },
+  "end": {
+    "title": "체험판을 마쳤어요",
+    "body": "{name}, 3장 「녹는 얼음」의 당직을 마쳤습니다. 수고했어요!",
+    "again": "3장 다시 하기",
+    "toTitle": "처음 화면으로"
+  },
+  "boardTable": {
+    "open": "표로 보기",
+    "title": "보드를 표로 보기",
+    "pair": "두 나라",
+    "rel": "지금 관계",
+    "evidence": "근거 단서",
+    "history": "이력",
+    "start": "장 시작",
+    "close": "닫기",
+    "historyTitle": "{a}–{b} 실의 이력"
+  },
+  "chapterLabels": {
+    "prologue": "프롤로그",
+    "epilogue": "에필로그",
+    "numbered": "{n}장"
   }
 }
