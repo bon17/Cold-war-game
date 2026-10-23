@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { chapterById, chapters } from './data';
 import { edgeHistory } from './history';
-import { deleteSlot, findSlot, MAX_AGE_MS, prune, readSlots, saveSlot } from './save';
+import { deleteSlot, findSlot, MAX_AGE_MS, playerKey, prune, readSlots, saveSlot } from './save';
 import { chapterAchievements, chapterStars, grade } from './scoring';
 import type { SaveSlot } from '../types';
 
@@ -20,6 +20,13 @@ describe('이름별 기록(기획서 5.9)', () => {
     expect(readSlots(st)).toHaveLength(2);
     deleteSlot('2-12-김민수', st);
     expect(findSlot('2-12-김민수', st)).toBeUndefined();
+  });
+
+  it('반·번호·이름 세 칸을 반-번호-이름으로 묶고, 하나라도 비면 빈 값이다', () => {
+    expect(playerKey('2', '12', ' 김민수 ')).toBe('2-12-김민수');
+    expect(playerKey('', '12', '김민수')).toBe('');
+    expect(playerKey('2', '', '김민수')).toBe('');
+    expect(playerKey('2', '12', '  ')).toBe('');
   });
 
   it('40개를 넘거나 60일이 지난 기록은 오래된 것부터 지운다', () => {

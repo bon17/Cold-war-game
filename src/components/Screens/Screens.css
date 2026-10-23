@@ -130,6 +130,15 @@
   font: 22px 'Gowun Batang', serif;
   color: var(--ink);
 }
+select.start-input {
+  cursor: pointer;
+}
+/* 반 · 번호 · 이름 세 칸을 한 줄에 */
+.start-who {
+  display: grid;
+  grid-template-columns: 7.5em 7.5em 1fr;
+  gap: 10px;
+}
 .start-input.code {
   width: auto;
   flex: 1;

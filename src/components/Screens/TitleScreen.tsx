@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { chapterLabel } from '../../lib/chapterLabel';
-import { chapterById, strings } from '../../lib/data';
+import { chapterById, school, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
-import { findSlot, normalizeName } from '../../lib/save';
+import { findSlot, playerKey } from '../../lib/save';
 import { chapterForCode, resume, startFresh, startWithCode } from '../../lib/session';
 import { setSoundEnabled, sfx, unlockAudio } from '../../lib/sound';
 import { useSession } from '../../store/sessionStore';
@@ -73,15 +73,19 @@ function totalStars(slot: SaveSlot): number {
 }
 
 function StartForm() {
+  const [classNo, setClassNo] = useState('');
+  const [number, setNumber] = useState('');
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [message, setMessage] = useState('');
   const [ask, setAsk] = useState<Ask>(null);
-  const n = normalizeName(name);
+  const n = playerKey(classNo, number, name);
 
+  // 빈 칸을 앞에서부터 하나씩 알려 준다
   const needName = () => {
     if (n) return false;
-    setMessage(strings.startScreen.needName);
+    const s = strings.startScreen;
+    setMessage(!classNo ? s.needClass : !number ? s.needNumber : s.needName);
     return true;
   };
   const onFresh = () => {
@@ -135,18 +139,57 @@ function StartForm() {
 
   return (
     <form className="start-form" onSubmit={(e) => e.preventDefault()}>
-      <label className="start-label" htmlFor="player-name">{strings.startScreen.nameLabel}</label>
-      <input
-        id="player-name"
-        className="start-input"
-        value={name}
-        autoComplete="off"
-        autoFocus
-        onChange={(e) => {
-          setName(e.target.value);
-          setMessage('');
-        }}
-      />
+      <div className="start-who">
+        <div>
+          <label className="start-label" htmlFor="player-class">{strings.startScreen.classLabel}</label>
+          <select
+            id="player-class"
+            className="start-input"
+            value={classNo}
+            autoFocus
+            onChange={(e) => {
+              setClassNo(e.target.value);
+              setMessage('');
+            }}
+          >
+            <option value="">{strings.startScreen.choose}</option>
+            {numbersTo(school.classCount).map((i) => (
+              <option key={i} value={i}>{fmt(strings.startScreen.classOption, { n: i })}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="start-label" htmlFor="player-number">{strings.startScreen.numberLabel}</label>
+          <select
+            id="player-number"
+            className="start-input"
+            value={number}
+            onChange={(e) => {
+              setNumber(e.target.value);
+              setMessage('');
+            }}
+          >
+            <option value="">{strings.startScreen.choose}</option>
+            {numbersTo(school.numberCount).map((i) => (
+              <option key={i} value={i}>{fmt(strings.startScreen.numberOption, { n: i })}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="start-label" htmlFor="player-name">{strings.startScreen.nameLabel}</label>
+          <input
+            id="player-name"
+            className="start-input"
+            value={name}
+            maxLength={12}
+            autoComplete="off"
+            onChange={(e) => {
+              setName(e.target.value);
+              setMessage('');
+            }}
+          />
+        </div>
+      </div>
       <p className="start-hint">{strings.startScreen.nameHint}</p>
       <div className="start-row">
         <button type="button" className="big-button" onClick={onFresh}>{strings.startScreen.fresh}</button>
@@ -171,4 +214,9 @@ function StartForm() {
       <p className="start-message" aria-live="polite">{message}</p>
     </form>
   );
+}
+
+// 1부터 n까지(반·번호 고르기 목록)
+function numbersTo(n: number): string[] {
+  return Array.from({ length: n }, (_, i) => String(i + 1));
 }

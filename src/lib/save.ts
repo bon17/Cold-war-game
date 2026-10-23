@@ -11,6 +11,12 @@ export function normalizeName(name: string): string {
   return name.trim();
 }
 
+// 시작 화면의 세 칸을 저장 이름 하나로 묶는다(예: 2반, 12번, ' 김민수 ' → '2-12-김민수'). 하나라도 비면 ''.
+export function playerKey(classNo: string, number: string, name: string): string {
+  const n = normalizeName(name);
+  return classNo && number && n ? `${classNo}-${number}-${n}` : '';
+}
+
 // 기록이 40개를 넘거나 마지막 저장 뒤 60일이 지나면 오래된 것부터 지운다
 export function prune(slots: SaveSlot[], now: number): SaveSlot[] {
   return slots
