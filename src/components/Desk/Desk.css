@@ -26,3 +26,19 @@
   border-radius: 50%;
   background: var(--clock-face);
 }
+
+/* 누를 수 있는 책상 위 물건(그림 단추) */
+.desk-object {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(2px 4px 4px rgba(20, 12, 6, 0.45));
+}
+.desk-object img {
+  display: block;
+}
+.desk-object:focus-visible {
+  outline: 4px solid var(--brass);
+  outline-offset: 4px;
+}

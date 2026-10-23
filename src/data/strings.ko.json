@@ -2,7 +2,9 @@
   "title": "바늘과 실: 자정의 분석실",
   "labels": {
     "calendar": "연도",
-    "clock": "시계 설명"
+    "clock": "시계 설명",
+    "docs": "문서",
+    "clues": "단서 쪽지"
   },
   "rotateDevice": "태블릿을 가로로 돌려 주세요",
   "relations": {
@@ -17,5 +19,36 @@
     "fray": "균열",
     "hotline": "직통선"
   },
-  "legendTitle": "실의 종류"
+  "legendTitle": "실의 종류",
+  "docs": {
+    "types": {
+      "telegram": "외신 전보",
+      "newspaper": "신문",
+      "radio": "라디오 받아쓰기",
+      "speech": "연설문",
+      "memo": "타자 문서",
+      "flash": "속보"
+    },
+    "year": "{year}년",
+    "unread": "새 문서 {n}",
+    "listTitle": "문서 더미",
+    "extraTitle": "더 읽기",
+    "extraNote": "읽지 않아도 되는 문서",
+    "read": "읽음",
+    "close": "닫기",
+    "prev": "이전 문서",
+    "next": "다음 문서",
+    "cluesFound": "이 문서의 단서 {found}/{total}",
+    "source": "참고: {source}",
+    "outsideTextbook": "교과서 밖 내용",
+    "glossaryTitle": "낱말 풀이",
+    "typesShort": {
+      "telegram": "전보",
+      "newspaper": "신문",
+      "radio": "라디오",
+      "speech": "연설",
+      "memo": "타자",
+      "flash": "속보"
+    }
+  }
 }

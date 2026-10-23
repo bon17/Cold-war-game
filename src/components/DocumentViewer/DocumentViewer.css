@@ -1,0 +1,320 @@
+/* 문서 확대 보기: 무대 밖, 실제 화면 px. 본문 20px, 줄 간격 1.7, 한 줄 34자 이내(아트 계획서 3.8). */
+.viewer-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 13, 10, 0.6);
+  z-index: 10;
+}
+
+.viewer {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 16px;
+  width: min(960px, 96vw);
+  max-height: 94vh;
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+/* 왼쪽: 문서 더미 목록 */
+.doc-list {
+  overflow-y: auto;
+  max-height: calc(94vh - 24px);
+  padding: 10px;
+  box-sizing: border-box;
+  background: rgba(244, 239, 228, 0.94);
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px;
+  font-size: 18px;
+}
+.doc-list ol {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+}
+.doc-list-heading {
+  font-weight: 700;
+  font-size: 18px;
+  margin: 2px 0 6px;
+}
+.doc-list-heading.extra {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--brass);
+}
+.doc-list-note {
+  display: block;
+  font-weight: 400;
+  font-size: 18px;
+  color: #5a4a36;
+}
+.doc-list-item {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 2px;
+  padding: 5px 6px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+}
+.doc-list-item:hover {
+  background: rgba(156, 122, 60, 0.12);
+}
+.doc-list-item.current {
+  border-color: var(--brass);
+  background: rgba(156, 122, 60, 0.2);
+}
+/* 목록 한 줄: 왼쪽에 연도와 형식, 오른쪽에 제목(읽은 문서는 ✓) */
+.doc-list-meta {
+  display: flex;
+  flex-direction: column;
+  font-size: 18px;
+  line-height: 1.3;
+  color: #5a4a36;
+}
+.doc-list-year {
+  font-weight: 700;
+  color: var(--ink);
+}
+.doc-list-read {
+  color: #3e5a3e;
+  font-weight: 700;
+}
+.doc-list-title {
+  font-size: 18px;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+/* 오른쪽: 종이 */
+.doc-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+.doc-paper {
+  position: relative;
+  overflow-y: auto;
+  padding: 26px 30px 18px;
+  border-radius: 2px;
+  color: var(--ink);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  outline: none;
+}
+.doc-paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--paper-grain);
+  background-size: 512px 512px;
+  opacity: 0.22;
+  pointer-events: none;
+}
+.doc-paper > * {
+  position: relative;
+  z-index: 1;
+}
+.doc-head {
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.doc-title {
+  word-break: keep-all;
+  margin: 0 0 14px;
+  font-size: 26px;
+  line-height: 1.35;
+}
+.doc-body {
+  margin: 0;
+  max-width: 34em;
+  font-size: 20px;
+  line-height: 1.7;
+  word-break: keep-all;
+  cursor: default;
+}
+.doc-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 18px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(42, 33, 24, 0.25);
+  font-family: 'Gowun Batang', serif;
+  font-size: 18px;
+}
+.doc-clue-count.done {
+  color: #3e5a3e;
+  font-weight: 700;
+}
+.doc-source {
+  color: #5a4a36;
+}
+
+/* 형식별 종이와 글꼴(아트 계획서 3.3·3.8): 1970년대 갱지, 누런 전보 용지, 타자 용지 */
+.doc-newspaper {
+  background: #e4ddcb;
+  font-family: 'Nanum Myeongjo', serif;
+}
+.doc-newspaper .doc-head {
+  font-weight: 800;
+  border-bottom: 3px double rgba(42, 33, 24, 0.7);
+}
+.doc-newspaper .doc-title {
+  font-weight: 800;
+  font-size: 28px;
+}
+.doc-speech {
+  background: #ece5d3;
+  font-family: 'Nanum Myeongjo', serif;
+}
+.doc-speech .doc-head {
+  border-bottom: 1px solid rgba(42, 33, 24, 0.5);
+}
+.doc-telegram,
+.doc-memo,
+.doc-flash {
+  font-family: 'Nanum Gothic Coding', monospace;
+}
+.doc-telegram {
+  background: #e8dcae;
+}
+.doc-telegram .doc-head {
+  font-weight: 700;
+  border-top: 2px dashed rgba(42, 33, 24, 0.55);
+  border-bottom: 2px dashed rgba(42, 33, 24, 0.55);
+  padding-top: 6px;
+}
+.doc-telegram .doc-title,
+.doc-memo .doc-title,
+.doc-flash .doc-title {
+  font-weight: 700;
+  font-size: 24px;
+}
+.doc-memo {
+  background: #efe9da;
+}
+.doc-flash {
+  background: #efe9da;
+}
+.doc-flash .doc-head {
+  font-weight: 700;
+  border-bottom: 2px solid rgba(42, 33, 24, 0.7);
+}
+.doc-radio {
+  background: #f0eadb;
+  font-family: 'Gowun Batang', serif;
+}
+/* 받아쓰기 공책의 가로줄: 본문 줄(20px × 1.7 = 34px) 아래에 맞춘다 */
+.doc-radio .doc-body {
+  background: repeating-linear-gradient(transparent 0 33px, rgba(63, 100, 117, 0.22) 33px 34px);
+}
+.doc-radio .doc-head {
+  font-weight: 700;
+  border-bottom: 1px solid rgba(42, 33, 24, 0.5);
+}
+.doc-radio .doc-title {
+  font-weight: 700;
+}
+
+/* 단서 구절: 누르기 전에는 보통 글자와 같다. 칠하면 왼쪽에서 오른쪽으로 형광펜이 번진다. */
+.clue {
+  border-radius: 2px;
+  background-image: linear-gradient(rgba(243, 227, 122, 0.85), rgba(243, 227, 122, 0.85));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition: background-size 250ms ease-out;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.clue:focus-visible {
+  outline: 3px solid var(--brass);
+  outline-offset: 2px;
+}
+.clue.collected {
+  background-size: 100% 100%;
+}
+.clue.hint {
+  box-shadow: 0 0 0 2px rgba(156, 122, 60, 0.45), 0 0 10px 2px rgba(243, 227, 122, 0.75);
+  animation: clue-hint 1.6s ease-in-out infinite alternate;
+}
+@keyframes clue-hint {
+  from { background-color: rgba(243, 227, 122, 0.08); }
+  to { background-color: rgba(243, 227, 122, 0.35); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clue { transition: none; }
+  .clue.hint { animation: none; background-color: rgba(243, 227, 122, 0.25); }
+}
+
+/* 낱말 풀이: 점선 밑줄 */
+.gloss {
+  text-decoration: underline dotted rgba(42, 33, 24, 0.8);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+  cursor: help;
+}
+.gloss:focus-visible {
+  outline: 3px solid var(--brass);
+  outline-offset: 2px;
+}
+.gloss-popup {
+  position: fixed;
+  z-index: 11;
+  transform: translateX(-50%);
+  max-width: min(360px, 90vw);
+  padding: 10px 14px;
+  background: var(--tag-paper);
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  font-family: 'Gowun Batang', serif;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.gloss-popup-title {
+  font-size: 18px;
+  color: #5a4a36;
+  margin-bottom: 2px;
+}
+.gloss-popup-title strong {
+  color: var(--ink);
+  font-size: 18px;
+}
+
+/* 아래 단추 */
+.viewer-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.viewer-buttons button {
+  padding: 8px 18px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px;
+  background: var(--tag-paper);
+  font: 700 18px 'Gowun Batang', serif;
+  color: var(--ink);
+  cursor: pointer;
+}
+.viewer-buttons button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.viewer-buttons .viewer-close {
+  background: #2a2118;
+  color: var(--tag-paper);
+}
