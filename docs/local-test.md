@@ -31,7 +31,7 @@
 
 1. https://desktop.github.com 에서 GitHub Desktop을 설치하고, 깃허브 계정으로 로그인한다.
 2. **File → Clone repository** → 목록에서 `bon17/Cold-war-game`을 고르고 **Clone**을 누른다. 저장할 폴더는 기본값 그대로 둔다.
-3. 위쪽 **Current branch**를 눌러 **`claude/trusting-lovelace-vn68t0`**을 고른다.
+3. 위쪽 **Current branch**를 눌러 **`claude/inspiring-euler-r60svo`**를 고른다(2026-10-23부터. 프롤로그가 들어간 가지).
    - 저장소의 기본 가지(`claude/determined-galileo-7vzo49`)에는 아직 게임 코드가 없다. 꼭 이 가지로 바꾼다.
 
 ---
