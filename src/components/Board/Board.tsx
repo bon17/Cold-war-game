@@ -21,7 +21,7 @@ function edgeName(edge: BoardEdge): string {
 const ctx = document.createElement('canvas').getContext('2d');
 const measure: Measure = (text, px, bold) => {
   if (!ctx) return text.length * px;
-  ctx.font = `${bold ? 600 : 400} ${px}px "IBM Plex Sans KR", sans-serif`;
+  ctx.font = `${bold ? 700 : 400} ${px}px "Gowun Batang", serif`;
   return ctx.measureText(text).width;
 };
 

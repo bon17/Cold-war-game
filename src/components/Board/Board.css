@@ -13,7 +13,7 @@
   background: var(--tag-paper);
   border: 1.5px solid var(--string-outline);
   color: var(--ink);
-  font-family: 'IBM Plex Sans KR', sans-serif;
+  font-family: 'Gowun Batang', serif;
   line-height: 1.2;
   white-space: nowrap;
   box-shadow: 1px 2px 3px rgba(42, 33, 24, 0.3);
@@ -23,7 +23,7 @@
   padding: 2px 10px;
   border-radius: 3px;
   font-size: 30px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .edge-tag {
@@ -44,7 +44,7 @@
 }
 .legend-title {
   font-size: 28px;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 4px;
 }
 .legend-row {

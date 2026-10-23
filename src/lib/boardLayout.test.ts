@@ -6,9 +6,9 @@ import { chapterById, strings } from './data';
 import { boxesOverlap, LABEL_GAP, type Box } from './labelLayout';
 import type { BoardEdge } from '../types';
 
-// 어림 글자 폭: 한글 0.9em, 공백과 가운뎃점 0.3em, 굵은 글씨 5% 더
+// 어림 글자 폭(고운바탕을 재어 조금 넉넉하게): 한글 0.9em, 공백 0.32em, 그 밖(가운뎃점 등) 0.46em, 굵은 글씨 3% 더
 const measure: Measure = (text, px, bold) =>
-  [...text].reduce((w, ch) => w + (/[가-힣]/.test(ch) ? px : px * 0.3), 0) * (bold ? 1.05 : 1);
+  [...text].reduce((w, ch) => w + px * (/[가-힣]/.test(ch) ? 0.9 : ch === ' ' ? 0.32 : 0.46), 0) * (bold ? 1.03 : 1);
 
 const edgeText = (e: BoardEdge) => [strings.relations[e.rel], e.fray && '균열', e.mark && '직통선'].filter(Boolean).join(' · ');
 
