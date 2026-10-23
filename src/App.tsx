@@ -1,20 +1,45 @@
-import { useMemo } from 'react';
-import { Board } from './components/Board/Board';
+import { useEffect, useMemo, useState } from 'react';
+import { Board, type BoardPlay } from './components/Board/Board';
+import { BoardNote } from './components/Board/BoardNote';
 import { CluePanel } from './components/CluePanel/CluePanel';
 import { Desk } from './components/Desk/Desk';
 import { DeskLabels } from './components/Desk/DeskLabels';
 import { DocStack } from './components/Desk/DocStack';
 import { DocumentViewer } from './components/DocumentViewer/DocumentViewer';
+import { EdgeDialog } from './components/EdgeDialog/EdgeDialog';
 import { Stage } from './components/Stage/Stage';
 import { assetUrl } from './lib/assets';
-import { startEdges } from './lib/board';
+import { backgroundFor, pairKey } from './lib/board';
 import { chapterById, strings } from './lib/data';
 import { useGame } from './store/gameStore';
 
-// M1: 3장 체험판. ①보드 ②문서 읽기와 단서. 실 걸기·보고서는 다음 단계에서 붙인다.
+// M1: 3장 체험판. ①보드 ②문서 읽기와 단서 ③실 걸기. 보고서와 시계는 다음 단계에서 붙인다.
+const ANIM_MS = 700;
+
 export default function App() {
-  const chapter = chapterById(useGame((s) => s.chapterId));
-  const edges = useMemo(() => startEdges(chapter), [chapter]);
+  const { chapterId, readDocs, board, done, selectedClue, event, openEdgeDialog } = useGame();
+  const chapter = chapterById(chapterId);
+  const edges = useMemo(() => [...backgroundFor(chapter, readDocs), ...board], [chapter, readDocs, board]);
+
+  const [anim, setAnim] = useState<BoardPlay['anim']>();
+  useEffect(() => {
+    if (!event || (event.kind !== 'ok' && event.kind !== 'wrong')) return;
+    setAnim({ key: event.key, kind: event.kind, rel: event.kind === 'wrong' ? event.rel : undefined, id: event.id });
+    const timer = window.setTimeout(() => setAnim(undefined), ANIM_MS);
+    return () => window.clearTimeout(timer);
+  }, [event]);
+
+  const play: BoardPlay = useMemo(() => {
+    const direct = chapter.edgeTasks.filter((t) => t.mode === 'direct').map((t) => pairKey(t.pair));
+    return {
+      pending: new Set(direct.filter((k) => !done[k])),
+      armed: !!selectedClue,
+      helped: new Set(Object.keys(done).filter((k) => done[k].helped)),
+      anim,
+      onPick: (key) => openEdgeDialog(key),
+    };
+  }, [chapter, done, selectedClue, anim, openEdgeDialog]);
+
   return (
     <div data-chapter={chapter.id}>
       <Stage
@@ -22,12 +47,14 @@ export default function App() {
         overlay={
           <>
             <DeskLabels />
+            <BoardNote />
+            <EdgeDialog />
             <DocumentViewer />
           </>
         }
       >
         <Desk room={chapter.room} front={<><DocStack /><CluePanel /></>}>
-          <Board chapter={chapter} edges={edges} />
+          <Board chapter={chapter} edges={edges} play={play} />
         </Desk>
       </Stage>
       <div className="rotate-notice">{strings.rotateDevice}</div>

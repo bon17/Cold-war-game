@@ -8,6 +8,10 @@
   padding: 0;
   list-style: none;
 }
+.clue-slip-item {
+  transform: rotate(var(--tilt));
+  animation: slip-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 .clue-slip {
   position: relative;
   padding: 6px 14px 4px;
@@ -15,11 +19,30 @@
   border: 1.5px solid var(--string-outline);
   border-radius: 2px;
   box-shadow: 1px 3px 4px rgba(20, 12, 6, 0.45);
-  font-size: 28px;
-  line-height: 1.2;
+  font: 28px/1.2 'Gowun Batang', serif;
+  color: var(--ink);
   white-space: nowrap;
-  transform: rotate(var(--tilt));
-  animation: slip-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: grab;
+  touch-action: none;
+}
+.clue-slip.on {
+  background: rgba(243, 227, 122, 0.95);
+  outline: 4px solid var(--brass);
+  outline-offset: 2px;
+  transform: translateY(-6px);
+  box-shadow: 2px 8px 8px rgba(20, 12, 6, 0.45);
+  font-weight: 700;
+}
+.clue-slip.used {
+  opacity: 0.6;
+}
+.clue-slip:focus-visible {
+  outline: 4px solid var(--brass);
+  outline-offset: 2px;
+}
+.clue-used {
+  color: #3e5a3e;
+  font-weight: 700;
 }
 .clue-tape {
   position: absolute;
@@ -29,11 +52,27 @@
   height: auto;
   transform: translateX(-50%);
   opacity: 0.9;
+  pointer-events: none;
 }
 @keyframes slip-in {
   from { opacity: 0; transform: translateY(-24px) rotate(0deg); }
   to { opacity: 1; transform: rotate(var(--tilt)); }
 }
+
+/* 끌고 가는 쪽지(실제 px) */
+.clue-ghost {
+  position: fixed;
+  z-index: 20;
+  transform: translate(-50%, -120%) rotate(-2deg);
+  padding: 4px 12px;
+  background: rgba(243, 227, 122, 0.95);
+  border: 1.5px solid var(--string-outline);
+  border-radius: 2px;
+  box-shadow: 2px 8px 10px rgba(0, 0, 0, 0.4);
+  font: 700 20px 'Gowun Batang', serif;
+  color: var(--ink);
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: reduce) {
-  .clue-slip { animation: none; }
+  .clue-slip-item { animation: none; }
 }
