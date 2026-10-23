@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { applyTask, pairKey } from '../lib/board';
+import { isUnlocked, nextCheckpoint, nextPredict, revealPath, minutesOf } from '../lib/clockFlow';
 import { chapterById } from '../lib/data';
 import { autoTasksFor, directTask, HELP_AFTER_WRONG, HINT_AFTER_WRONG, judge } from '../lib/validateEdge';
 import type { BoardEdge, Chapter, EdgeTask, Rel } from '../types';
@@ -10,11 +11,16 @@ export interface CollectedClue { docId: string; clue: string }
 // 실을 건 결과. 화면(보드 알림, 실 흔들림)이 이 기록을 보고 움직인다.
 export type BoardEvent =
   | { kind: 'needClue' }
+  | { kind: 'reportLocked' }
   | { kind: 'ok'; key: string; helped: boolean; allDone: boolean }
   | { kind: 'auto'; key: string }
   | { kind: 'wrong'; key: string; rel: Rel; reason: 'evidence' | 'rel'; hint: boolean };
 
 export interface EdgeResult { wrong: number; helped: boolean; auto?: boolean }
+
+// 시계 공개 순서(기획서 8.1): 발표 전보 → 바늘 → 해설(예측이면 비교 한 줄 포함) → 본샘일보 1면(예측만) → 보너스 질문
+export type RevealStep = 'bulletin' | 'needle' | 'explanation' | 'newspaper' | 'bonus';
+export interface Report { direction: 'closer' | 'farther'; edge: string }
 
 interface GameState {
   chapterId: string;
@@ -27,6 +33,14 @@ interface GameState {
   done: Record<string, EdgeResult>;// 끝난 실 과제(별 ①, 도전 과제 perfect-board에 쓴다)
   event: (BoardEvent & { id: number }) | null;
   dialogEdge: string | null;       // 실 걸기 창이 열린 실
+  clockShown: { minutes: number; year: number };   // 벽시계와 일력에 보이는 값
+  revealed: string[];              // 끝난 시계 지점
+  reports: Record<string, Report>; // 시계 지점마다 낸 보고서
+  reportOpen: boolean;
+  reveal: { pointId: string; step: RevealStep } | null;
+  bonus: { edge: string; correct: boolean } | null;
+  achievements: string[];
+  aboutClock: boolean;             // 시계 설명 카드
   openDocument: (docId: string) => void;
   closeDocument: () => void;
   collectClue: (docId: string, clue: string) => void;
@@ -34,6 +48,13 @@ interface GameState {
   openEdgeDialog: (key: string, clue?: CollectedClue) => void;
   closeEdgeDialog: () => void;
   submitEdge: (key: string, rel: Rel) => void;  // 고른 단서 + 실 + 종류로 판정
+  openReport: () => void;
+  closeReport: () => void;
+  submitReport: (report: Report) => void;
+  advanceReveal: () => void;
+  setClockShown: (minutes: number, year: number) => void;
+  answerBonus: (edge: string) => void;
+  setAboutClock: (open: boolean) => void;
 }
 
 let eventId = 0;
@@ -63,7 +84,25 @@ export function initialState(chapterId: string) {
     done: {},
     event: null,
     dialogEdge: null,
+    clockShown: { minutes: minutesOf(chapter.startClock ?? {}), year: Number(chapter.period.slice(0, 4)) },
+    revealed: [],
+    reports: {},
+    reportOpen: false,
+    reveal: null,
+    bonus: null,
+    achievements: [],
+    aboutClock: false,
   };
+}
+
+type Snapshot = Pick<GameState, 'chapterId' | 'revealed' | 'readDocs' | 'done'>;
+
+// 열려 있는 공개(show) 지점이 있으면 시작한다. 예측(predict) 지점은 학생이 보고서를 내야 시작된다.
+function showToStart(s: Snapshot): GameState['reveal'] {
+  const chapter = chapterById(s.chapterId);
+  const point = nextCheckpoint(chapter, s.revealed);
+  if (point && point.mode === 'show' && isUnlocked(chapter, point, s.readDocs, s.done)) return { pointId: point.id, step: 'bulletin' };
+  return null;
 }
 
 export const useGame = create<GameState>((set, get) => ({
@@ -75,7 +114,7 @@ export const useGame = create<GameState>((set, get) => ({
       readDocs: s.readDocs.includes(docId) ? s.readDocs : [...s.readDocs, docId],
     })),
 
-  closeDocument: () => set({ openDocId: null }),
+  closeDocument: () => set((s) => ({ openDocId: null, reveal: s.reveal ?? showToStart(s) })),
 
   collectClue: (docId, clue) => {
     const s = get();
@@ -145,6 +184,66 @@ export const useGame = create<GameState>((set, get) => ({
       }),
     });
   },
+
+  openReport: () => {
+    const s = get();
+    const chapter = chapterById(s.chapterId);
+    const point = nextCheckpoint(chapter, s.revealed);
+    if (s.reveal || !nextPredict(chapter, s.revealed)) return;
+    // 앞에 공개 지점이 남았거나 문서·실이 남았으면 무엇이 남았는지 알려 준다
+    if (!point || point.mode !== 'predict' || !isUnlocked(chapter, point, s.readDocs, s.done)) {
+      set({ event: stamp({ kind: 'reportLocked' }) });
+      return;
+    }
+    set({ reportOpen: true, dialogEdge: null, selectedClue: null });
+  },
+
+  closeReport: () => set({ reportOpen: false }),
+
+  submitReport: (report) => {
+    const s = get();
+    const point = nextCheckpoint(chapterById(s.chapterId), s.revealed);
+    if (!point || point.mode !== 'predict') return;
+    set({ reports: { ...s.reports, [point.id]: report }, reportOpen: false, reveal: { pointId: point.id, step: 'bulletin' } });
+  },
+
+  advanceReveal: () => {
+    const s = get();
+    if (!s.reveal) return;
+    const chapter = chapterById(s.chapterId);
+    const point = chapter.clock.find((p) => p.id === s.reveal!.pointId)!;
+    const isLastPredict = point.mode === 'predict' && chapter.clock.filter((p) => p.mode === 'predict').pop() === point;
+    const next: Record<RevealStep, RevealStep | null> = {
+      bulletin: 'needle',
+      needle: 'explanation',
+      explanation: point.mode === 'predict' ? 'newspaper' : null,
+      newspaper: chapter.bonusQuestion && isLastPredict ? 'bonus' : null,
+      bonus: null,
+    };
+    const step = next[s.reveal.step];
+    if (step) {
+      set({ reveal: { pointId: point.id, step } });
+      return;
+    }
+    const last = revealPath(point).pop()!;
+    const after = { ...s, revealed: [...s.revealed, point.id] };
+    set({ revealed: after.revealed, clockShown: { minutes: minutesOf(last), year: last.year }, reveal: showToStart(after) });
+  },
+
+  setClockShown: (minutes, year) => set({ clockShown: { minutes, year } }),
+
+  answerBonus: (edge) => {
+    const s = get();
+    const q = chapterById(s.chapterId).bonusQuestion;
+    if (!q || s.bonus) return;
+    const correct = edge === pairKey(q.answer);
+    const achievements = correct && q.achievement && !s.achievements.includes(q.achievement)
+      ? [...s.achievements, q.achievement]
+      : s.achievements;
+    set({ bonus: { edge, correct }, achievements });
+  },
+
+  setAboutClock: (open) => set({ aboutClock: open }),
 }));
 
 export function hasClue(clues: CollectedClue[], docId: string, clue: string): boolean {

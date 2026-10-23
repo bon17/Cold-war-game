@@ -108,3 +108,89 @@ describe('자동 실(3장에는 없어서 4-1 같은 시험용 장으로 확인)
     expect(game().event).toMatchObject({ kind: 'auto', key: 'KR-NK' });
   });
 });
+
+describe('시계 공개와 보고서(기획서 5.3·5.4)', () => {
+  beforeEach(() => useGame.setState(initialState('ch3')));
+
+  const readAll = () => {
+    for (const id of ['3-2', '3-3', '3-5', '3-6', '3-7']) {
+      game().openDocument(id);
+      game().closeDocument();
+      if (game().reveal) while (game().reveal) game().advanceReveal();
+    }
+  };
+  const hangAll = () => {
+    for (const [doc, clue, key] of [['3-3', '국경 충돌', 'CN-SU'], ['3-5', '미국 선수단', 'CN-US'], ['3-6', '공동 성명', 'KR-NK'], ['3-7', '전략 무기 제한', 'SU-US']] as const) {
+      pick(doc, clue);
+      game().submitEdge(key, key === 'CN-SU' ? 'COLD' : 'TALK');
+    }
+  };
+
+  it('시작: 시계 12분, 일력 1964년', () => {
+    expect(game().clockShown).toEqual({ minutes: 12, year: 1964 });
+  });
+
+  it('3-2를 읽고 닫으면 1968년 공개가 시작되고, 전보 → 바늘 → 해설 뒤 7분이 된다', () => {
+    game().openDocument('3-2');
+    expect(game().reveal).toBeNull();          // 읽는 동안에는 시작하지 않는다
+    game().closeDocument();
+    expect(game().reveal).toEqual({ pointId: 'ch3-c1', step: 'bulletin' });
+    game().advanceReveal();
+    expect(game().reveal?.step).toBe('needle');
+    game().advanceReveal();
+    expect(game().reveal?.step).toBe('explanation');
+    game().advanceReveal();                     // 공개(show)에는 1면이 없다
+    expect(game().reveal).toBeNull();
+    expect(game().revealed).toEqual(['ch3-c1']);
+    expect(game().clockShown).toEqual({ minutes: 7, year: 1968 });
+  });
+
+  it('보고서는 문서와 실을 다 마쳐야 열린다', () => {
+    readAll();
+    game().openReport();
+    expect(game().reportOpen).toBe(false);
+    hangAll();
+    game().openReport();
+    expect(game().reportOpen).toBe(true);
+  });
+
+  it('보고서 → 전보 → 바늘 → 해설 → 1면 → 보너스 → 끝(12분, 1972년)', () => {
+    readAll();
+    hangAll();
+    game().openReport();
+    game().submitReport({ direction: 'farther', edge: 'SU-US' });
+    expect(game().reveal).toEqual({ pointId: 'ch3-c2', step: 'bulletin' });
+    for (const step of ['needle', 'explanation', 'newspaper', 'bonus']) {
+      game().advanceReveal();
+      expect(game().reveal?.step).toBe(step);
+    }
+    game().answerBonus('CN-SU');
+    expect(game().bonus).toEqual({ edge: 'CN-SU', correct: true });
+    expect(game().achievements).toEqual(['enemy-of-enemy']);
+    game().advanceReveal();
+    expect(game().reveal).toBeNull();
+    expect(game().revealed).toEqual(['ch3-c1', 'ch3-c2']);
+    expect(game().clockShown).toEqual({ minutes: 12, year: 1972 });
+    expect(game().reports['ch3-c2']).toEqual({ direction: 'farther', edge: 'SU-US' });
+  });
+
+  it('보너스를 틀리면 도전 과제는 없다', () => {
+    readAll();
+    hangAll();
+    game().openReport();
+    game().submitReport({ direction: 'closer', edge: 'KR-NK' });
+    game().answerBonus('KR-NK');
+    expect(game().bonus?.correct).toBe(false);
+    expect(game().achievements).toEqual([]);
+  });
+});
+
+describe('잠긴 보고서', () => {
+  beforeEach(() => useGame.setState(initialState('ch3')));
+
+  it('1968년 공개 전에 보고서철을 눌러도 무엇이 남았는지 알린다', () => {
+    game().openReport();
+    expect(game().reportOpen).toBe(false);
+    expect(game().event?.kind).toBe('reportLocked');
+  });
+});

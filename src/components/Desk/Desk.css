@@ -22,10 +22,6 @@
   opacity: 0.12;
 }
 
-.desk-clock-face {
-  border-radius: 50%;
-  background: var(--clock-face);
-}
 
 /* 누를 수 있는 책상 위 물건(그림 단추) */
 .desk-object {
@@ -41,4 +37,35 @@
 .desk-object:focus-visible {
   outline: 4px solid var(--brass);
   outline-offset: 4px;
+}
+
+/* 보고서철: 이름표 칸에 코드 글자, 쓸 수 있으면 빛남 */
+.report-folder {
+  position: absolute;
+}
+.report-folder-label {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  font: 700 28px/1.2 'Gowun Batang', serif;
+  color: var(--ink);
+  pointer-events: none;
+}
+.report-folder.ready::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 18px;
+  background: radial-gradient(closest-side, rgba(243, 227, 122, 0.95), rgba(243, 227, 122, 0));
+  animation: glow-pulse 1.2s ease-in-out infinite alternate;
+}
+.report-folder img {
+  position: relative;
+}
+@keyframes glow-pulse {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .report-folder.ready::before { animation: none; opacity: 0.8; }
 }

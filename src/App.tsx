@@ -1,19 +1,24 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Board, type BoardPlay } from './components/Board/Board';
 import { BoardNote } from './components/Board/BoardNote';
+import { CalendarYear, Clock } from './components/Clock/Clock';
 import { CluePanel } from './components/CluePanel/CluePanel';
 import { Desk } from './components/Desk/Desk';
 import { DeskLabels } from './components/Desk/DeskLabels';
 import { DocStack } from './components/Desk/DocStack';
 import { DocumentViewer } from './components/DocumentViewer/DocumentViewer';
 import { EdgeDialog } from './components/EdgeDialog/EdgeDialog';
+import { AboutClock } from './components/Report/AboutClock';
+import { ClockReveal } from './components/Report/ClockReveal';
+import { ReportFolder } from './components/Report/ReportFolder';
+import { ReportForm } from './components/Report/ReportForm';
 import { Stage } from './components/Stage/Stage';
 import { assetUrl } from './lib/assets';
 import { backgroundFor, pairKey } from './lib/board';
 import { chapterById, strings } from './lib/data';
 import { useGame } from './store/gameStore';
 
-// M1: 3장 체험판. ①보드 ②문서 읽기와 단서 ③실 걸기. 보고서와 시계는 다음 단계에서 붙인다.
+// M1: 3장 체험판. ①보드 ②문서 읽기와 단서 ③실 걸기 ④보고서와 시계 공개. 시작 화면·표지·창밖·저장은 ⑤에서.
 const ANIM_MS = 700;
 
 export default function App() {
@@ -50,10 +55,15 @@ export default function App() {
             <BoardNote />
             <EdgeDialog />
             <DocumentViewer />
+            <ReportForm />
+            <ClockReveal />
+            <AboutClock />
           </>
         }
       >
-        <Desk room={chapter.room} front={<><DocStack /><CluePanel /></>}>
+        <Desk room={chapter.room} front={<><DocStack /><CluePanel /><ReportFolder /></>}>
+          <Clock />
+          <CalendarYear />
           <Board chapter={chapter} edges={edges} play={play} />
         </Desk>
       </Stage>

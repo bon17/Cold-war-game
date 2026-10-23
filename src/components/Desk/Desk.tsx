@@ -15,7 +15,6 @@ export function Desk({ room, children, front }: { room: RoomId; children?: React
   const win = windowFor(room);
   const { stage, board, clock, lamp, calendar } = layout;
   const bezel = { x: clock.cx - clock.r, y: clock.cy - clock.r, w: clock.r * 2, h: clock.r * 2 };
-  const face = { x: clock.cx - clock.faceR, y: clock.cy - clock.faceR, w: clock.faceR * 2, h: clock.faceR * 2 };
 
   return (
     <>
@@ -29,7 +28,6 @@ export function Desk({ room, children, front }: { room: RoomId; children?: React
         className="desk-chart-paper"
         style={{ ...place(board.paper), ['--paper-grain' as string]: `url(${assetUrl('tex/paper-grain.webp')})` }}
       />
-      <div className="desk-clock-face" style={place(face)} />
       {children}
       <img src={assetUrl(lamp.src)} style={place(lamp)} alt="" />
       {front}

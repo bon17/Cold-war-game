@@ -29,7 +29,8 @@ export function DeskLabels() {
   return (
     <>
       <ObjectLabel sx={calendar.x + calendar.w / 2} sy={calendar.y + calendar.h + 20} text={strings.labels.calendar} />
-      <ObjectLabel sx={clock.cx} sy={clock.cy + clock.r + 20} text={strings.labels.clock} />
+      <ObjectLabel sx={clock.cx} sy={clock.cy - clock.r - 16} text={strings.labels.clock} />
+      <ObjectLabel sx={hotspots.report.x + hotspots.report.w / 2} sy={hotspots.report.y - 14} text={strings.labels.report} />
       <ObjectLabel
         sx={docs.x + docs.w + 10}
         sy={docs.y + docs.h / 2}

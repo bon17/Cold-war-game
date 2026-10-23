@@ -5,6 +5,7 @@ import { chapterById, nodes, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { stageToScreen } from '../../lib/stageFit';
 import { evidenceDoc } from '../../lib/validateEdge';
+import { isUnlocked, nextCheckpoint, nextPredict, remaining } from '../../lib/clockFlow';
 import { useGame } from '../../store/gameStore';
 import type { NodeId } from '../../types';
 import { useStageFit } from '../Stage/Stage';
@@ -17,23 +18,34 @@ const NOTE_CENTER_X = 870;
 const NOTE_WIDTH = 600;
 
 export function BoardNote() {
-  const { chapterId, clues, selectedClue, done, event, openDocId, dialogEdge } = useGame();
+  const { chapterId, clues, selectedClue, done, event, openDocId, dialogEdge, readDocs, revealed, reveal, reportOpen, aboutClock } = useGame();
   const chapter = chapterById(chapterId);
   const fit = useStageFit();
   const [resultId, setResultId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!event || (event.kind !== 'ok' && event.kind !== 'auto')) return;
+    if (!event || (event.kind !== 'ok' && event.kind !== 'auto' && event.kind !== 'reportLocked')) return;
     setResultId(event.id);
     const timer = window.setTimeout(() => setResultId(null), RESULT_MS);
     return () => window.clearTimeout(timer);
   }, [event]);
 
-  if (openDocId || dialogEdge) return null;
+  if (openDocId || dialogEdge || reveal || reportOpen || aboutClock) return null;
 
   const direct = chapter.edgeTasks.filter((t) => t.mode === 'direct');
   const allDone = direct.every((t) => done[pairKey(t.pair)]);
   const name = (id: NodeId) => nodes.nodes[id]?.name ?? id;
+  const point = nextCheckpoint(chapter, revealed);
+  const predict = nextPredict(chapter, revealed);
+  const todo = () => {
+    if (!predict) return '';
+    const r = remaining(chapter, predict, readDocs, done);
+    const parts = [
+      r.docs.length > 0 && fmt(strings.board.guide.todoDocs, { n: r.docs.length }),
+      r.edges.length > 0 && fmt(strings.board.guide.todoEdges, { n: r.edges.length }),
+    ].filter(Boolean);
+    return fmt(strings.board.guide.reportLocked, { todo: parts.join(', ') });
+  };
 
   let text: string;
   let kind = 'guide';
@@ -44,7 +56,12 @@ export function BoardNote() {
     else if (event.helped) text = fmt(strings.board.result.helped, { title: evidenceDoc(chapter, task)?.title ?? '' });
     else text = `${strings.board.result.ok} ${task.explanation}`;
     kind = event.kind === 'ok' && event.helped ? 'helped' : 'ok';
-  } else if (allDone) text = strings.board.guide.allDone;
+  } else if (event && event.id === resultId && event.kind === 'reportLocked' && predict) text = todo();
+  else if (!point) text = strings.board.guide.reportDone;
+  else if (predict && point === predict && isUnlocked(chapter, predict, readDocs, done)) {
+    text = strings.board.guide.reportReady;
+    kind = 'ok';
+  } else if (allDone) text = predict ? todo() : strings.board.guide.allDone;
   else if (selectedClue) text = fmt(strings.board.guide.clueSelected, { clue: selectedClue.clue });
   else if (clues.length === 0) text = strings.board.guide.readFirst;
   else text = strings.board.guide.pickEdge;

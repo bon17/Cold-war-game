@@ -235,6 +235,7 @@
 - 보고서 작성 순서: ① "시계는 자정에 가까워졌을까, 멀어졌을까?" 두 도장 중 하나(화살표와 글자 함께) ② "가장 큰 이유가 된 실은?" 보드에서 실 하나(`bestEdges`에 있으면 정답) ③ 제출.
 - 보고서는 `unlockAfterDocs` 문서를 모두 열고 `requireEdges`(없으면 그 장의 모든 직접 실과 중립 구역)를 마쳐야 열린다. 세 번째 실패의 자동 걸림도 마친 것으로 본다.
 - 판정은 방향만 본다. 분 단위 숫자는 맞히지 않아도 된다.
+- **2026-10-23 M1에서 정한 것:** ② 근거 실은 보드를 직접 누르는 대신 보고서 안의 실 목록(두 나라 + 지금 관계)에서 고른다(작은 화면에서 누르기 쉽게). 보고서를 쓸 수 없을 때 보고서철을 누르면 '지금 할 일' 쪽지가 남은 것(핵심 문서 n개, 실 n개)을 알려 준다. 비교 한 줄("과학자들도 같은 판단을 했다/다르게 봤다")은 해설 카드 맨 위에 함께 보여 준다. 근거 실이 `bestEdges`가 아니면 해설 카드에 "과학자들이 가장 크게 본 것은 ○–○ 실의 변화였다"를 덧붙인다. 정정 보도 문구는 `wrongNote`가 없으면 "과학자들의 판단은 달랐다. {연도}년 시계는 자정까지 N분, {결과}."
 
 ### 5.4 과학자들의 발표와 시계
 
@@ -718,7 +719,7 @@ interface Chapter {
   neutralTasks?: NeutralTask[];
   clock: ClockCheckpoint[];
   quickQuestion?: { prompt: string; options: string[]; answer: number; after: string };
-  bonusQuestion?: { prompt: string; answer: Pair; achievement?: string };
+  bonusQuestion?: { prompt: string; answer: Pair; achievement?: string; explanation?: string; about?: Pair };  // explanation(답한 뒤 한 줄), about(질문이 묻는 실, 선택지에서 뺌): 2026-10-23 추가
   endEvents?: ('renameSU' | 'weakenNKSU' | 'greenCascade')[];  // 5장 끝. greenCascade는 이미 녹색인 실을 다시 울리는 확인 연출
   epilogueBoard?: { pair: Pair; style: 'undyed'; label: string; caption: string };  // 에필로그 남북 실
   window: { image: string; caption: string; alt: string; crop?: { x: number; w: number } };

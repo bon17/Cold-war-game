@@ -246,17 +246,13 @@
 .clue.collected {
   background-size: 100% 100%;
 }
+/* 살짝 빛남: 움직이지 않는 은은한 빛(움직이는 속성은 transform, opacity만 쓴다) */
 .clue.hint {
+  background-color: rgba(243, 227, 122, 0.3);
   box-shadow: 0 0 0 2px rgba(156, 122, 60, 0.45), 0 0 10px 2px rgba(243, 227, 122, 0.75);
-  animation: clue-hint 1.6s ease-in-out infinite alternate;
-}
-@keyframes clue-hint {
-  from { background-color: rgba(243, 227, 122, 0.08); }
-  to { background-color: rgba(243, 227, 122, 0.35); }
 }
 @media (prefers-reduced-motion: reduce) {
   .clue { transition: none; }
-  .clue.hint { animation: none; background-color: rgba(243, 227, 122, 0.25); }
 }
 
 /* 낱말 풀이: 점선 밑줄 */

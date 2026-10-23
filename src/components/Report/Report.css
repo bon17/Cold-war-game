@@ -1,0 +1,274 @@
+/* 보고서와 시계 공개: 무대 밖, 실제 px. 글자 18px 이상 */
+.report-backdrop,
+.reveal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 13, 10, 0.55);
+}
+.reveal-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  background: rgba(18, 13, 10, 0.25);
+}
+
+.report-card,
+.reveal-card {
+  box-sizing: border-box;
+  width: min(680px, 94vw);
+  max-height: 94vh;
+  overflow-y: auto;
+  padding: 18px 22px 16px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 4px;
+  background: var(--tag-paper);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.6;
+}
+.report-card button,
+.reveal-card button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* 보고서 */
+.report-title {
+  font-size: 22px;
+  font-weight: 700;
+  padding-bottom: 6px;
+  border-bottom: 3px double rgba(42, 33, 24, 0.6);
+}
+.report-q {
+  margin: 12px 0 6px;
+  font-weight: 700;
+}
+.report-stamps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.report-stamp {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  align-items: center;
+  padding: 10px 14px;
+  border: 3px double var(--string-outline);
+  border-radius: 6px;
+  background: #fffdf6;
+  text-align: left;
+}
+.report-stamp-arrow {
+  grid-row: span 2;
+  font-size: 28px;
+}
+.report-stamp-title {
+  font-weight: 700;
+  font-size: 20px;
+}
+.report-stamp-sub {
+  color: #5a4a36;
+}
+.report-stamp.on {
+  background: rgba(243, 227, 122, 0.9);
+  outline: 3px solid var(--brass);
+  transform: rotate(-1.5deg);
+}
+.report-edges {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.report-edge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px;
+  background: #fffdf6;
+  text-align: left;
+}
+.report-edge.on,
+.report-edge.right {
+  background: rgba(243, 227, 122, 0.9);
+  outline: 3px solid var(--brass);
+  font-weight: 700;
+}
+.report-edge.picked {
+  outline: 3px dashed var(--string-outline);
+}
+.report-edge:disabled {
+  cursor: default;
+}
+.report-edge-rel {
+  margin-left: auto;
+  color: #5a4a36;
+}
+.report-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+.report-close,
+.report-submit,
+.reveal-ok {
+  padding: 8px 20px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px;
+  font-weight: 700;
+}
+.report-close {
+  background: #fffdf6;
+}
+.report-submit,
+.reveal-ok {
+  background: #2a2118;
+  color: var(--tag-paper) !important;
+}
+.report-submit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.reveal-ok {
+  display: block;
+  margin: 14px 0 0 auto;
+}
+
+/* 바늘 공개 캡션: 시계 명판 아래 */
+.reveal-caption {
+  position: absolute;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px;
+  background: var(--tag-paper);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  font: 700 20px 'Nanum Gothic Coding', monospace;
+  white-space: nowrap;
+  animation: card-in 200ms ease-out;
+}
+
+/* 과학자 발표 전보: 누런 전보 용지 */
+.reveal-card.bulletin {
+  background: #e8dcae;
+  font-family: 'Nanum Gothic Coding', monospace;
+}
+.bulletin-from {
+  padding: 4px 0;
+  border-top: 2px dashed rgba(42, 33, 24, 0.55);
+  border-bottom: 2px dashed rgba(42, 33, 24, 0.55);
+  font-weight: 700;
+}
+.bulletin-headline {
+  margin: 12px 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+}
+.bulletin-body {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+/* 해설 */
+.reveal-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.reveal-card p {
+  margin: 6px 0;
+  font-size: 20px;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+.reveal-compare {
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  font-size: 20px;
+  font-weight: 700;
+}
+.reveal-compare.same {
+  background: rgba(62, 125, 79, 0.15);
+  border-left: 5px solid var(--string-normal);
+}
+.reveal-compare.different {
+  background: rgba(156, 122, 60, 0.18);
+  border-left: 5px solid var(--brass);
+}
+.reveal-card .reveal-note {
+  padding: 6px 10px;
+  border-left: 4px solid var(--brass);
+  background: rgba(156, 122, 60, 0.1);
+  font-size: 18px;
+}
+
+/* 본샘일보 1면(1970년대 신문, 나눔명조) */
+.reveal-card.newspaper {
+  width: min(760px, 96vw);
+  background: #e4ddcb;
+  font-family: 'Nanum Myeongjo', serif;
+  animation: print-in 1.6s ease-out;
+}
+.paper-masthead {
+  text-align: center;
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  line-height: 1.2;
+}
+.paper-dateline {
+  text-align: center;
+  padding: 4px 0;
+  margin-bottom: 12px;
+  border-top: 3px double rgba(42, 33, 24, 0.7);
+  border-bottom: 1px solid rgba(42, 33, 24, 0.7);
+}
+.paper-headline {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+.paper-byline {
+  margin-top: 6px;
+  text-align: right;
+  color: #5a4a36;
+}
+.paper-correction {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 2px solid var(--string-outline);
+  background: #f1ead6;
+  font-size: 20px;
+  line-height: 1.6;
+}
+.bonus-prompt {
+  font-weight: 700;
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translate(-50%, 6px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes print-in {
+  0% { opacity: 0; transform: translateY(30px) scale(0.96); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-caption, .reveal-card.newspaper { animation: none; }
+  .report-stamp.on { transform: none; }
+}

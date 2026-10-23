@@ -329,7 +329,12 @@
       "CN",
       "SU"
     ],
-    "achievement": "enemy-of-enemy"
+    "achievement": "enemy-of-enemy",
+    "explanation": "소련과 사이가 나빠진 중국에게는 미국과 가까워질 까닭이 생겼다. '적의 적은 친구'라는 말처럼.",
+    "about": [
+      "US",
+      "CN"
+    ]
   },
   "window": {
     "image": "/assets/windows/window-ch3.webp",

@@ -51,6 +51,7 @@ const SPRITE_BOX = {
   calendar: { w: layout.calendar.w, h: layout.calendar.h },
   'pin-head': { w: nodes.pinSize, h: nodes.pinSize },
   'docs-stack': { w: layout.hotspots.docs.w, h: layout.hotspots.docs.h },
+  'report-folder': { w: layout.hotspots.report.w, h: layout.hotspots.report.h },
 };
 
 const warnings = [];

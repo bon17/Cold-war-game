@@ -4,7 +4,8 @@
     "calendar": "연도",
     "clock": "시계 설명",
     "docs": "문서",
-    "clues": "단서 쪽지"
+    "clues": "단서 쪽지",
+    "report": "보고서"
   },
   "rotateDevice": "태블릿을 가로로 돌려 주세요",
   "relations": {
@@ -57,7 +58,12 @@
       "readFirst": "문서 더미를 눌러 문서를 읽고, 단서가 될 구절을 눌러 모으세요.",
       "pickEdge": "바꿀 실의 이름표(점선 테두리)를 누르세요.",
       "clueSelected": "「{clue}」 쪽지를 골랐어요. 바꿀 실의 이름표(점선 테두리)를 누르세요.",
-      "allDone": "이번 장에서 바꿀 실을 모두 걸었어요."
+      "allDone": "이번 장에서 바꿀 실을 모두 걸었어요.",
+      "reportReady": "이제 보고서를 쓸 차례예요. 책상 오른쪽의 보고서철을 누르세요.",
+      "reportLocked": "보고서를 쓰려면 먼저: {todo}",
+      "todoDocs": "핵심 문서 {n}개 더 읽기",
+      "todoEdges": "실 {n}개 더 걸기",
+      "reportDone": "보고를 마쳤어요."
     },
     "dialog": {
       "title": "{a}–{b} 실은 어떻게 바뀌었을까?",
@@ -76,5 +82,51 @@
       "helped": "세 번 틀려서 정답 실을 걸어 두었어요(도움받아 걸림). 「{title}」를 다시 읽어 보세요.",
       "auto": "함께 바뀐 실: {a}–{b}"
     }
+  },
+  "clock": {
+    "aboutTitle": "운명의 날 시계",
+    "about": "이 시계는 실제 시각이 아닙니다. 과학자 단체가 세계가 핵전쟁(자정)에 얼마나 가까운지 평가해 발표하는 상징 시계입니다.",
+    "plaque": "자정까지 {n}분",
+    "open": "시계 설명 보기"
+  },
+  "report": {
+    "ready": "쓰기",
+    "title": "분석실 보고서 · {year}년",
+    "q1": "① {year}년, 운명의 날 시계는 자정에 가까워졌을까, 멀어졌을까?",
+    "closer": "자정에 가까워졌다",
+    "closerSub": "세계가 더 위험해졌다",
+    "farther": "자정에서 멀어졌다",
+    "fartherSub": "세계가 덜 위험해졌다",
+    "q2": "② 그렇게 판단한 가장 큰 이유가 된 실은?",
+    "submit": "보고서 내기",
+    "close": "닫기",
+    "edgeName": "{a}–{b}"
+  },
+  "reveal": {
+    "from": "원자 과학자 회보 → 본샘일보 분석실",
+    "caption": "{year}년 · {caption}",
+    "same": "과학자들도 같은 판단을 했다.",
+    "different": "과학자들은 다르게 봤다.",
+    "explanationTitle": "해설",
+    "ok": "확인",
+    "bestEdge": "과학자들이 가장 크게 본 것은 {edge} 실의 변화였다."
+  },
+  "newspaper": {
+    "masthead": "본샘일보",
+    "dateline": "{year}년 · 분석실 보고",
+    "headlineCloser": "[분석실 보고] {year}년, 세계는 자정에 가까워졌다: {edge} 실의 변화에 주목",
+    "headlineFarther": "[분석실 보고] {year}년, 세계는 자정에서 멀어졌다: {edge} 실의 변화에 주목",
+    "byline": "글 · 분석실 7번 자리",
+    "correctionTitle": "정정 보도",
+    "correction": "과학자들의 판단은 달랐다. {year}년 시계는 자정까지 {n}분, {result}.",
+    "resultCloser": "자정에 가까워졌다",
+    "resultFarther": "자정에서 멀어졌다",
+    "ok": "확인"
+  },
+  "bonus": {
+    "title": "보너스 질문",
+    "correct": "맞아요!",
+    "wrong": "정답은 {a}–{b} 실이에요.",
+    "ok": "확인"
   }
 }

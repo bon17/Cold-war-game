@@ -85,7 +85,8 @@ export interface Chapter {
   neutralTasks?: NeutralTask[];
   clock: ClockCheckpoint[];
   quickQuestion?: { prompt: string; options: string[]; answer: number; after: string };
-  bonusQuestion?: { prompt: string; answer: Pair; achievement?: string };
+  // explanation: 답한 뒤 한 줄, about: 질문이 묻는 실(선택지에서 뺀다). 둘 다 2026-10-23 추가
+  bonusQuestion?: { prompt: string; answer: Pair; achievement?: string; explanation?: string; about?: Pair };
   endEvents?: ('renameSU' | 'weakenNKSU' | 'greenCascade')[];  // 5장 끝. greenCascade는 이미 녹색인 실을 다시 울리는 확인 연출
   epilogueBoard?: { pair: Pair; style: 'undyed'; label: string; caption: string };  // 에필로그 남북 실
   window: { image: string; caption: string; alt: string; crop?: { x: number; w: number } };
