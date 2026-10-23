@@ -250,84 +250,38 @@ select.start-input {
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
 }
 
-/* 인계 메모: 책상 위(보드가 보이게 아래쪽) */
-.handover-block {
-  position: fixed;
-  inset: 0;
-  z-index: 13;
+/* 이번 장에서 할 일 */
+.screen-card.mission {
+  width: min(720px, 94vw);
+  text-align: left;
 }
-.handover-card {
-  position: fixed;
-  left: 50%;
-  bottom: 2vh;
-  z-index: 14;
-  transform: translateX(-50%);
-  box-sizing: border-box;
-  width: min(680px, 94vw);
-  padding: 14px 20px 12px;
-  border: 1.5px solid var(--string-outline);
-  border-radius: 3px;
-  background: #f4efe0;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
-  color: var(--ink);
+.mission-room {
+  margin: 10px 0 12px;
+  padding: 8px 14px;
+  border-left: 5px solid var(--brass);
+  background: rgba(156, 122, 60, 0.12);
+}
+.mission-room p,
+.mission-line {
+  margin: 4px 0;
   font-size: 20px;
   line-height: 1.6;
+  word-break: keep-all;
 }
-.handover-head {
+.mission-label {
+  margin-top: 10px;
   font-weight: 700;
   font-size: 18px;
   color: #5a4a36;
-  border-bottom: 1px dashed var(--brass);
-  margin-bottom: 6px;
 }
-.handover-lines p {
-  margin: 2px 0;
-  word-break: keep-all;
-}
-.handover-blank {
-  display: inline-block;
-  min-width: 4em;
-  padding: 0 6px;
-  border-bottom: 3px solid var(--string-outline);
-  text-align: center;
-}
-.handover-blank.filled {
-  background: rgba(243, 227, 122, 0.85);
+.mission-steps {
+  margin: 4px 0 0;
+  padding-left: 1.6em;
+  font-size: 22px;
   font-weight: 700;
+  line-height: 1.7;
 }
-.handover-sign {
-  text-align: right;
-  font: 700 26px 'Gaegu', cursive;
-}
-.handover-q {
-  margin-top: 6px;
-  font-weight: 700;
-}
-.handover-options {
-  display: flex;
-  gap: 10px;
-  margin-top: 6px;
-}
-.handover-options .big-button {
-  min-width: 110px;
-  padding: 8px 16px;
-}
-.handover-result {
-  margin: 8px 0 0;
-  font-weight: 700;
-}
-.handover-result.right {
-  color: #2f5a36;
-}
-.handover-foot {
-  display: flex;
-  justify-content: flex-end;
-}
-.handover-foot .reveal-ok {
-  margin-top: 6px;
-  font: 700 18px 'Gowun Batang', serif;
-  cursor: pointer;
-}
+
 .quiet-button {
   margin-top: 6px;
   padding: 6px 14px;

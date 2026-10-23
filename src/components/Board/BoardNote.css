@@ -1,22 +1,49 @@
 .board-note {
   position: absolute;
   transform: translate(-50%, -50%);
-  padding: 8px 16px;
-  border: 1.5px solid var(--string-outline);
-  border-radius: 3px;
-  background: rgba(244, 239, 228, 0.95);
+  box-sizing: border-box;
+  padding: 10px 16px 8px;
+  border: 2px solid var(--string-outline);
+  border-radius: 4px;
+  background: rgba(244, 239, 228, 0.97);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.5;
   color: var(--ink);
   text-align: center;
+  word-break: keep-all;
   pointer-events: none;
 }
 .board-note.ok {
   border-color: var(--string-normal);
-  border-width: 2px;
+  border-width: 3px;
 }
-.board-note.helped {
-  border-color: var(--brass);
-  border-width: 2px;
+.board-note-chip {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 0 8px;
+  border-radius: 3px;
+  background: #2a2118;
+  color: var(--tag-paper);
+  font-size: 18px;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+.board-note-text {
+  font-weight: 700;
+}
+/* 진행 막대: 문서와 실 ●●○ · 시계 예측 ○ */
+.board-note-progress {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(42, 33, 24, 0.35);
+  font-size: 18px;
+  color: #5a4a36;
+}
+.board-note-dots {
+  letter-spacing: 0.15em;
+  color: var(--ink);
 }

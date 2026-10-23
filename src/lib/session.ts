@@ -6,7 +6,7 @@ import { deleteSlot, findSlot, normalizeName, saveSlot } from './save';
 import type { SaveSlot } from '../types';
 
 // 저장해 두는 게임 진행(열려 있는 창, 알림 같은 화면 상태는 빼고)
-const PROGRESS_KEYS = ['chapterId', 'readDocs', 'clues', 'board', 'wrong', 'done', 'clockShown', 'revealed', 'reports', 'bonus', 'achievements', 'reveal'] as const;
+const PROGRESS_KEYS = ['chapterId', 'readDocs', 'board', 'wrong', 'done', 'clockShown', 'revealed', 'reports', 'achievements', 'reveal'] as const;
 type Progress = { phase: Phase; game: Partial<ReturnType<typeof useGame.getState>> };
 
 // 막 시작 코드: 띄어쓰기는 무시하고 그 장의 code와 비교한다. 코드는 각 장 데이터에만 있다.
@@ -50,9 +50,7 @@ export function startWithCode(name: string, chapterId: string) {
 export function resume(slot: SaveSlot) {
   const p = (slot.progress ?? {}) as Progress;
   useSession.getState().setPlayer({ name: slot.name, stars: slot.stars, achievements: slot.achievements, archive: (slot.archive as never[]) ?? [] });
-  const game = p.game ?? {};
-  const reveal = game.reveal ? { pointId: game.reveal.pointId, step: 'bulletin' as const } : null;   // 공개 도중이었으면 발표 전보부터
-  useGame.setState({ ...initialState(slot.chapterId), ...game, reveal });
+  useGame.setState({ ...initialState(slot.chapterId), ...(p.game ?? {}) });   // 공개 도중이었으면 그 단계부터
   const phase: Phase = !p.phase || p.phase === 'title' || p.phase === 'start' || p.phase === 'notice' ? 'cover' : p.phase;
   useSession.getState().setPhase(phase);
 }
@@ -73,7 +71,7 @@ export function snapshot(): SaveSlot | null {
   };
 }
 
-// 상태가 바뀌면 잠시 뒤 저장한다(단서, 실, 보고서, 장 끝 모두 여기에 걸린다)
+// 상태가 바뀌면 잠시 뒤 저장한다(문서, 실, 보고서, 장 끝 모두 여기에 걸린다)
 export function startAutosave(delayMs = 400): () => void {
   let timer: number | undefined;
   const schedule = () => {

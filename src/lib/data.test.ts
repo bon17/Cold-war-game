@@ -6,7 +6,7 @@ import { validateChapter } from './validateData';
 
 describe('장 데이터 검사(validateData)', () => {
   for (const chapter of chapters) {
-    it(`${chapter.id}: 단서·글자 수·문장 수·시계·핀·인계 메모가 규칙에 맞다`, () => {
+    it(`${chapter.id}: 문서 수·글자 수·문장 수·핵심 구절·실·시계·핀이 규칙에 맞다`, () => {
       const index = chapters.indexOf(chapter);
       expect(validateChapter(chapter, clock, nodes, chapters[index - 1])).toEqual([]);
     });
@@ -31,8 +31,8 @@ describe('3장 보드', () => {
     expect(end.get('KR-NK')?.rel).toBe('TALK');
   });
 
-  it('범례에는 같은 편, 대립, 대화, 수교·협력이 나온다', () => {
-    expect(chapterRels(ch3)).toEqual(['ALLY', 'COLD', 'TALK', 'NORMAL']);
+  it('범례에는 같은 편, 대립, 대화만 나온다', () => {
+    expect(chapterRels(ch3)).toEqual(['ALLY', 'COLD', 'TALK']);
   });
 
   it('시작 배치에서 실끼리 서로 교차하지 않는다(아트 계획서 4.5)', () => {

@@ -29,6 +29,14 @@ export function applyTask(prev: BoardEdge | undefined, task: EdgeTask): BoardEdg
   return next;
 }
 
+// 이번 장에서 바뀐 실(보고서, 본샘일보 1면). 과제 순서(대개 연도 순)로 늘어놓는다.
+export function changedEdges(chapter: Chapter, board: BoardEdge[], done: Record<string, unknown>): BoardEdge[] {
+  return chapter.edgeTasks
+    .filter((t) => done[pairKey(t.pair)])
+    .map((t) => board.find((e) => pairKey(e.pair) === pairKey(t.pair)))
+    .filter((e): e is BoardEdge => !!e);
+}
+
 // 그 장에 나오는 실 종류(범례 카드). 보드, 배경 실, 바뀌는 실, 선택지에 나오는 것을 정해진 순서로.
 const REL_ORDER: Rel[] = ['ALLY', 'COLD', 'WAR', 'TALK', 'NORMAL', 'OCCUPY'];
 

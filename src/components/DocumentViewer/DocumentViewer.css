@@ -1,4 +1,4 @@
-/* 문서 확대 보기: 무대 밖, 실제 화면 px. 본문 20px, 줄 간격 1.7, 한 줄 34자 이내(아트 계획서 3.8). */
+/* 문서 확대 보기: 무대 밖, 실제 화면 px. 본문 22px, 줄 간격 1.8, 한 줄 34자 이내(아트 계획서 3.8). */
 .viewer-backdrop {
   position: fixed;
   inset: 0;
@@ -40,15 +40,12 @@
   font-size: 18px;
   margin: 2px 0 6px;
 }
-.doc-list-heading.extra {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--brass);
-}
 .doc-list-note {
-  display: block;
-  font-weight: 400;
+  margin: 8px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--brass);
   font-size: 18px;
+  line-height: 1.5;
   color: #5a4a36;
 }
 .doc-list-item {
@@ -139,8 +136,8 @@
 .doc-body {
   margin: 0;
   max-width: 34em;
-  font-size: 20px;
-  line-height: 1.7;
+  font-size: 22px;
+  line-height: 1.8;
   word-break: keep-all;
   cursor: default;
 }
@@ -154,10 +151,6 @@
   border-top: 1px solid rgba(42, 33, 24, 0.25);
   font-family: 'Gowun Batang', serif;
   font-size: 18px;
-}
-.doc-clue-count.done {
-  color: #3e5a3e;
-  font-weight: 700;
 }
 .doc-source {
   color: #5a4a36;
@@ -229,30 +222,15 @@
   font-weight: 700;
 }
 
-/* 단서 구절: 누르기 전에는 보통 글자와 같다. 칠하면 왼쪽에서 오른쪽으로 형광펜이 번진다. */
-.clue {
+/* 핵심 구절: 처음부터 형광펜이 칠해져 있다 */
+.key-phrase {
+  padding: 0 2px;
   border-radius: 2px;
-  background-image: linear-gradient(rgba(243, 227, 122, 0.85), rgba(243, 227, 122, 0.85));
-  background-repeat: no-repeat;
-  background-size: 0% 100%;
-  transition: background-size 250ms ease-out;
+  background: rgba(243, 227, 122, 0.85);
+  color: inherit;
+  font-weight: 700;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
-}
-.clue:focus-visible {
-  outline: 3px solid var(--brass);
-  outline-offset: 2px;
-}
-.clue.collected {
-  background-size: 100% 100%;
-}
-/* 살짝 빛남: 움직이지 않는 은은한 빛(움직이는 속성은 transform, opacity만 쓴다) */
-.clue.hint {
-  background-color: rgba(243, 227, 122, 0.3);
-  box-shadow: 0 0 0 2px rgba(156, 122, 60, 0.45), 0 0 10px 2px rgba(243, 227, 122, 0.75);
-}
-@media (prefers-reduced-motion: reduce) {
-  .clue { transition: none; }
 }
 
 /* 낱말 풀이: 점선 밑줄 */
@@ -311,6 +289,8 @@
   cursor: default;
 }
 .viewer-buttons .viewer-close {
+  padding: 12px 28px;
   background: #2a2118;
   color: var(--tag-paper);
+  font-size: 22px;
 }

@@ -6,13 +6,13 @@ export type Phase =
   | 'start'      // 이름 입력, 처음부터 / 이어하기 / 막 시작 코드
   | 'notice'     // 허구 고지(처음부터일 때, '확인'을 눌러야 넘어감)
   | 'cover'      // 장 표지(3초 자동)
-  | 'handover'   // 인계 메모(2차시 시작, 3장)
+  | 'mission'    // 이번 장에서 할 일 카드(장 표지 다음)
   | 'desk'       // 메인 책상
   | 'window'     // 창밖 장면
   | 'result'     // 근무 평정표
   | 'end';       // 체험판 끝
 
-export interface ArchiveEntry { chapterId: string; pointId: string; year: number; direction: string; edge: string }
+export interface ArchiveEntry { chapterId: string; pointId: string; year: number; direction: string }
 
 interface SessionState {
   phase: Phase;

@@ -1,37 +1,35 @@
 import { describe, expect, it } from 'vitest';
 import { pairKey } from './board';
 import { chapterById } from './data';
-import { evidenceDoc, judge, optionOrder } from './validateEdge';
+import { docForTask, judge, optionOrder, revealTasksFor, taskForDoc } from './validateEdge';
 
 const ch3 = chapterById('ch3');
 const direct = ch3.edgeTasks.filter((t) => t.mode === 'direct');
 
 describe('실 판정', () => {
-  it('근거가 틀리면 종류와 상관없이 "단서가 틀림"', () => {
+  it('관계만 본다', () => {
     const task = direct.find((t) => pairKey(t.pair) === 'CN-SU')!;
-    expect(judge(task, '미국 선수단', 'COLD')).toBe('wrongEvidence');
-    expect(judge(task, '국경 충돌', 'TALK')).toBe('wrongRel');
-    expect(judge(task, '국경 충돌', 'COLD')).toBe('ok');
+    expect(judge(task, 'ALLY')).toBe(false);
+    expect(judge(task, 'COLD')).toBe(true);
   });
 
-  it('남북 실은 단서 둘 다 근거로 인정한다', () => {
-    const task = direct.find((t) => pairKey(t.pair) === 'KR-NK')!;
-    expect(judge(task, '공동 성명', 'TALK')).toBe('ok');
-    expect(judge(task, '적십자 회담', 'TALK')).toBe('ok');
+  it('문서 하나에 실 하나: 3-3 중국–소련, 3-5 미국–중국, 3-6 남한–북한', () => {
+    expect(['3-3', '3-5', '3-6'].map((id) => pairKey(taskForDoc(ch3, id)!.pair))).toEqual(['CN-SU', 'CN-US', 'KR-NK']);
+    expect(docForTask(ch3, direct[1])?.id).toBe('3-5');
   });
 
-  it('힌트에 쓰는 문서는 그 실의 근거가 들어 있는 문서', () => {
-    expect(evidenceDoc(ch3, direct.find((t) => pairKey(t.pair) === 'SU-US')!)?.id).toBe('3-7');
+  it('미국–소련 실은 시계 공개 때 저절로 바뀐다', () => {
+    expect(revealTasksFor(ch3, 'ch3-c1').map((t) => pairKey(t.pair))).toEqual(['SU-US']);
   });
 });
 
 describe('선택지 순서', () => {
-  it('같은 선택지를 섞기만 하고, 정답 자리가 실마다 돌아간다(3장: ②①③②)', () => {
+  it('같은 선택지를 섞기만 하고, 정답 자리가 실마다 돌아간다(3장: ②①②)', () => {
     const positions = direct.map((t) => {
       const order = optionOrder(ch3, t);
       expect([...order].sort()).toEqual([...t.options!].sort());
       return order.indexOf(t.to) + 1;
     });
-    expect(positions).toEqual([2, 1, 3, 2]);
+    expect(positions).toEqual([2, 1, 2]);
   });
 });

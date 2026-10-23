@@ -2,7 +2,8 @@
 // 저장은 모두 try/catch로 감싸고, 실패해도 게임은 계속된다.
 import type { SaveSlot } from '../types';
 
-export const SAVE_KEY = 'needle-and-thread:v1';
+// v2(2026-10-23): 쉬운 흐름으로 바꾸며 진행 기록 모양이 달라져 체험판의 옛 기록(v1)은 쓰지 않는다
+export const SAVE_KEY = 'needle-and-thread:v2';
 export const MAX_SLOTS = 40;
 export const MAX_AGE_MS = 60 * 24 * 60 * 60 * 1000;   // 60일
 

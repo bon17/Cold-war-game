@@ -1,25 +1,33 @@
 import { useEffect, useState } from 'react';
 import { layout } from '../../lib/assets';
-import { pairKey } from '../../lib/board';
+import { changedEdges, pairKey } from '../../lib/board';
 import { clockEntry, minutesOf, revealPath } from '../../lib/clockFlow';
-import { chapterById, nodes, strings } from '../../lib/data';
+import { chapterById, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { stageToScreen } from '../../lib/stageFit';
+import { revealTasksFor } from '../../lib/validateEdge';
 import { useGame } from '../../store/gameStore';
-import type { ClockEntry } from '../../types';
+import type { Chapter, ClockCheckpoint, ClockEntry } from '../../types';
 import { RelSwatch } from '../Board/EdgeStroke';
 import { useStageFit } from '../Stage/Stage';
 import { edgeTitle } from './ReportForm';
 import './Report.css';
 
-// 시계 공개(기획서 5.4, 8.3). 발표 전보·해설·정정 보도는 '확인'을 눌러야 넘어가고 건너뛸 수 없다.
+// 시계 공개(기획서 5.4, 8.3): 바늘 → 해설 카드 → 본샘일보 1면(예측만). 카드는 '확인'을 눌러야 넘어가고 건너뛸 수 없다.
 // 바늘은 한 칸씩 끊어 움직이고, 거쳐 가는 해마다 캡션과 함께 약 2.5초 머문다.
 const STEP_MS = 130;
 const HOLD_MS = 2500;
 const PRINT_MS = 2000;
 
+// 이 지점 공개 전에 시계가 가리키던 분(앞 지점의 마지막 값, 첫 지점이면 장 시작 값)
+function minutesBefore(chapter: Chapter, point: ClockCheckpoint): number {
+  const i = chapter.clock.indexOf(point);
+  if (i <= 0) return minutesOf(chapter.startClock ?? {});
+  return minutesOf(revealPath(chapter.clock[i - 1]).pop()!);
+}
+
 export function ClockReveal() {
-  const { chapterId, reveal, reports, bonus, board, advanceReveal, setClockShown, answerBonus } = useGame();
+  const { chapterId, reveal, reports, board, done, advanceReveal, setClockShown } = useGame();
   const chapter = chapterById(chapterId);
   const point = reveal ? chapter.clock.find((p) => p.id === reveal.pointId) : undefined;
   const fit = useStageFit();
@@ -81,10 +89,6 @@ export function ClockReveal() {
       {strings.reveal.ok}
     </button>
   );
-  const name = (key: string) => {
-    const e = board.find((x) => pairKey(x.pair) === key);
-    return e ? edgeTitle(e) : key;
-  };
 
   if (reveal.step === 'needle') {
     const p = stageToScreen(fit, layout.clock.cx, layout.clock.plaque.y + layout.clock.plaque.h + 14);
@@ -100,42 +104,49 @@ export function ClockReveal() {
   }
 
   let card;
-  if (reveal.step === 'bulletin') {
+  if (reveal.step === 'explanation') {
+    const after = minutesOf(entry);
+    const before = minutesBefore(chapter, point);
+    const moved = after > before ? 'farther' : after < before ? 'closer' : 'same';
+    const same = report && report.direction === point.direction;
+    const changed = revealTasksFor(chapter, point.id);
     card = (
-      <div className="reveal-card bulletin" role="dialog" aria-modal="true" aria-label={entry.bulletin.headline}>
+      <div className="reveal-card explanation" role="dialog" aria-modal="true" aria-label={entry.bulletin.headline}>
         <div className="bulletin-from">{strings.reveal.from}</div>
         <div className="bulletin-headline">{entry.bulletin.headline}</div>
-        <p className="bulletin-body">{entry.bulletin.reason}</p>
-        {ok}
-      </div>
-    );
-  } else if (reveal.step === 'explanation') {
-    const same = report && report.direction === point.direction;
-    const notBest = report && point.bestEdges && !point.bestEdges.some((pair) => pairKey(pair) === report.edge);
-    const note = report && point.edgeNotes?.find((n) => pairKey(n.pair) === report.edge)?.note;
-    card = (
-      <div className="reveal-card explanation" role="dialog" aria-modal="true" aria-label={strings.reveal.explanationTitle}>
+        <div className="reveal-minutes">{fmt(strings.clock.plaque, { n: after })}</div>
+        <p><strong>{strings.reveal.moved[moved]}</strong> {entry.bulletin.reason}</p>
         {report && <div className={`reveal-compare${same ? ' same' : ' different'}`}>{same ? strings.reveal.same : strings.reveal.different}</div>}
-        <div className="reveal-card-title">{strings.reveal.explanationTitle}</div>
         <p>{point.explanation}</p>
-        {note && <p className="reveal-note">{note}</p>}
-        {notBest && point.bestEdges && (
-          <p className="reveal-note">{fmt(strings.reveal.bestEdge, { edge: name(pairKey(point.bestEdges[0])) })}</p>
-        )}
+        {changed.map((t) => {
+          const e = board.find((x) => pairKey(x.pair) === pairKey(t.pair));
+          return (
+            <div key={pairKey(t.pair)} className="reveal-changed">
+              <span>{strings.reveal.changedTitle}:</span>
+              <RelSwatch rel={e?.rel ?? t.to} width={48} />
+              <span>
+                {edgeTitle(t)} {strings.relations[e?.rel ?? t.to]}
+              </span>
+            </div>
+          );
+        })}
         {ok}
       </div>
     );
   } else if (reveal.step === 'newspaper' && report) {
     const headline = fmt(report.direction === 'closer' ? strings.newspaper.headlineCloser : strings.newspaper.headlineFarther, {
       year: point.year,
-      edge: name(report.edge),
     });
+    const list = changedEdges(chapter, board, done)
+      .map((e) => `${edgeTitle(e)} ${e.label ?? strings.relations[e.rel]}`)
+      .join(' · ');
     const wrong = report.direction !== point.direction;
     card = (
       <div className={`reveal-card newspaper${printed ? ' printed' : ''}`} role="dialog" aria-modal="true" aria-label={headline}>
         <div className="paper-masthead">{strings.newspaper.masthead}</div>
         <div className="paper-dateline">{fmt(strings.newspaper.dateline, { year: point.year })}</div>
         <h2 className="paper-headline">{headline}</h2>
+        {list && <p className="paper-sub">{fmt(strings.newspaper.sub, { list })}</p>}
         <div className="paper-byline">{strings.newspaper.byline}</div>
         {wrong && (
           <div className="paper-correction">
@@ -151,44 +162,8 @@ export function ClockReveal() {
         {printed && ok}
       </div>
     );
-  } else if (reveal.step === 'bonus' && chapter.bonusQuestion) {
-    const q = chapter.bonusQuestion;
-    const answerKey = pairKey(q.answer);
-    const [a, b] = q.answer.map((id) => nodes.nodes[id]?.name ?? id);
-    // 질문이 묻는 실(about) 자신은 선택지에서 뺀다
-    const choices = board.filter((e) => !q.about || pairKey(e.pair) !== pairKey(q.about));
-    card = (
-      <div className="reveal-card bonus" role="dialog" aria-modal="true" aria-label={strings.bonus.title}>
-        <div className="reveal-card-title">{strings.bonus.title}</div>
-        <p className="bonus-prompt">{q.prompt}</p>
-        <div className="report-edges">
-          {choices.map((e) => {
-            const key = pairKey(e.pair);
-            const state = bonus ? (key === answerKey ? ' right' : key === bonus.edge ? ' picked' : '') : '';
-            return (
-              <button key={key} type="button" className={`report-edge${state}`} disabled={!!bonus} onClick={() => answerBonus(key)}>
-                <RelSwatch rel={e.rel} width={40} />
-                <span>{edgeTitle(e)}</span>
-              </button>
-            );
-          })}
-        </div>
-        {bonus && (
-          <>
-            <p className="reveal-note">
-              {bonus.correct ? strings.bonus.correct : fmt(strings.bonus.wrong, { a, b })}{' '}
-              {q.explanation}
-            </p>
-            {ok}
-          </>
-        )}
-      </div>
-    );
   }
 
-  return (
-    <div className="reveal-backdrop">
-      {card}
-    </div>
-  );
+  return <div className="reveal-backdrop">{card}</div>;
 }
+

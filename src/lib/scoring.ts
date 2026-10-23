@@ -1,33 +1,20 @@
-// 별과 등급(기획서 5.6). 장마다 별 3개, 예측 방향이 틀려도 별을 잃지 않는다.
+// 별과 등급(기획서 5.6). 장마다 별 3개: 실을 한 번에 맞힐 때마다 별 하나(실이 3개가 아니면 비율로).
+// 시계 예측은 별과 상관없다. 2장과 4장의 반전은 일부러 틀리기 쉽게 만든 장치다.
 import { pairKey } from './board';
-import type { Chapter } from '../types';
+import type { Chapter, EdgeTask } from '../types';
 
 export interface ChapterProgress {
-  done: Record<string, { wrong: number; helped: boolean; auto?: boolean }>;
-  reports: Record<string, { direction: string; edge: string }>;
-  clues: { docId: string; clue: string }[];
-  bonus: { edge: string; correct: boolean } | null;
+  done: Record<string, { wrong: number; auto?: boolean }>;
 }
 
-export interface Stars { edges: boolean; reason: boolean; extra: boolean; total: number }
+export interface Stars { rows: { task: EdgeTask; firstTry: boolean }[]; total: number }
 
 export function chapterStars(chapter: Chapter, p: ChapterProgress): Stars {
-  // ① 그 장의 직접 실을 모두 두 번 안에 맞힘(도움받아 걸리면 없음)
-  const direct = chapter.edgeTasks.filter((t) => t.mode === 'direct');
-  const edges = direct.length > 0 && direct.every((t) => {
-    const r = p.done[pairKey(t.pair)];
-    return r && !r.helped && r.wrong <= 1;
-  });
-  // ② 시계 예측의 근거 실을 맞힘(예측 지점이 여럿이면 모두)
-  const predicts = chapter.clock.filter((c) => c.mode === 'predict' && c.bestEdges && c.bestEdges.length > 0);
-  const reason = predicts.length > 0 && predicts.every((c) => {
-    const r = p.reports[c.id];
-    return !!r && c.bestEdges!.some((pair) => pairKey(pair) === r.edge);
-  });
-  // ③ 더 읽기 문서의 단서를 하나 이상 모으거나 보너스 질문을 맞힘
-  const extraDocs = new Set(chapter.documents.filter((d) => d.tier === 'extra').map((d) => d.id));
-  const extra = p.clues.some((c) => extraDocs.has(c.docId)) || !!p.bonus?.correct;
-  return { edges, reason, extra, total: [edges, reason, extra].filter(Boolean).length };
+  const rows = chapter.edgeTasks
+    .filter((t) => t.mode === 'direct')
+    .map((task) => ({ task, firstTry: p.done[pairKey(task.pair)]?.wrong === 0 }));
+  const got = rows.filter((r) => r.firstTry).length;
+  return { rows, total: rows.length === 0 ? 0 : Math.round((3 * got) / rows.length) };
 }
 
 // 등급: 끝낸 장의 별 비율(끝내지 않은 장은 null이고 계산에서 뺀다)
@@ -44,11 +31,6 @@ export function grade(stars: Record<string, number | null>): { grade: Grade; got
 
 // 도전 과제(기획서 5.7) 가운데 한 장 안에서 정해지는 것
 export function chapterAchievements(chapter: Chapter, p: ChapterProgress): string[] {
-  const out: string[] = [];
   const direct = chapter.edgeTasks.filter((t) => t.mode === 'direct');
-  if (direct.length > 0 && direct.every((t) => p.done[pairKey(t.pair)]?.wrong === 0)) out.push('perfect-board');
-  const allClues = chapter.documents.flatMap((d) => d.clues.map((c) => `${d.id}:${c}`));
-  const got = new Set(p.clues.map((c) => `${c.docId}:${c.clue}`));
-  if (allClues.every((c) => got.has(c))) out.push('collector');
-  return out;
+  return direct.length > 0 && direct.every((t) => p.done[pairKey(t.pair)]?.wrong === 0) ? ['perfect-board'] : [];
 }

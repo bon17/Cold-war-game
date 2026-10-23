@@ -1,4 +1,4 @@
-/* 실 걸기 창: 화면 아래쪽(책상 위)에 띄워 보드가 가려지지 않게 한다. 실제 px, 글자 18px 이상 */
+/* 실 바꾸기 창: 화면 아래쪽(책상 위)에 띄워 보드가 가려지지 않게 한다. 실제 px, 글자 18px 이상 */
 .edge-dialog {
   position: fixed;
   left: 50%;
@@ -7,68 +7,63 @@
   transform: translateX(-50%);
   width: min(720px, 94vw);
   box-sizing: border-box;
-  padding: 10px 16px 10px;
+  padding: 14px 20px 12px;
   background: var(--tag-paper);
   border: 1.5px solid var(--string-outline);
   border-radius: 4px;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
-  font-size: 18px;
+  font-size: 20px;
   color: var(--ink);
 }
 .edge-dialog-title {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
-.edge-dialog-step {
-  font-weight: 700;
-  margin: 6px 0 4px;
-}
-.edge-dialog-step.locked {
-  color: #7a6a56;
-  font-weight: 400;
-}
-.edge-dialog-empty {
-  margin: 0;
-}
-.edge-dialog-clues,
-.edge-dialog-rels {
+.edge-dialog-doc {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  gap: 6px 12px;
+  margin-bottom: 10px;
+  color: #5a4a36;
 }
 .edge-dialog button {
   font: inherit;
   color: inherit;
   cursor: pointer;
 }
-.dialog-clue {
-  padding: 4px 12px;
+.edge-dialog-reread {
+  padding: 2px 12px;
   border: 1.5px solid var(--string-outline);
-  border-radius: 2px;
+  border-radius: 3px;
   background: #fffdf6;
 }
-.dialog-clue.on {
-  background: rgba(243, 227, 122, 0.9);
-  outline: 3px solid var(--brass);
-  font-weight: 700;
+/* 관계 두 개: 크게, 나란히 */
+.edge-dialog-rels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 .edge-dialog-rels button {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 14px;
-  border: 1.5px solid var(--string-outline);
-  border-radius: 3px;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 2px solid var(--string-outline);
+  border-radius: 4px;
   background: #fffdf6;
+  font-size: 24px;
   font-weight: 700;
 }
 .edge-dialog-rels button:hover:not(:disabled) {
   background: #fff3cf;
 }
-.edge-dialog-rels button:disabled {
+.edge-dialog-rels button.tried {
   opacity: 0.45;
   cursor: default;
+  text-decoration: line-through;
 }
 .rel-key {
   display: inline-grid;
@@ -96,6 +91,13 @@
 .edge-dialog-message.wrong {
   color: #5b2b12;
   font-weight: 700;
+}
+.key-quote {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 2px;
+  background: rgba(243, 227, 122, 0.85);
+  color: var(--ink);
 }
 .edge-dialog-close {
   flex: none;

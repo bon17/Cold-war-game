@@ -45,21 +45,12 @@ describe('이름별 기록(기획서 5.9)', () => {
 
 describe('별과 등급(기획서 5.6)', () => {
   const ch3 = chapterById('ch3');
-  const allDone = { 'CN-SU': { wrong: 0, helped: false }, 'CN-US': { wrong: 1, helped: false }, 'KR-NK': { wrong: 0, helped: false }, 'SU-US': { wrong: 0, helped: false } };
 
-  it('별 셋: 두 번 안에 모두, 근거 실 맞음, 보너스 맞음', () => {
-    const s = chapterStars(ch3, { done: allDone, reports: { 'ch3-c2': { direction: 'closer', edge: 'CN-US' } }, clues: [], bonus: { edge: 'CN-SU', correct: true } });
-    expect(s).toEqual({ edges: true, reason: true, extra: true, total: 3 });   // 방향이 틀려도 별은 잃지 않는다
-  });
-
-  it('도움받아 걸린 실이 있으면 ①이 없고, 더 읽기 단서만으로도 ③', () => {
-    const s = chapterStars(ch3, {
-      done: { ...allDone, 'KR-NK': { wrong: 3, helped: true } },
-      reports: { 'ch3-c2': { direction: 'farther', edge: 'KR-NK' } },
-      clues: [{ docId: '3-1', clue: '핵실험' }],
-      bonus: { edge: 'KR-NK', correct: false },
-    });
-    expect(s).toEqual({ edges: false, reason: false, extra: true, total: 1 });
+  it('실을 한 번에 맞힐 때마다 별 하나(3장은 실 3개)', () => {
+    const s = chapterStars(ch3, { done: { 'CN-SU': { wrong: 0 }, 'CN-US': { wrong: 1 }, 'KR-NK': { wrong: 0 }, 'SU-US': { wrong: 0, auto: true } } });
+    expect(s.rows.map((r) => r.firstTry)).toEqual([true, false, true]);   // 저절로 바뀐 미국–소련은 세지 않는다
+    expect(s.total).toBe(2);
+    expect(chapterStars(ch3, { done: {} }).total).toBe(0);
   });
 
   it('등급: 끝낸 장만 센다(–는 뺀다)', () => {
@@ -70,9 +61,9 @@ describe('별과 등급(기획서 5.6)', () => {
   });
 
   it('도전 과제: 첫 시도에 모두 맞히면 perfect-board', () => {
-    const first = Object.fromEntries(Object.keys(allDone).map((k) => [k, { wrong: 0, helped: false }]));
-    expect(chapterAchievements(ch3, { done: first, reports: {}, clues: [], bonus: null })).toEqual(['perfect-board']);
-    expect(chapterAchievements(ch3, { done: allDone, reports: {}, clues: [], bonus: null })).toEqual([]);
+    const first = { 'CN-SU': { wrong: 0 }, 'CN-US': { wrong: 0 }, 'KR-NK': { wrong: 0 } };
+    expect(chapterAchievements(ch3, { done: first })).toEqual(['perfect-board']);
+    expect(chapterAchievements(ch3, { done: { ...first, 'KR-NK': { wrong: 1 } } })).toEqual([]);
   });
 });
 

@@ -8,10 +8,10 @@ import type { NodeId } from '../../types';
 import { RelSwatch } from './EdgeStroke';
 import './BoardTable.css';
 
-// 표로 보기(아트 계획서 3.7): 두 나라, 지금 관계, 근거 단서, 이력. 실 이력표(2.7 ②)를 겸한다.
+// 표로 보기(아트 계획서 3.7): 두 나라, 지금 관계, 근거 문서, 이력. 실 이력표(2.7 ②)를 겸한다.
 // 이력은 장 데이터로 만든다(지난 장은 모두, 지금 장은 끝난 과제만).
 export function BoardTable() {
-  const { chapterId, board, done, clues, table, closeTable } = useGame();
+  const { chapterId, board, done, table, closeTable } = useGame();
   const chapter = chapterById(chapterId);
 
   useEffect(() => {
@@ -23,7 +23,6 @@ export function BoardTable() {
 
   if (!table) return null;
   const name = (id: NodeId) => nodes.nodes[id]?.name ?? id;
-  const collected = new Set(clues.map((c) => c.clue));
 
   return (
     <div className="reveal-backdrop" onClick={(e) => e.target === e.currentTarget && closeTable()}>
@@ -43,7 +42,7 @@ export function BoardTable() {
               const key = pairKey(e.pair);
               const [a, b] = e.pair.map(name);
               const task = chapter.edgeTasks.find((t) => pairKey(t.pair) === key);
-              const evidence = done[key] && task ? task.evidence.filter((c) => collected.has(c)).join(', ') : '';
+              const evidence = done[key] && task?.doc ? chapter.documents.find((d) => d.id === task.doc)?.title : '';
               const history = edgeHistory(chapters, chapterId, key, done)
                 .map((h) => `${h.year ?? strings.boardTable.start} ${h.label ?? strings.relations[h.rel]}`)
                 .join(' → ');

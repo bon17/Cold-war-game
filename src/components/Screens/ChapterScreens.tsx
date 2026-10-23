@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { assetUrl } from '../../lib/assets';
 import { chapterLabel } from '../../lib/chapterLabel';
-import { chapterById, chapters, strings } from '../../lib/data';
+import { chapterById, chapters, nodes, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { chapterAchievements, chapterStars, grade } from '../../lib/scoring';
 import { startWithCode } from '../../lib/session';
 import { sfx } from '../../lib/sound';
 import { useGame } from '../../store/gameStore';
 import { useSession, type ArchiveEntry } from '../../store/sessionStore';
-import type { Rel } from '../../types';
 import './Screens.css';
 
 const COVER_MS = 3000;
@@ -32,20 +31,18 @@ export function NoticeCard() {
   );
 }
 
-// 장 표지: 3초 뒤 저절로, 누르면 바로(기획서 8.3)
+// 장 표지: 3초 뒤 저절로, 누르면 바로(기획서 8.3). 다음은 '할 일' 카드
 export function CoverScreen() {
   const { phase, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
-  const hasHandover = !!chapter.handover;
-  const next = () => setPhase(hasHandover ? 'handover' : 'desk');
   useEffect(() => {
     if (phase !== 'cover') return;
-    const timer = window.setTimeout(() => setPhase(hasHandover ? 'handover' : 'desk'), COVER_MS);
+    const timer = window.setTimeout(() => setPhase('mission'), COVER_MS);
     return () => window.clearTimeout(timer);
-  }, [phase, hasHandover, setPhase]);
+  }, [phase, setPhase]);
   if (phase !== 'cover') return null;
   return (
-    <button type="button" className="cover-screen" onClick={next} aria-label={strings.cover.tap}>
+    <button type="button" className="cover-screen" onClick={() => setPhase('mission')} aria-label={strings.cover.tap}>
       <img className="kenburns" src={assetUrl(chapter.cover.image)} alt={chapter.cover.alt} />
       <div className="cover-text">
         <div className="cover-chapter">{chapterLabel(chapter)}</div>
@@ -57,65 +54,35 @@ export function CoverScreen() {
   );
 }
 
-// 인계 메모(아트 계획서 2.7 ①): 빈칸 하나를 관계 3개 중에서 고른다. 정답은 바로 보여 준다. 점수와 무관, 건너뛸 수 있다.
-export function HandoverMemo() {
+// 이번 장에서 할 일(2026-10-23, 기획서 5.0): 시계와 실이 무엇인지, 이 장의 상황, 할 일 세 가지. 책상은 뒤에 보이기만 한다.
+export function MissionCard() {
   const { phase, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
-  const [picked, setPicked] = useState<Rel | null>(null);
-  const memo = chapter.handover;
-  if (phase !== 'handover' || !memo) return null;
-
-  // 정답이 늘 같은 자리에 오지 않게 가운데에 둔다
-  const wrong = memo.options.filter((r) => r !== memo.answer);
-  const options = [wrong[0], memo.answer, ...wrong.slice(1)];
-  const blank = picked ? strings.relations[memo.answer] : '　　　';
-
+  if (phase !== 'mission') return null;
+  const m = strings.mission;
   return (
-    <>
-    {/* 메모를 보는 동안 책상은 보이기만 하고 눌리지 않게 막는다 */}
-    <div className="handover-block" />
-    <div className="handover-card" role="dialog" aria-label={strings.handover.envelope}>
-      <div className="handover-head">{strings.handover.envelope}</div>
-      <div className="handover-lines">
-        {memo.lines.map((line, i) => {
-          const [before, after] = line.split('{blank}');
-          return (
-            <p key={i}>
-              {before}
-              {after !== undefined && (
-                <>
-                  <span className={`handover-blank${picked ? ' filled' : ''}`}>{blank}</span>
-                  {after}
-                </>
-              )}
-            </p>
-          );
-        })}
-        <div className="handover-sign">— {memo.signature}</div>
-      </div>
-      {!picked ? (
-        <>
-          <div className="handover-q">{strings.handover.intro}</div>
-          <div className="handover-options">
-            {options.map((r) => (
-              <button key={r} type="button" className="big-button" onClick={() => setPicked(r)}>
-                {strings.relations[r]}
-              </button>
-            ))}
-          </div>
-        </>
-      ) : (
-        <p className={`handover-result${picked === memo.answer ? ' right' : ''}`} aria-live="polite">
-          {picked === memo.answer ? strings.handover.right : fmt(strings.handover.wrong, { answer: strings.relations[memo.answer] })}
-        </p>
-      )}
-      <div className="handover-foot">
-        <button type="button" className={picked ? 'reveal-ok' : 'quiet-button'} onClick={() => setPhase('desk')} autoFocus={!!picked}>
-          {picked ? strings.handover.go : strings.handover.skip}
+    <div className="screen-backdrop">
+      <div className="screen-card mission" role="dialog" aria-modal="true" aria-label={m.title}>
+        <div className="result-title">{m.title}</div>
+        <div className="mission-room">
+          <div className="mission-label">{m.roomTitle}</div>
+          <p>{m.clockLine}</p>
+          <p>{m.boardLine}</p>
+        </div>
+        {chapter.mission.lines.map((line, i) => (
+          <p key={i} className="mission-line">{line}</p>
+        ))}
+        <div className="mission-label">{m.stepsTitle}</div>
+        <ol className="mission-steps">
+          {m.steps.map((step, i) => (
+            <li key={i}>{fmt(step, { n: chapter.documents.length })}</li>
+          ))}
+        </ol>
+        <button type="button" className="reveal-ok" onClick={() => setPhase('desk')} autoFocus>
+          {m.go}
         </button>
       </div>
     </div>
-    </>
   );
 }
 
@@ -164,16 +131,15 @@ export function ResultCard() {
       .filter((p) => p.mode === 'predict' && game.reports[p.id] && game.reports[p.id].direction !== p.direction)
       .map((p) => ({ chapterId: chapter.id, pointId: p.id, year: p.year, ...game.reports[p.id] }));
     finishChapter(chapter.id, s.total, [...game.achievements, ...chapterAchievements(chapter, game)], archive);
-    [s.edges, s.reason, s.extra].forEach((on, i) => on && window.setTimeout(sfx.stamp, 500 + i * 450));
+    s.rows.forEach((r, i) => r.firstTry && window.setTimeout(sfx.stamp, 500 + i * 450));
   }, [phase, chapter, game, s, finishChapter]);
 
   if (phase !== 'result') return null;
   const g = grade(stars);
-  const rows = [
-    [s.edges, strings.result.star1],
-    [s.reason, strings.result.star2],
-    [s.extra, strings.result.star3],
-  ] as const;
+  const rows = s.rows.map((r) => {
+    const [a, b] = r.task.pair.map((id) => nodes.nodes[id]?.name ?? id);
+    return [r.firstTry, fmt(r.firstTry ? strings.result.starFirst : strings.result.starAgain, { a, b })] as const;
+  });
   return (
     <div className="screen-backdrop">
       <div className="screen-card result">

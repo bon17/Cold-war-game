@@ -2,7 +2,7 @@ import { layout } from '../../lib/assets';
 import { chapterById, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { stageToScreen } from '../../lib/stageFit';
-import { availableDocs } from '../../lib/docFlow';
+import { nextAction } from '../../lib/guide';
 import { useGame } from '../../store/gameStore';
 import { useStageFit } from '../Stage/Stage';
 import './DeskLabels.css';
@@ -23,8 +23,8 @@ function ObjectLabel({ sx, sy, text, align = 'center', badge }: { sx: number; sy
 }
 
 export function DeskLabels() {
-  const { chapterId, readDocs, revealed } = useGame();
-  const unread = availableDocs(chapterById(chapterId), revealed).filter((d) => d.tier === 'core' && !readDocs.includes(d.id)).length;
+  const { chapterId, readDocs, done, revealed, reveal } = useGame();
+  const unread = nextAction(chapterById(chapterId), { readDocs, done, revealed, reveal }).kind === 'doc' ? 1 : 0;
   const { calendar, clock, hotspots } = layout;
   const docs = hotspots.docs;
   return (
@@ -39,7 +39,6 @@ export function DeskLabels() {
         text={strings.labels.docs}
         badge={unread > 0 ? fmt(strings.docs.unread, { n: unread }) : undefined}
       />
-      <ObjectLabel sx={hotspots.clues.x - 12} sy={hotspots.clues.y + 30} align="right" text={strings.labels.clues} />
     </>
   );
 }

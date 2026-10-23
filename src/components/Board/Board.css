@@ -74,7 +74,7 @@ button.edge-tag {
   outline-style: solid;
   background: #fff8e4;
 }
-.edge-tag.pending.armed::before {
+.edge-tag.pending::before {
   content: '';
   position: absolute;
   inset: -10px;
@@ -82,6 +82,10 @@ button.edge-tag {
   box-shadow: 0 0 0 8px rgba(243, 227, 122, 0.8);
   animation: armed-pulse 1.2s ease-in-out infinite alternate;
   pointer-events: none;
+}
+/* 이번 장에서 바뀌지 않는 실의 이름표 */
+.edge-tag.faint {
+  opacity: 0.6;
 }
 @keyframes armed-pulse {
   from { opacity: 0.15; }
@@ -118,22 +122,17 @@ button.edge-tag {
   50% { transform: translate(calc(-50% + 6px), -50%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .edge-tag.pending.armed::before,
+  .edge-tag.pending::before,
   .edge-g.settle,
   .edge-g.shake,
   .edge-tag.shake {
     animation: none;
   }
-  .edge-tag.pending.armed::before {
+  .edge-tag.pending::before {
     opacity: 0.8;
   }
 }
 
-.edge-tag-hidden {
-  min-width: 60px;
-  text-align: center;
-  font-weight: 700;
-}
 
 /* 보드 틀 오른쪽 아래의 '표로 보기' 종이 탭(무대 px 28) */
 .board-table-tab {

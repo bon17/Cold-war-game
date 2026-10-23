@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { pairKey } from '../../lib/board';
+import { changedEdges, pairKey } from '../../lib/board';
 import { nextCheckpoint } from '../../lib/clockFlow';
 import { chapterById, nodes, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
@@ -8,27 +7,22 @@ import type { BoardEdge, NodeId } from '../../types';
 import { RelSwatch } from '../Board/EdgeStroke';
 import './Report.css';
 
-// 보고서(기획서 5.3): ① 자정에 가까워졌을까/멀어졌을까(도장 두 개) ② 가장 큰 이유가 된 실 하나 → 내기.
+// 보고서(기획서 5.3): 이번 장에서 바뀐 실을 보여 주고, 시계가 자정에 가까워졌을까/멀어졌을까 도장 하나를 누르면 바로 낸다.
 // 판정은 방향만 본다. 분 단위 숫자는 맞히지 않아도 된다.
-export function edgeTitle(edge: BoardEdge): string {
+export function edgeTitle(edge: Pick<BoardEdge, 'pair'>): string {
   const [a, b] = edge.pair.map((id: NodeId) => nodes.nodes[id]?.name ?? id);
   return fmt(strings.report.edgeName, { a, b });
 }
 
 export function ReportForm() {
-  const { chapterId, revealed, reportOpen, board, closeReport, submitReport } = useGame();
-  const [direction, setDirection] = useState<Report['direction'] | null>(null);
-  const [edge, setEdge] = useState<string | null>(null);
-  const point = nextCheckpoint(chapterById(chapterId), revealed);
+  const { chapterId, revealed, reportOpen, board, done, closeReport, submitReport } = useGame();
+  const chapter = chapterById(chapterId);
+  const point = nextCheckpoint(chapter, revealed);
   if (!reportOpen || !point) return null;
 
+  const changed = changedEdges(chapter, board, done);
   const stamp = (value: Report['direction'], title: string, sub: string, arrow: string) => (
-    <button
-      type="button"
-      className={`report-stamp ${value}${direction === value ? ' on' : ''}`}
-      aria-pressed={direction === value}
-      onClick={() => setDirection(value)}
-    >
+    <button type="button" className={`report-stamp ${value}`} onClick={() => submitReport({ direction: value })}>
       <span className="report-stamp-arrow" aria-hidden="true">{arrow}</span>
       <span className="report-stamp-title">{title}</span>
       <span className="report-stamp-sub">{sub}</span>
@@ -40,43 +34,30 @@ export function ReportForm() {
       <div className="report-card" role="dialog" aria-modal="true" aria-label={fmt(strings.report.title, { year: point.year })}>
         <div className="report-title">{fmt(strings.report.title, { year: point.year })}</div>
 
-        <div className="report-q">{fmt(strings.report.q1, { year: point.year })}</div>
+        {changed.length > 0 && (
+          <>
+            <div className="report-q small">{strings.report.changed}</div>
+            <div className="report-edges">
+              {changed.map((e) => (
+                <span key={pairKey(e.pair)} className="report-edge">
+                  <RelSwatch rel={e.rel} width={40} />
+                  <span>{edgeTitle(e)}</span>
+                  <span className="report-edge-rel">{e.label ?? strings.relations[e.rel]}</span>
+                </span>
+              ))}
+            </div>
+          </>
+        )}
+
+        <div className="report-q">{fmt(strings.report.q, { year: point.year })}</div>
         <div className="report-stamps">
           {stamp('closer', strings.report.closer, strings.report.closerSub, '▲')}
           {stamp('farther', strings.report.farther, strings.report.fartherSub, '▼')}
         </div>
 
-        <div className="report-q">{strings.report.q2}</div>
-        <div className="report-edges">
-          {board.map((e) => {
-            const key = pairKey(e.pair);
-            return (
-              <button
-                key={key}
-                type="button"
-                className={`report-edge${edge === key ? ' on' : ''}`}
-                aria-pressed={edge === key}
-                onClick={() => setEdge(key)}
-              >
-                <RelSwatch rel={e.rel} width={40} />
-                <span>{edgeTitle(e)}</span>
-                <span className="report-edge-rel">{e.label ?? strings.relations[e.rel]}</span>
-              </button>
-            );
-          })}
-        </div>
-
         <div className="report-foot">
           <button type="button" className="report-close" onClick={closeReport}>
             {strings.report.close}
-          </button>
-          <button
-            type="button"
-            className="report-submit"
-            disabled={!direction || !edge}
-            onClick={() => direction && edge && submitReport({ direction, edge })}
-          >
-            {strings.report.submit}
           </button>
         </div>
       </div>
