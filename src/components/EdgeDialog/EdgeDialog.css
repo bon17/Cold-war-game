@@ -87,6 +87,17 @@
   margin: 0;
   min-height: 1.5em;
   line-height: 1.5;
+  color: #5a4a36;
+}
+/* 맞힌 뒤: 한 줄 설명을 크게 */
+.edge-dialog.solved .edge-dialog-title {
+  color: #2f6b3f;
+}
+.edge-dialog-explain {
+  margin: 0 0 4px;
+  font-size: 22px;
+  line-height: 1.6;
+  word-break: keep-all;
 }
 .edge-dialog-message.wrong {
   color: #5b2b12;

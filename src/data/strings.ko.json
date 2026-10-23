@@ -60,11 +60,14 @@
       "progressClock": "시계 예측"
     },
     "dialog": {
-      "title": "{a}–{b} 실은 이제 어떻게 됐을까?",
+      "title": "{a}–{b}, 이제 어떤 사이가 됐을까?",
+      "hint": "고른 사이가 보드에 실로 걸려요.",
       "fromDoc": "방금 읽은 문서: 「{title}」",
       "reread": "문서 다시 보기",
       "wrong": "다시 생각해 볼까요? 문서에 이렇게 적혀 있어요.",
-      "close": "닫기"
+      "close": "닫기",
+      "nextDoc": "다음 문서 보기",
+      "ok": "확인"
     },
     "result": {
       "ok": "맞아요!",
@@ -96,6 +99,9 @@
     "explanationTitle": "해설",
     "ok": "확인",
     "changedTitle": "함께 바뀐 실",
+    "next": "다음",
+    "checkWrong": "다시 볼까요?",
+    "checkRight": "맞아요!",
     "moved": {
       "closer": "시계가 자정에 가까워졌어요.",
       "farther": "시계가 자정에서 멀어졌어요.",

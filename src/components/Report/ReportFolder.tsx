@@ -8,10 +8,11 @@ import { TapHint } from '../Desk/TapHint';
 // 책상 위 보고서철(그림). 시계 예측 지점이 열리면 빛나고, 누르면 보고서를 쓴다.
 // 아직이면 무엇이 남았는지 '지금 할 일' 쪽지가 알려 준다.
 export function ReportFolder() {
-  const { chapterId, revealed, readDocs, done, reveal, openReport } = useGame();
+  const { chapterId, revealed, readDocs, done, reveal, dialogEdge, openReport } = useGame();
   const chapter = chapterById(chapterId);
   const atDesk = useSession((s) => s.phase === 'desk');
-  const ready = atDesk && nextAction(chapter, { readDocs, done, revealed, reveal }).kind === 'report';
+  // 빛과 '여기를 누르세요'는 책상 화면에서, '맞아요!' 창을 닫은 뒤에
+  const ready = atDesk && !dialogEdge && nextAction(chapter, { readDocs, done, revealed, reveal }).kind === 'report';
   const { x, y, w, h } = layout.hotspots.report;
   return (
     <button

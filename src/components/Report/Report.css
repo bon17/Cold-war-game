@@ -260,3 +260,127 @@
   .reveal-caption, .reveal-card.newspaper { animation: none; }
   .report-stamp.on { transform: none; }
 }
+
+/* 천천히 읽는 시계 카드(프롤로그 끝): 화면 아래에 두어 보드와 시계가 보이게, 큰 글씨 */
+.reveal-backdrop.story {
+  align-items: flex-end;
+  padding-bottom: 2vh;
+  background: rgba(18, 13, 10, 0.3);
+}
+.story-card {
+  width: min(860px, 94vw);
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.story-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+.story-card .bulletin-headline {
+  margin: 0;
+  font-size: 18px;
+}
+.story-card .reveal-minutes {
+  margin: 0;
+  font-size: 22px;
+}
+.reveal-card p.story-text {
+  min-height: 3.2em;
+  margin: 6px 0 2px;
+  font-size: 24px;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+.story-sentence {
+  animation: story-in 500ms ease-out;
+}
+@keyframes story-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.story-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.story-foot .reveal-ok {
+  margin: 0;
+}
+.story-dots {
+  color: #6a5a44;
+  letter-spacing: 0.1em;
+}
+.story-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.story-options button {
+  padding: 14px 16px;
+  border: 2px solid var(--string-outline);
+  border-radius: 4px;
+  background: #fffdf6;
+  font-size: 24px !important;
+  font-weight: 700;
+}
+.story-options button:hover:not(:disabled) {
+  background: #fff3cf;
+}
+.story-options button.tried {
+  opacity: 0.45;
+  text-decoration: line-through;
+  cursor: default;
+}
+.story-options button.right {
+  border-color: #2f6b3f;
+  background: rgba(62, 125, 79, 0.15);
+}
+.story-check-message {
+  min-height: 1.6em;
+  margin: 8px 0 0;
+}
+.story-check-message.wrong {
+  color: #5b2b12;
+  font-weight: 700;
+}
+
+/* 화면 물건 빛내기(실제 px) */
+.spot {
+  position: fixed;
+  pointer-events: none;
+  animation: spot-pulse 1.1s ease-in-out infinite alternate;
+}
+.spot-ring,
+.spot-box {
+  box-sizing: border-box;
+  border: 5px solid #f3e37a;
+  box-shadow: 0 0 18px 6px rgba(243, 227, 122, 0.7);
+}
+.spot-ring {
+  border-radius: 50%;
+}
+.spot-box {
+  border-radius: 8px;
+}
+.spot-svg {
+  inset: 0;
+  overflow: visible;
+}
+.spot-svg line {
+  stroke: #f3e37a;
+  stroke-width: 12;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(243, 227, 122, 0.9));
+}
+@keyframes spot-pulse {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spot { animation: none; }
+  .story-sentence { animation: none; }
+}

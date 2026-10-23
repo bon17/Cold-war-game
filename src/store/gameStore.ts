@@ -30,7 +30,7 @@ interface GameState {
   wrong: Record<string, number>;   // 실마다 틀린 횟수
   done: Record<string, EdgeResult>;// 끝난 실 과제(별, 도전 과제 perfect-board에 쓴다)
   event: (BoardEvent & { id: number }) | null;
-  dialogEdge: string | null;       // 실 바꾸기 창이 열린 실
+  dialogEdge: string | null;       // 실 바꾸기 창이 열린 실(맞힌 뒤에도 '맞아요!'와 '다음 문서 보기'를 보여 주려고 열어 둔다)
   clockShown: { minutes: number; year: number };   // 벽시계와 일력에 보이는 값
   revealed: string[];              // 끝난 시계 지점
   reports: Record<string, Report>; // 시계 지점마다 낸 보고서
@@ -160,7 +160,6 @@ export const useGame = create<GameState>((set, get) => ({
       set({
         board: setEdge(s.board, task),
         done,
-        dialogEdge: null,
         event: stamp({ kind: 'ok', key, allDone: allDirectDone(chapter, done) }),
       });
       return;

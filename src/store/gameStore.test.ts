@@ -48,9 +48,11 @@ describe('게임 상태: 문서 하나 → 실 하나(2026-10-23 쉬운 흐름)'
     game().submitEdge('CN-SU', 'COLD');
     expect(edge('CN-SU')).toEqual({ pair: ['CN', 'SU'], rel: 'COLD' });
     expect(game().done['CN-SU']).toEqual({ wrong: 0 });
-    expect(game().dialogEdge).toBeNull();
+    expect(game().dialogEdge).toBe('CN-SU');   // 창은 '맞아요!'와 '다음 문서 보기'를 보여 주려고 열어 둔다
     expect(game().event).toMatchObject({ kind: 'ok', key: 'CN-SU', allDone: false });
     expect(action()).toEqual({ kind: 'doc', docId: '3-5' });
+    game().openDocument('3-5');                 // '다음 문서 보기'
+    expect(game().dialogEdge).toBeNull();
   });
 
   it('틀리면 창은 열린 채로 남고 틀린 횟수만 센다', () => {

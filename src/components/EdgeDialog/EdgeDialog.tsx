@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { chapterById, pinName, strings } from '../../lib/data';
+import { currentDoc } from '../../lib/docFlow';
 import { fmt } from '../../lib/format';
 import { directTask, docForTask, optionOrder } from '../../lib/validateEdge';
 import { useGame } from '../../store/gameStore';
@@ -8,16 +9,18 @@ import { RelSwatch } from '../Board/EdgeStroke';
 import './EdgeDialog.css';
 
 // 실 바꾸기 창(무대 밖, 실제 px). 문서를 다 읽으면 저절로 열리고, 반짝이는 실 이름표를 눌러도 열린다.
-// 관계 두 개 중 하나를 고르면(숫자 키 1~2) 바로 판정한다. 틀리면 문서의 핵심 구절을 다시 보여 준다.
+// 두 나라가 어떤 사이가 됐는지(관계 두 개 중 하나) 고르면(숫자 키 1~2) 바로 판정한다. 틀리면 문서의 핵심 구절을 다시 보여 준다.
+// 맞히면 창에 '맞아요!'와 한 줄 설명, '다음 문서 보기'(다음 문서가 없으면 '확인')가 나온다(2026-10-23 교사 결정).
 export function EdgeDialog() {
-  const { chapterId, dialogEdge, event, submitEdge, closeEdgeDialog, openDocument } = useGame();
+  const { chapterId, dialogEdge, event, done, readDocs, revealed, submitEdge, closeEdgeDialog, openDocument } = useGame();
   const chapter = chapterById(chapterId);
   const task = dialogEdge ? directTask(chapter, dialogEdge) : undefined;
   const options = useMemo(() => (task ? optionOrder(chapter, task) : []), [chapter, task]);
   const wrong = event && event.kind === 'wrong' && event.key === dialogEdge ? event : null;
+  const solved = !!(dialogEdge && done[dialogEdge]);
 
   useEffect(() => {
-    if (!task) return;
+    if (!task || solved) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeEdgeDialog();
       const n = Number(e.key);
@@ -26,12 +29,35 @@ export function EdgeDialog() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [task, options, wrong, dialogEdge, submitEdge, closeEdgeDialog]);
+  }, [task, solved, options, wrong, dialogEdge, submitEdge, closeEdgeDialog]);
 
   if (!task || !dialogEdge) return null;
 
   const [a, b] = task.pair.map((id: NodeId) => pinName(chapter, id));
   const doc = docForTask(chapter, task);
+
+  if (solved) {
+    const next = currentDoc(chapter, revealed, readDocs, done);
+    const fresh = next && !readDocs.includes(next.id) ? next : undefined;
+    return (
+      <div className="edge-dialog solved" role="dialog" aria-modal="false" aria-label={strings.board.result.ok} aria-live="polite">
+        <div className="edge-dialog-title">{strings.board.result.ok}</div>
+        <p className="edge-dialog-explain">{task.explanation}</p>
+        <div className="edge-dialog-foot">
+          <span />
+          {fresh ? (
+            <button type="button" className="edge-dialog-close" onClick={() => openDocument(fresh.id)} autoFocus>
+              {strings.board.dialog.nextDoc}
+            </button>
+          ) : (
+            <button type="button" className="edge-dialog-close" onClick={closeEdgeDialog} autoFocus>
+              {strings.board.dialog.ok}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="edge-dialog" role="dialog" aria-modal="false" aria-label={fmt(strings.board.dialog.title, { a, b })}>
@@ -63,10 +89,12 @@ export function EdgeDialog() {
 
       <div className="edge-dialog-foot">
         <p className={`edge-dialog-message${wrong ? ' wrong' : ''}`} aria-live="polite">
-          {wrong && doc && (
+          {wrong && doc ? (
             <>
               {strings.board.dialog.wrong} <mark className="key-quote">“{doc.keyPhrase}”</mark>
             </>
+          ) : (
+            strings.board.dialog.hint
           )}
         </p>
         <button type="button" className="edge-dialog-close" onClick={closeEdgeDialog}>

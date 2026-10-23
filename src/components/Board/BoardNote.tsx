@@ -23,7 +23,8 @@ export function BoardNote() {
   const [resultId, setResultId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!event || (event.kind !== 'ok' && event.kind !== 'auto' && event.kind !== 'reportLocked')) return;
+    // 맞힌 실의 설명은 실 바꾸기 창에 나온다(2026-10-23). 쪽지에는 저절로 바뀐 실과 '아직 남았어요'만
+    if (!event || (event.kind !== 'auto' && event.kind !== 'reportLocked')) return;
     setResultId(event.id);
     const timer = window.setTimeout(() => setResultId(null), RESULT_MS);
     return () => window.clearTimeout(timer);
@@ -40,12 +41,10 @@ export function BoardNote() {
 
   let text: string;
   let kind = 'guide';
-  if (event && event.id === resultId && (event.kind === 'ok' || event.kind === 'auto')) {
+  if (event && event.id === resultId && event.kind === 'auto') {
     const task = chapter.edgeTasks.find((t) => pairKey(t.pair) === event.key)!;
     const [a, b] = task.pair.map(name);
-    text = event.kind === 'auto'
-      ? `${fmt(strings.board.result.auto, { a, b })} ${task.explanation}`
-      : `${strings.board.result.ok} ${task.explanation}`;
+    text = `${fmt(strings.board.result.auto, { a, b })} ${task.explanation}`;
     kind = 'ok';
   } else if (event && event.id === resultId && event.kind === 'reportLocked') {
     text = fmt(g.reportLocked, { n: progress.total - progress.done });

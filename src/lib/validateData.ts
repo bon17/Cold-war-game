@@ -70,6 +70,12 @@ export function validateChapter(
     for (const id of point.unlockAfterDocs ?? []) {
       if (!docIds.has(id)) errors.push(where(`${point.id}: 문서 ${id}가 없음`));
     }
+    // 천천히 읽는 시계 카드: 가리킬 물건 목록이 장(발표 이유 + 해설의 줄) 수와 같아야 한다
+    const entry = clock.find((c) => c.year === point.year);
+    if (point.story && entry) {
+      const pages = entry.bulletin.reason.split('\n').length + point.explanation.split('\n').length;
+      if (point.story.spots.length !== pages) errors.push(where(`${point.id}: 시계 카드 ${pages}장인데 spots는 ${point.story.spots.length}개`));
+    }
   }
 
   // 앞 장의 끝 보드 = 이 장의 시작 보드

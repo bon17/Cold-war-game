@@ -11,6 +11,7 @@ import type { Chapter, ClockCheckpoint, ClockEntry } from '../../types';
 import { RelSwatch } from '../Board/EdgeStroke';
 import { useStageFit } from '../Stage/Stage';
 import { edgeTitle } from './ReportForm';
+import { StoryCard } from './StoryCard';
 import './Report.css';
 
 // 시계 공개(기획서 5.4, 8.3): 바늘 → 해설 카드 → 본샘일보 1면(예측만). 카드는 '확인'을 눌러야 넘어가고 건너뛸 수 없다.
@@ -103,6 +104,9 @@ export function ClockReveal() {
       </div>
     );
   }
+
+  // 천천히 읽는 시계 카드(프롤로그): 장마다 문장이 하나씩, 화면 물건을 가리키고, 확인 질문으로 끝난다
+  if (reveal.step === 'explanation' && point.story) return <StoryCard point={point} onDone={advanceReveal} />;
 
   let card;
   if (reveal.step === 'explanation') {
