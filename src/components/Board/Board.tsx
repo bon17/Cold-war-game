@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { assetUrl, layout } from '../../lib/assets';
 import { chapterRels, pairKey } from '../../lib/board';
-import { boardLayout, edgeCurve, nodeAt, pinTagAnchor, SWATCH_W, type Measure } from '../../lib/boardLayout';
-import { nodes, strings } from '../../lib/data';
+import { boardLayout, edgeCurve, nodeAt, pinTagAnchor, SWATCH_W, type Measure, type PinStyle } from '../../lib/boardLayout';
+import { nodes, pinName, pinSide, strings } from '../../lib/data';
 import { pointAt } from '../../lib/stringPath';
 import type { BoardEdge, Chapter, Rel } from '../../types';
 import { fmt } from '../../lib/format';
@@ -59,7 +59,8 @@ export function Board({ chapter, edges: shown, play }: { chapter: Chapter; edges
       : shown),
     [shown, anim],
   );
-  const { pinIds, labels } = useMemo(() => boardLayout(edges, measure, edgeName), [edges, fontsVersion]);
+  const pins: PinStyle = useMemo(() => ({ text: (id) => pinName(chapter, id), side: (id) => pinSide(chapter, id) }), [chapter]);
+  const { pinIds, labels } = useMemo(() => boardLayout(edges, measure, edgeName, pins), [edges, pins, fontsVersion]);
   const animClass = (key: string) => (anim?.key === key ? (anim.kind === 'ok' ? ' settle' : ' shake') : '');
   const background = edges.filter((e) => e.background);
   const puzzle = edges.filter((e) => !e.background);
@@ -108,7 +109,7 @@ export function Board({ chapter, edges: shown, play }: { chapter: Chapter; edges
         const faint = play?.faint.has(key) ? ' faint' : '';
         const style = { left: p.x, top: p.y };
         if (play?.pending.has(key)) {
-          const [a, b] = e.pair.map((id) => nodeAt(id).name);
+          const [a, b] = e.pair.map(pins.text);
           return (
             <button
               key={key}
@@ -144,10 +145,10 @@ export function Board({ chapter, edges: shown, play }: { chapter: Chapter; edges
         );
       })}
       {pinIds.map((id) => {
-        const a = pinTagAnchor(id);
+        const a = pinTagAnchor(id, pins.side(id));
         return (
           <div key={id} className="pin-tag" style={{ left: a.x, top: a.y, transform: `translate(${a.tx * 100}%, ${a.ty * 100}%)` }}>
-            {nodeAt(id).name}
+            {pins.text(id)}
           </div>
         );
       })}

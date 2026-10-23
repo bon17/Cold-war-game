@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { pairKey } from '../../lib/board';
-import { chapterById, chapters, nodes, strings } from '../../lib/data';
+import { chapterById, chapters, pinName, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { edgeHistory } from '../../lib/history';
 import { useGame } from '../../store/gameStore';
@@ -22,7 +22,7 @@ export function BoardTable() {
   }, [table, closeTable]);
 
   if (!table) return null;
-  const name = (id: NodeId) => nodes.nodes[id]?.name ?? id;
+  const name = (id: NodeId) => pinName(chapter, id);
 
   return (
     <div className="reveal-backdrop" onClick={(e) => e.target === e.currentTarget && closeTable()}>

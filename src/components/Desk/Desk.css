@@ -23,6 +23,21 @@
 }
 
 
+/* 시계가 걸리기 전의 벽(프롤로그): 벽지가 덜 바랜 동그란 자국과 못 하나 */
+.wall-mark {
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 244, 214, 0.2), rgba(255, 244, 214, 0.12) 82%, rgba(255, 244, 214, 0));
+  pointer-events: none;
+}
+.wall-nail {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #9a9184, #4a4238 55%, #1e1a15);
+  box-shadow: 2px 3px 3px rgba(20, 12, 6, 0.5);
+  pointer-events: none;
+}
+
 /* 누를 수 있는 책상 위 물건(그림 단추) */
 .desk-object {
   padding: 0;

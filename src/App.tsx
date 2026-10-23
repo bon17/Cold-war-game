@@ -17,6 +17,7 @@ import { TitleScreen } from './components/Screens/TitleScreen';
 import { Stage } from './components/Stage/Stage';
 import { assetUrl } from './lib/assets';
 import { backgroundFor, pairKey } from './lib/board';
+import { clockHung, hasPredict } from './lib/clockFlow';
 import { chapterById, strings } from './lib/data';
 import { autoOpenDoc } from './lib/docFlow';
 import { nextAction } from './lib/guide';
@@ -25,7 +26,8 @@ import { setSoundEnabled, sfx } from './lib/sound';
 import { useGame } from './store/gameStore';
 import { useSession } from './store/sessionStore';
 
-// M1: 3장 체험판. 타이틀 → 이름 → (고지) → 표지 → 할 일 카드 → 책상(문서 → 실 바꾸기 ×3 → 보고서 → 시계) → 창밖 → 근무 평정표 → 끝
+// 체험판(프롤로그, 3장). 타이틀 → 이름 → (고지) → 표지 → 할 일 카드 → 책상(문서 → 실 바꾸기 → 보고서 → 시계) → 창밖 → 근무 평정표 → 끝
+// 프롤로그는 보고서 없이 문서 5개를 마치면 시계가 처음 걸리고, 별이 없어 근무 평정표를 건너뛴다.
 const ANIM_MS = 700;
 
 // 상태 변화에 맞춰 효과음을 낸다(소리를 끄면 sound.ts가 아무것도 내지 않는다)
@@ -106,6 +108,8 @@ export default function App() {
   }, [chapter, readDocs, done, revealed, reveal, board, dialogEdge, anim, openEdgeDialog, openTable, phase]);
 
   const atDesk = phase === 'desk';
+  const hung = clockHung(chapter, revealed, reveal);
+  const appearing = hung && chapter.startClock === null && revealed.length === 0;
   return (
     <div data-chapter={chapter.id}>
       <Stage
@@ -134,8 +138,12 @@ export default function App() {
           </>
         }
       >
-        <Desk room={chapter.room} front={<><DocStack /><ReportFolder /></>}>
-          <Clock />
+        <Desk
+          room={chapter.room}
+          wallClock={hung ? (appearing ? 'appear' : 'hung') : 'nail'}
+          front={<><DocStack />{hasPredict(chapter) && <ReportFolder />}</>}
+        >
+          {hung && <Clock appear={appearing} />}
           <CalendarYear />
           <Board chapter={chapter} edges={edges} play={play} />
         </Desk>

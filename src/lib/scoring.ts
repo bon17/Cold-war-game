@@ -9,6 +9,11 @@ export interface ChapterProgress {
 
 export interface Stars { rows: { task: EdgeTask; firstTry: boolean }[]; total: number }
 
+// 프롤로그와 에필로그는 별이 없다(기획서 5.6). 근무 평정표도 건너뛴다.
+export function hasStars(chapter: Pick<Chapter, 'id'>): boolean {
+  return chapter.id !== 'prologue' && chapter.id !== 'epilogue';
+}
+
 export function chapterStars(chapter: Chapter, p: ChapterProgress): Stars {
   const rows = chapter.edgeTasks
     .filter((t) => t.mode === 'direct')

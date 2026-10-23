@@ -124,7 +124,7 @@
   "titleScreen": {
     "logoTop": "바늘과 실",
     "logoBottom": "자정의 분석실",
-    "trial": "체험판 · 3장",
+    "trial": "체험판 · 프롤로그, 3장",
     "soundQuestion": "소리를 켤까요?",
     "soundOn": "소리 켜기",
     "soundOff": "소리 끄기",
@@ -198,9 +198,10 @@
     "starAgain": "{a}–{b} 실은 다시 골라서 맞혔다"
   },
   "end": {
-    "title": "체험판을 마쳤어요",
-    "body": "{name}, 3장 「녹는 얼음」의 당직을 마쳤습니다. 수고했어요!",
-    "again": "3장 다시 하기",
+    "title": "당직을 마쳤어요",
+    "body": "{name}, {chapter} 「{title}」의 당직을 마쳤습니다. 수고했어요!",
+    "nextLater": "다음 장({next})은 아직 준비 중이에요.",
+    "again": "{chapter} 다시 하기",
     "toTitle": "처음 화면으로"
   },
   "boardTable": {

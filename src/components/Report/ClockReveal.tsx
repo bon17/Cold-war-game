@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { layout } from '../../lib/assets';
 import { changedEdges, pairKey } from '../../lib/board';
-import { clockEntry, minutesOf, revealPath } from '../../lib/clockFlow';
+import { clockEntry, isFirstHang, minutesOf, revealPath } from '../../lib/clockFlow';
 import { chapterById, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { stageToScreen } from '../../lib/stageFit';
@@ -41,7 +41,8 @@ export function ClockReveal() {
     const timers: number[] = [];
     const at = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
     let t = 0;
-    let cur = useGame.getState().clockShown.minutes;
+    // 처음 걸리는 시계(프롤로그)는 바늘을 돌리지 않고 그 값으로 건다
+    let cur = isFirstHang(chapter, point) ? minutesOf(revealPath(point)[0]) : useGame.getState().clockShown.minutes;
     for (const entry of revealPath(point)) {
       const target = minutesOf(entry);
       const startMinutes = cur;
@@ -70,7 +71,7 @@ export function ClockReveal() {
       advanceReveal();
     });
     return () => timers.forEach(window.clearTimeout);
-  }, [point, reveal?.step, setClockShown, advanceReveal]);
+  }, [chapter, point, reveal?.step, setClockShown, advanceReveal]);
 
   // 1면: 인쇄 연출 뒤에 '확인'
   useEffect(() => {
@@ -110,12 +111,16 @@ export function ClockReveal() {
     const moved = after > before ? 'farther' : after < before ? 'closer' : 'same';
     const same = report && report.direction === point.direction;
     const changed = revealTasksFor(chapter, point.id);
+    // 처음 걸리는 시계(1947년 회보 표지)는 발표 전보가 아니고 바늘이 움직이지도 않았다
+    const first = isFirstHang(chapter, point);
+    const [lead, ...rest] = entry.bulletin.reason.split('\n');
     card = (
       <div className="reveal-card explanation" role="dialog" aria-modal="true" aria-label={entry.bulletin.headline}>
-        <div className="bulletin-from">{strings.reveal.from}</div>
+        {!first && <div className="bulletin-from">{strings.reveal.from}</div>}
         <div className="bulletin-headline">{entry.bulletin.headline}</div>
         <div className="reveal-minutes">{fmt(strings.clock.plaque, { n: after })}</div>
-        <p><strong>{strings.reveal.moved[moved]}</strong> {entry.bulletin.reason}</p>
+        <p>{!first && <><strong>{strings.reveal.moved[moved]}</strong> </>}{lead}</p>
+        {rest.map((line, i) => <p key={i}>{line}</p>)}
         {report && <div className={`reveal-compare${same ? ' same' : ' different'}`}>{same ? strings.reveal.same : strings.reveal.different}</div>}
         <p>{point.explanation}</p>
         {changed.map((t) => {
@@ -125,7 +130,7 @@ export function ClockReveal() {
               <span>{strings.reveal.changedTitle}:</span>
               <RelSwatch rel={e?.rel ?? t.to} width={48} />
               <span>
-                {edgeTitle(t)} {strings.relations[e?.rel ?? t.to]}
+                {edgeTitle(chapter, t)} {strings.relations[e?.rel ?? t.to]}
               </span>
             </div>
           );
@@ -138,7 +143,7 @@ export function ClockReveal() {
       year: point.year,
     });
     const list = changedEdges(chapter, board, done)
-      .map((e) => `${edgeTitle(e)} ${e.label ?? strings.relations[e.rel]}`)
+      .map((e) => `${edgeTitle(chapter, e)} ${e.label ?? strings.relations[e.rel]}`)
       .join(' · ');
     const wrong = report.direction !== point.direction;
     card = (

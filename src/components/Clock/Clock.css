@@ -58,7 +58,20 @@
   from { transform: translateY(-40%) scaleY(0.6); opacity: 0.2; }
   to { transform: none; opacity: 1; }
 }
+/* 프롤로그 끝: 시계가 못에 처음 걸린다 */
+.clock-appear {
+  animation: clock-appear 900ms ease-out both;
+}
+@keyframes clock-appear {
+  from { opacity: 0; transform: translateY(-18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes clock-appear-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 @media (prefers-reduced-motion: reduce) {
+  .clock-appear { animation-name: clock-appear-fade; }
   .clock-hand { transition: none; }
   .clock-second { animation: none; }
   .clock-plaque-text, .calendar-year span { animation: none; }

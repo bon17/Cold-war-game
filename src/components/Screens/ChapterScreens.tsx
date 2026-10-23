@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { assetUrl } from '../../lib/assets';
 import { chapterLabel } from '../../lib/chapterLabel';
-import { chapterById, chapters, nodes, strings } from '../../lib/data';
+import { chapterById, chapters, pinName, storyNeighbor, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
-import { chapterAchievements, chapterStars, grade } from '../../lib/scoring';
+import { chapterAchievements, chapterStars, grade, hasStars } from '../../lib/scoring';
 import { startWithCode } from '../../lib/session';
 import { sfx } from '../../lib/sound';
 import { useGame } from '../../store/gameStore';
@@ -55,26 +55,30 @@ export function CoverScreen() {
 }
 
 // 이번 장에서 할 일(2026-10-23, 기획서 5.0): 시계와 실이 무엇인지, 이 장의 상황, 할 일 세 가지. 책상은 뒤에 보이기만 한다.
+// '이 방에서 알아 둘 것'과 할 일은 장 데이터에 있으면 그것을 쓴다(프롤로그: 아직 시계가 없고 예측도 없다).
 export function MissionCard() {
   const { phase, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
   if (phase !== 'mission') return null;
   const m = strings.mission;
+  const room = chapter.mission.room ?? [m.clockLine, m.boardLine];
+  const steps = chapter.mission.steps ?? m.steps;
   return (
     <div className="screen-backdrop">
       <div className="screen-card mission" role="dialog" aria-modal="true" aria-label={m.title}>
         <div className="result-title">{m.title}</div>
         <div className="mission-room">
           <div className="mission-label">{m.roomTitle}</div>
-          <p>{m.clockLine}</p>
-          <p>{m.boardLine}</p>
+          {room.map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
         </div>
         {chapter.mission.lines.map((line, i) => (
           <p key={i} className="mission-line">{line}</p>
         ))}
         <div className="mission-label">{m.stepsTitle}</div>
         <ol className="mission-steps">
-          {m.steps.map((step, i) => (
+          {steps.map((step, i) => (
             <li key={i}>{fmt(step, { n: chapter.documents.length })}</li>
           ))}
         </ol>
@@ -87,20 +91,22 @@ export function MissionCard() {
 }
 
 // 창밖 장면(기획서 5.5): 8초 이내, 캡션을 한 번 보여 준 뒤 넘어갈 수 있다. 'AI 일러스트 · 실제 사진 아님'
+// 다음은 근무 평정표(별이 없는 프롤로그는 바로 끝 화면)
 export function WindowScene() {
   const { phase, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
   const [canSkip, setCanSkip] = useState(false);
+  const next = hasStars(chapter) ? 'result' : 'end';
   useEffect(() => {
     if (phase !== 'window') return;
     setCanSkip(false);
     const skip = window.setTimeout(() => setCanSkip(true), WINDOW_SKIP_AFTER_MS);
-    const done = window.setTimeout(() => setPhase('result'), WINDOW_MS);
+    const done = window.setTimeout(() => setPhase(next), WINDOW_MS);
     return () => {
       window.clearTimeout(skip);
       window.clearTimeout(done);
     };
-  }, [phase, setPhase]);
+  }, [phase, setPhase, next]);
   if (phase !== 'window') return null;
   return (
     <div className="window-scene">
@@ -108,7 +114,7 @@ export function WindowScene() {
       <p className="window-caption">{chapter.window.caption}</p>
       <div className="window-ai">{strings.notices.aiShort}</div>
       {canSkip && (
-        <button type="button" className="window-skip" onClick={() => setPhase('result')}>
+        <button type="button" className="window-skip" onClick={() => setPhase(next)}>
           {strings.windowScene.skip}
         </button>
       )}
@@ -137,7 +143,7 @@ export function ResultCard() {
   if (phase !== 'result') return null;
   const g = grade(stars);
   const rows = s.rows.map((r) => {
-    const [a, b] = r.task.pair.map((id) => nodes.nodes[id]?.name ?? id);
+    const [a, b] = r.task.pair.map((id) => pinName(chapter, id));
     return [r.firstTry, fmt(r.firstTry ? strings.result.starFirst : strings.result.starAgain, { a, b })] as const;
   });
   return (
@@ -170,19 +176,22 @@ export function ResultCard() {
   );
 }
 
-// 체험판 끝
+// 체험판 끝: 마친 장과, 다음 장은 아직 준비 중이라는 안내(장 전환 연출은 M3)
 export function EndScreen() {
   const { phase, name, setPhase } = useSession();
-  const chapterId = useGame((s) => s.chapterId);
+  const chapter = chapterById(useGame((s) => s.chapterId));
   if (phase !== 'end') return null;
+  const label = chapterLabel(chapter);
+  const nextId = storyNeighbor(chapter.id, 1);
   return (
     <div className="screen-backdrop">
       <div className="screen-card end">
         <div className="result-title">{strings.end.title}</div>
-        <p>{fmt(strings.end.body, { name: name ?? '' })}</p>
+        <p>{fmt(strings.end.body, { name: name ?? '', chapter: label, title: chapter.title })}</p>
+        {nextId && <p>{fmt(strings.end.nextLater, { next: chapterLabel({ id: nextId }) })}</p>}
         <div className="start-row">
-          <button type="button" className="big-button" onClick={() => name && startWithCode(name, chapterId)}>
-            {strings.end.again}
+          <button type="button" className="big-button" onClick={() => name && startWithCode(name, chapter.id)}>
+            {fmt(strings.end.again, { chapter: label })}
           </button>
           <button type="button" className="big-button quiet" onClick={() => setPhase('start')}>
             {strings.end.toTitle}

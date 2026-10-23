@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "build:link": "tsc --noEmit && vite build --mode preview-link --outDir dist-link",
+    "build:link": "tsc --noEmit && vite build --mode preview-link --outDir dist-link && node scripts/link-page.mjs",
     "preview": "vite preview",
     "assets": "node scripts/build-assets.mjs",
     "typecheck": "tsc --noEmit",

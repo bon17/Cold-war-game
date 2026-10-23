@@ -23,7 +23,7 @@ function startChapter(chapterId: string, keepAchievements: string[]) {
   useGame.setState({ ...initialState(chapterId), achievements: keepAchievements });
 }
 
-// 처음부터: 그 이름의 기록을 지우고 첫 장부터(체험판에는 3장만 있다)
+// 처음부터: 그 이름의 기록을 지우고 첫 장(프롤로그)부터
 export function startFresh(name: string) {
   const n = normalizeName(name);
   deleteSlot(n);

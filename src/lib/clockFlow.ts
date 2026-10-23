@@ -48,3 +48,18 @@ export function revealPath(point: ClockCheckpoint): ClockEntry[] {
 export function minutesOf(entry: { minutes?: number; seconds?: number }): number {
   return entry.minutes ?? (entry.seconds ?? 0) / 60;
 }
+
+// 이 장에 보고서를 쓰는 예측 지점이 있는지(프롤로그는 없다: 보고서철과 '시계 예측' 진행 표시를 숨긴다)
+export function hasPredict(chapter: Chapter): boolean {
+  return chapter.clock.some((p) => p.mode === 'predict');
+}
+
+// 벽에 시계가 걸려 있는지. 프롤로그는 못과 자국만 있다가 마지막 공개(1947) 때 처음 걸린다(아트 계획서 2.4).
+export function clockHung(chapter: Chapter, revealed: string[], reveal: unknown): boolean {
+  return chapter.startClock !== null || revealed.length > 0 || !!reveal;
+}
+
+// 시계가 처음 걸리는 공개. 바늘을 돌리지 않고 그 값으로 걸며, 해설 카드에서 '움직였다'를 말하지 않는다.
+export function isFirstHang(chapter: Chapter, point: ClockCheckpoint): boolean {
+  return chapter.startClock === null && chapter.clock.indexOf(point) === 0;
+}

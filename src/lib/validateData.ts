@@ -2,7 +2,9 @@ import type { Chapter, ClockEntry, NodesData } from '../types';
 import { endBoard, pairKey } from './board';
 
 // 장 데이터 검사(기획서 10.3). 문제를 글로 모아 돌려준다. 빈 배열이면 통과.
+// 문서는 장마다 3개 안팎. 프롤로그는 교사와 같이 하는 연습 장이라 5개(기획서 5.0 예외, 2026-10-23).
 const MAX_DOCS = 4;
+const MAX_DOCS_PROLOGUE = 5;
 const BODY_LIMIT = 100;
 
 export function validateChapter(
@@ -15,7 +17,8 @@ export function validateChapter(
   const where = (s: string) => `${chapter.id} ${s}`;
 
   // 문서: 장마다 3개 안팎, 글자 수, 문장 수, 핵심 구절이 본문에 그대로 있는지(기획서 5.1, 2026-10-23 쉬운 흐름)
-  if (chapter.documents.length > MAX_DOCS) errors.push(where(`문서 ${chapter.documents.length}개, 상한 ${MAX_DOCS}개`));
+  const maxDocs = chapter.id === 'prologue' ? MAX_DOCS_PROLOGUE : MAX_DOCS;
+  if (chapter.documents.length > maxDocs) errors.push(where(`문서 ${chapter.documents.length}개, 상한 ${maxDocs}개`));
   for (const doc of chapter.documents) {
     if (doc.body.length > BODY_LIMIT) errors.push(where(`${doc.id}: 본문 ${doc.body.length}자, 상한 ${BODY_LIMIT}자`));
     const sentences = doc.body.split(/(?<=[.?!])\s+/).filter(Boolean).length;

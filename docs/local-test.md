@@ -9,7 +9,8 @@
 
 설치할 것이 없다. 아래 링크를 누르기만 하면 된다.
 
-- 체험판 링크: https://claude.ai/artifact/YZrqj4SFsHZr3k4iy3e7TK
+- 체험판 링크: https://claude.ai/artifact/XuA4oj5YFn1HKLfaANBuqu (2026-10-23 새 링크, 프롤로그와 3장)
+  - 예전 링크(https://claude.ai/artifact/YZrqj4SFsHZr3k4iy3e7TK)는 다음 세션에서 열 수 없어 고칠 수 없었다. 이제 새 링크만 쓴다.
 - **비공개**다. 교사의 claude.ai 계정으로 로그인한 상태에서만 열린다. 학생이나 다른 사람은 열 수 없다(인터넷 공개 배포가 아니다).
 - 진행 저장은 그 링크를 연 브라우저에만 남는다. 다른 컴퓨터에서 열면 처음부터 한다.
 - 링크 화면 안에서는 '전체 화면' 단추가 안 될 수 있다. 그때는 브라우저 창을 크게 키운다.
@@ -72,5 +73,5 @@ Claude가 "올렸습니다"라고 하면:
 ## 5. 개발자용 메모
 
 - 실행 파일이 하는 일: `npm install` → `npm run assets` → `npm run dev -- --open`.
-- 비공개 링크 갱신: `npm run assets` → `npm run build:link`(결과는 `dist-link/`, 글꼴 파일 대신 구글 폰트를 씀). 그다음 `dist-link/index.html`의 `static/index-*.css`, `static/index-*.js` 이름으로 링크용 페이지 파일을 고치고, 같은 페이지 파일로 다시 게시한다. 바뀐 `static/` 파일은 새 이름으로 올리고 옛 이름은 지운다(`null`). 그림은 3장에 쓰는 것만 올린다.
+- 비공개 링크 갱신: `npm run assets` → `npm run build:link`(결과는 `dist-link/`, 글꼴 파일 대신 구글 폰트를 씀). `build:link`가 끝에 `scripts/link-page.mjs`를 돌려 링크용 페이지 `dist-link/link-page.html`과 올릴 파일 목록 `dist-link/link-files.json`(코드 2개 + 그림 전부, 약 4MB)을 만든다. 그 페이지를 위 링크(`url`)로 다시 게시하고 `files`에 목록을 넣는다. 바뀐 `static/` 파일은 새 이름으로 올라가므로 옛 이름은 지운다(`null`). 다른 세션에서 고칠 때는 먼저 링크를 읽고(read) 게시한다.
 - 학교의 가장 느린 크롬북 시험(아트 계획서 5.6)은 크롬북에서 로컬 서버를 열기 어려우므로 마지막 배포 때 한다.

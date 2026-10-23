@@ -6,7 +6,8 @@ import './Clock.css';
 
 // 벽시계 판·바늘·명판(L8, 코드 SVG). 실제 시각이 아니라 '자정까지 몇 분'을 보여 주는 상징 시계(기획서 5.4).
 // 분침은 붉은색(빨강 독점, 아트 계획서 3.5). 초침만 늘 움직인다. 누르면 시계 설명 카드.
-export function Clock() {
+// appear: 프롤로그 끝에 시계가 처음 걸릴 때(위에서 살짝 내려오며 나타남)
+export function Clock({ appear = false }: { appear?: boolean }) {
   const { clockShown, setAboutClock, reveal } = useGame();
   const { cx, cy, faceR, plaque } = layout.clock;
   const R = faceR;
@@ -19,7 +20,7 @@ export function Clock() {
     <>
       <button
         type="button"
-        className="clock-face"
+        className={`clock-face${appear ? ' clock-appear' : ''}`}
         style={{ left: cx - R, top: cy - R, width: R * 2, height: R * 2 }}
         aria-label={`${strings.clock.open}: ${fmt(strings.clock.plaque, { n: m })}`}
         onClick={() => !reveal && setAboutClock(true)}
@@ -56,7 +57,7 @@ export function Clock() {
           <circle cx={R} cy={R} r={7} fill="var(--brass)" stroke="var(--string-outline)" strokeWidth={1.5} />
         </svg>
       </button>
-      <div className="clock-plaque" style={{ left: plaque.x, top: plaque.y, width: plaque.w, height: plaque.h }}>
+      <div className={`clock-plaque${appear ? ' clock-appear' : ''}`} style={{ left: plaque.x, top: plaque.y, width: plaque.w, height: plaque.h }}>
         <span key={m} className="clock-plaque-text">{fmt(strings.clock.plaque, { n: m })}</span>
       </div>
     </>

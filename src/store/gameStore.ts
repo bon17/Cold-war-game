@@ -24,6 +24,7 @@ interface GameState {
   chapterId: string;
   readDocs: string[];              // 연 문서
   openDocId: string | null;        // 확대 보기로 열려 있는 문서
+  openDocFresh: boolean;           // 그 문서를 이번에 처음 열었는지(실이 없는 문서도 처음에는 '다 읽었어요'를 보여 준다)
   board: BoardEdge[];              // 지금 보드의 퍼즐 실(배경 실은 장 데이터와 읽은 문서로 계산)
   wrong: Record<string, number>;   // 실마다 틀린 횟수
   done: Record<string, EdgeResult>;// 끝난 실 과제(별, 도전 과제 perfect-board에 쓴다)
@@ -85,6 +86,7 @@ export function initialState(chapterId: string) {
     chapterId,
     readDocs: [],
     openDocId: null,
+    openDocFresh: false,
     board: chapter.startBoard.map((e) => ({ ...e })),
     wrong: {},
     done: {},
@@ -118,14 +120,14 @@ export const useGame = create<GameState>((set, get) => ({
     const s = get();
     const first = !s.readDocs.includes(docId);
     const auto = first ? applyAuto(s, autoTasksFor(chapterById(s.chapterId), docId)) : {};
-    set({ ...auto, openDocId: docId, dialogEdge: null, readDocs: first ? [...s.readDocs, docId] : s.readDocs });
+    set({ ...auto, openDocId: docId, openDocFresh: first, dialogEdge: null, readDocs: first ? [...s.readDocs, docId] : s.readDocs });
   },
 
   closeDocument: () => {
     const s = get();
     const task = s.openDocId ? taskForDoc(chapterById(s.chapterId), s.openDocId) : undefined;
     const key = task ? pairKey(task.pair) : null;
-    set({ openDocId: null, dialogEdge: key && !s.done[key] ? key : null, reveal: s.reveal ?? showToStart(s) });
+    set({ openDocId: null, openDocFresh: false, dialogEdge: key && !s.done[key] ? key : null, reveal: s.reveal ?? showToStart(s) });
   },
 
   openEdgeDialog: (key) => set({ dialogEdge: key }),

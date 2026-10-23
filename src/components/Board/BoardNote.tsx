@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { pairKey } from '../../lib/board';
-import { nextPredict } from '../../lib/clockFlow';
-import { chapterById, nodes, strings } from '../../lib/data';
+import { hasPredict, nextPredict } from '../../lib/clockFlow';
+import { chapterById, pinName, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { docProgress, nextAction } from '../../lib/guide';
 import { stageToScreen } from '../../lib/stageFit';
@@ -32,7 +32,7 @@ export function BoardNote() {
   if (openDocId || dialogEdge || reveal || reportOpen || aboutClock) return null;
 
   const g = strings.board.guide;
-  const name = (id: NodeId) => nodes.nodes[id]?.name ?? id;
+  const name = (id: NodeId) => pinName(chapter, id);
   const state = { readDocs, done, revealed, reveal };
   const action = nextAction(chapter, state);
   const progress = docProgress(chapter, state);
@@ -74,9 +74,11 @@ export function BoardNote() {
             {Array.from({ length: progress.total }, (_, i) => (i < progress.done ? '●' : '○')).join('')}
           </span>
         </span>
-        <span>
-          {g.progressClock} <span className="board-note-dots">{clockDone ? '●' : '○'}</span>
-        </span>
+        {hasPredict(chapter) && (
+          <span>
+            {g.progressClock} <span className="board-note-dots">{clockDone ? '●' : '○'}</span>
+          </span>
+        )}
       </div>
     </div>
   );

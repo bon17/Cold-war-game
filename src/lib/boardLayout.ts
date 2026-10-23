@@ -44,15 +44,22 @@ export const SIDE: Record<LabelSide, { dx: number; dy: number; tx: number; ty: n
   'bottom-right': { dx: 0.7, dy: 0.7, tx: 0, ty: 0 },
 };
 
-export function pinTagAnchor(id: NodeId) {
+export function pinTagAnchor(id: NodeId, labelSide: LabelSide = nodeAt(id).label) {
   const node = nodeAt(id);
-  const side = SIDE[node.label];
+  const side = SIDE[labelSide];
   return { x: node.x + side.dx * PIN_GAP, y: node.y + side.dy * PIN_GAP, tx: side.tx, ty: side.ty };
 }
 
-function pinTagBox(id: NodeId, measure: Measure): Box {
-  const a = pinTagAnchor(id);
-  const w = measure(nodeAt(id).name, PIN_FONT, true) + PIN_TAG_PAD_X * 2 + BORDER * 2;
+// 핀 이름과 이름표 방향. 장마다 덮어쓸 수 있다(프롤로그의 '38선 이남'). 없으면 nodes.json 값.
+export interface PinStyle {
+  text: (id: NodeId) => string;
+  side: (id: NodeId) => LabelSide;
+}
+const DEFAULT_PINS: PinStyle = { text: (id) => nodeAt(id).name, side: (id) => nodeAt(id).label };
+
+function pinTagBox(id: NodeId, measure: Measure, pins: PinStyle): Box {
+  const a = pinTagAnchor(id, pins.side(id));
+  const w = measure(pins.text(id), PIN_FONT, true) + PIN_TAG_PAD_X * 2 + BORDER * 2;
   return { x: a.x + a.tx * w, y: a.y + a.ty * PIN_TAG_H, w, h: PIN_TAG_H };
 }
 
@@ -64,14 +71,14 @@ function avoidRanges(edge: BoardEdge): [number, number][] {
   return ranges;
 }
 
-export function boardLayout(edges: BoardEdge[], measure: Measure, edgeText: (e: BoardEdge) => string) {
+export function boardLayout(edges: BoardEdge[], measure: Measure, edgeText: (e: BoardEdge) => string, pins: PinStyle = DEFAULT_PINS) {
   const pinIds = [...new Set(edges.flatMap((e) => e.pair))];
   const half = nodes.pinSize / 2;
   const pinBoxes = pinIds.map((id) => {
     const n = nodeAt(id);
     return { x: n.x - half, y: n.y - half, w: nodes.pinSize, h: nodes.pinSize };
   });
-  const pinTags = pinIds.map((id) => ({ id, box: pinTagBox(id, measure) }));
+  const pinTags = pinIds.map((id) => ({ id, box: pinTagBox(id, measure, pins) }));
   const legend = { x: layout.legend.x - LEGEND_TILT, y: layout.legend.y - LEGEND_TILT, w: layout.legend.w + LEGEND_TILT * 2, h: layout.legend.h + LEGEND_TILT * 2 };
 
   const puzzle = edges.filter((e) => !e.background);

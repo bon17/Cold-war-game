@@ -1,16 +1,16 @@
 import { changedEdges, pairKey } from '../../lib/board';
 import { nextCheckpoint } from '../../lib/clockFlow';
-import { chapterById, nodes, strings } from '../../lib/data';
+import { chapterById, pinName, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { useGame, type Report } from '../../store/gameStore';
-import type { BoardEdge, NodeId } from '../../types';
+import type { BoardEdge, Chapter, NodeId } from '../../types';
 import { RelSwatch } from '../Board/EdgeStroke';
 import './Report.css';
 
 // 보고서(기획서 5.3): 이번 장에서 바뀐 실을 보여 주고, 시계가 자정에 가까워졌을까/멀어졌을까 도장 하나를 누르면 바로 낸다.
 // 판정은 방향만 본다. 분 단위 숫자는 맞히지 않아도 된다.
-export function edgeTitle(edge: Pick<BoardEdge, 'pair'>): string {
-  const [a, b] = edge.pair.map((id: NodeId) => nodes.nodes[id]?.name ?? id);
+export function edgeTitle(chapter: Chapter, edge: Pick<BoardEdge, 'pair'>): string {
+  const [a, b] = edge.pair.map((id: NodeId) => pinName(chapter, id));
   return fmt(strings.report.edgeName, { a, b });
 }
 
@@ -41,7 +41,7 @@ export function ReportForm() {
               {changed.map((e) => (
                 <span key={pairKey(e.pair)} className="report-edge">
                   <RelSwatch rel={e.rel} width={40} />
-                  <span>{edgeTitle(e)}</span>
+                  <span>{edgeTitle(chapter, e)}</span>
                   <span className="report-edge-rel">{e.label ?? strings.relations[e.rel]}</span>
                 </span>
               ))}

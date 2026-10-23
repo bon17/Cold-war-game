@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { chapterRels, endBoard, pairKey, startEdges } from './board';
-import { chapterById, chapters, clock, nodes } from './data';
+import { chapterById, chapters, clock, nodes, previousChapter } from './data';
 import { segmentsCross } from './stringPath';
 import { validateChapter } from './validateData';
 
 describe('장 데이터 검사(validateData)', () => {
   for (const chapter of chapters) {
     it(`${chapter.id}: 문서 수·글자 수·문장 수·핵심 구절·실·시계·핀이 규칙에 맞다`, () => {
-      const index = chapters.indexOf(chapter);
-      expect(validateChapter(chapter, clock, nodes, chapters[index - 1])).toEqual([]);
+      expect(validateChapter(chapter, clock, nodes, previousChapter(chapter))).toEqual([]);
     });
   }
 });

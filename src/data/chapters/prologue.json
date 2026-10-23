@@ -1,0 +1,163 @@
+{
+  "id": "prologue",
+  "session": 1,
+  "title": "38선",
+  "period": "1945~1947",
+  "code": "분할점령",
+  "room": "room-1950s",
+  "cover": {
+    "image": "/assets/covers/cover-prologue.webp",
+    "alt": "놋쇠 램프가 비추는 나무 책상 위에 빈 종이 한 장이 놓여 있다. 종이는 가로로 한 번 접혀 있고, 접힌 선을 따라 위쪽은 밝고 아래쪽은 그늘져 있다.",
+    "question": "광복을 맞은 한반도에 왜 선이 그어졌을까?"
+  },
+  "startClock": null,
+  "mission": {
+    "lines": [
+      "여러분은 본샘일보 국제 정세 분석실의 7번 자리 당직자예요. 세계에서 오는 문서를 읽고, 나라 사이가 어떻게 바뀌는지 보드에 실로 남겨요.",
+      "때는 1945년, 제2차 세계 대전이 끝나 가고 있어요. 이 전쟁이 끝난 뒤 한반도에는 무슨 일이 생겼을까요?"
+    ],
+    "room": [
+      "벽의 못: 이 자리에 곧 시계가 걸려요. 어떤 시계인지는 당직이 끝날 때 알게 돼요.",
+      "보드의 실: 두 나라가 어떤 사이인지 보여 줘요(같은 편, 점령)."
+    ],
+    "steps": [
+      "문서 {n}개를 하나씩 읽어요.",
+      "문서를 읽고, 나라 사이가 바뀌었으면 실을 바꿔요.",
+      "마지막에 벽에 걸리는 시계를 봐요."
+    ]
+  },
+  "nodeLabels": {
+    "KR": "38선 이남",
+    "NK": "38선 이북"
+  },
+  "nodeSides": {
+    "KR": "left"
+  },
+  "startBoard": [],
+  "backgroundEdges": [],
+  "documents": [
+    {
+      "id": "P-1",
+      "type": "newspaper",
+      "year": 1945,
+      "yearLabel": "1945년 5월",
+      "title": "미국과 소련, 함께 이기다",
+      "body": "1945년 5월, 미국과 소련이 함께 싸운 끝에 독일이 항복했어요. 두 나라는 생각이 서로 달랐지만, 이 전쟁에서는 같은 편이었어요.",
+      "keyPhrase": "이 전쟁에서는 같은 편이었어요",
+      "source": "교과서 216쪽과 연결"
+    },
+    {
+      "id": "P-2",
+      "type": "radio",
+      "year": 1945,
+      "yearLabel": "1945년 8월",
+      "title": "일본 항복, 우리나라 광복",
+      "body": "1945년 8월, 미국이 일본의 두 도시에 원자 폭탄을 떨어뜨렸어요. 8월 15일 일본이 항복하면서 전쟁이 끝나고, 우리나라는 광복을 맞았어요.",
+      "keyPhrase": "광복을 맞았어요",
+      "source": "교과서 218쪽"
+    },
+    {
+      "id": "P-3",
+      "type": "telegram",
+      "year": 1945,
+      "yearLabel": "1945년 8월",
+      "title": "38도선 북쪽에 소련군",
+      "body": "1945년 8월, 소련군이 한반도 북쪽으로 들어왔어요. 38도선 북쪽은 이제 소련군이 점령해 다스려요.",
+      "keyPhrase": "소련군이 점령해 다스려요",
+      "source": "역사② 연계",
+      "outsideTextbook": true
+    },
+    {
+      "id": "P-4",
+      "type": "telegram",
+      "year": 1945,
+      "yearLabel": "1945년 9월",
+      "title": "38도선 남쪽에 미군",
+      "body": "1945년 9월, 미군이 인천에 내려 한반도 남쪽으로 들어왔어요. 38도선 남쪽은 이제 미군이 점령해 다스려요.",
+      "keyPhrase": "미군이 점령해 다스려요",
+      "source": "역사② 연계",
+      "outsideTextbook": true
+    },
+    {
+      "id": "P-5",
+      "type": "newspaper",
+      "year": 1946,
+      "yearLabel": "1946~1947년",
+      "title": "미국과 소련, 뜻이 맞지 않다",
+      "body": "1946년과 1947년, 미국과 소련이 만나 한반도에 정부 하나를 세우는 일을 의논했어요. 하지만 두 나라는 뜻이 맞지 않았고, 이야기는 끝내 깨졌어요.",
+      "keyPhrase": "뜻이 맞지 않았고",
+      "source": "역사② 연계",
+      "outsideTextbook": true
+    }
+  ],
+  "edgeTasks": [
+    {
+      "pair": [
+        "US",
+        "SU"
+      ],
+      "from": null,
+      "to": "ALLY",
+      "mode": "direct",
+      "year": 1945,
+      "doc": "P-1",
+      "options": [
+        "ALLY",
+        "COLD"
+      ],
+      "explanation": "생각이 다른 두 나라가 전쟁 동안에는 같은 편이 되었어요."
+    },
+    {
+      "pair": [
+        "SU",
+        "NK"
+      ],
+      "from": null,
+      "to": "OCCUPY",
+      "mode": "direct",
+      "year": 1945,
+      "doc": "P-3",
+      "options": [
+        "OCCUPY",
+        "ALLY"
+      ],
+      "explanation": "38도선 북쪽은 소련군이 점령했어요."
+    },
+    {
+      "pair": [
+        "US",
+        "KR"
+      ],
+      "from": null,
+      "to": "OCCUPY",
+      "mode": "direct",
+      "year": 1945,
+      "doc": "P-4",
+      "options": [
+        "OCCUPY",
+        "ALLY"
+      ],
+      "explanation": "38도선 남쪽은 미군이 점령했어요. 하나였던 한반도가 둘로 나뉘었어요."
+    }
+  ],
+  "clock": [
+    {
+      "id": "prologue-c1",
+      "mode": "show",
+      "year": 1947,
+      "unlockAfterDocs": [
+        "P-1",
+        "P-2",
+        "P-3",
+        "P-4",
+        "P-5"
+      ],
+      "explanation": "분석실도 이 시계를 본떠 벽에 걸었어요. 이 시계는 실제 시각이 아니에요. 앞으로 과학자들이 세계가 얼마나 위험한지 따져 바늘을 옮길 거예요."
+    }
+  ],
+  "window": {
+    "image": "/assets/windows/window-prologue.webp",
+    "alt": "늦여름 저녁 햇빛이 비치는 서울의 거리. 흰 옷과 검은 양복을 입은 사람들이 모자를 흔들고 손을 들며 함께 걸어가고, 건물 창문에서도 사람들이 내다보고 있다.",
+    "caption": "1945년 8월, 서울. 광복 소식을 들은 사람들이 거리로 나와 손을 흔들었다."
+  }
+}

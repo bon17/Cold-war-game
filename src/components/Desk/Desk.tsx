@@ -11,7 +11,10 @@ function place({ x, y, w, h }: Rect): CSSProperties {
 // → L8 차트 종이와 시계 판 → 보드(children) → 램프). 램프는 벽보다 앞에 놓인 물건이라 차트 종이 왼쪽 아래 모서리를 가린다(4.4).
 // 조명 층(L7)은 M2에서 넣는다.
 // children: 램프 뒤(보드), front: 램프 앞(책상 위 물건 L9)
-export function Desk({ room, children, front }: { room: RoomId; children?: ReactNode; front?: ReactNode }) {
+// wallClock: 'hung' 걸린 시계 / 'appear' 지금 처음 걸리는 시계(프롤로그 끝) / 'nail' 아직 없음(못과 자국만, 아트 계획서 2.4)
+export type WallClock = 'hung' | 'appear' | 'nail';
+
+export function Desk({ room, wallClock = 'hung', children, front }: { room: RoomId; wallClock?: WallClock; children?: ReactNode; front?: ReactNode }) {
   const win = windowFor(room);
   const { stage, board, clock, lamp, calendar } = layout;
   const bezel = { x: clock.cx - clock.r, y: clock.cy - clock.r, w: clock.r * 2, h: clock.r * 2 };
@@ -23,7 +26,14 @@ export function Desk({ room, children, front }: { room: RoomId; children?: React
       <img src={assetUrl(win.src)} style={place(win)} alt="" />
       <img className="desk-contain" src={assetUrl('shared/calendar.webp')} style={place(calendar)} alt="" />
       <img src={assetUrl(board.src)} style={place(board)} alt="" />
-      <img src={assetUrl(clock.src)} style={place(bezel)} alt="" />
+      {wallClock === 'nail' ? (
+        <>
+          <div className="wall-mark" style={place(bezel)} />
+          <div className="wall-nail" style={{ left: clock.nail.x - 7, top: clock.nail.y - 7 }} />
+        </>
+      ) : (
+        <img className={wallClock === 'appear' ? 'clock-appear' : undefined} src={assetUrl(clock.src)} style={place(bezel)} alt="" />
+      )}
       <div
         className="desk-chart-paper"
         style={{ ...place(board.paper), ['--paper-grain' as string]: `url(${assetUrl('tex/paper-grain.webp')})` }}

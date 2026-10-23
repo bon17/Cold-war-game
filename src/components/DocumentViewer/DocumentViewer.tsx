@@ -19,7 +19,7 @@ function docDate(doc: Doc): string {
 }
 
 export function DocumentViewer() {
-  const { chapterId, openDocId, readDocs, done, revealed, openDocument, closeDocument } = useGame();
+  const { chapterId, openDocId, openDocFresh, readDocs, done, revealed, openDocument, closeDocument } = useGame();
   const chapter = chapterById(chapterId);
   const wordsByDoc = useMemo(() => glossaryByDoc(chapter, Object.keys(glossary)), [chapter]);
   const doc = chapter.documents.find((d) => d.id === openDocId);
@@ -139,7 +139,7 @@ export function DocumentViewer() {
 
           <div className="viewer-buttons">
             <button type="button" className="viewer-close" onClick={closeDocument}>
-              {isDone(doc) ? strings.docs.close : strings.docs.doneRead}
+              {(taskForDoc(chapter, doc.id) ? isDone(doc) : !openDocFresh) ? strings.docs.close : strings.docs.doneRead}
             </button>
           </div>
         </div>

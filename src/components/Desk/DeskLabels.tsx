@@ -1,4 +1,5 @@
 import { layout } from '../../lib/assets';
+import { clockHung, hasPredict } from '../../lib/clockFlow';
 import { chapterById, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { stageToScreen } from '../../lib/stageFit';
@@ -24,14 +25,17 @@ function ObjectLabel({ sx, sy, text, align = 'center', badge }: { sx: number; sy
 
 export function DeskLabels() {
   const { chapterId, readDocs, done, revealed, reveal } = useGame();
-  const unread = nextAction(chapterById(chapterId), { readDocs, done, revealed, reveal }).kind === 'doc' ? 1 : 0;
+  const chapter = chapterById(chapterId);
+  const unread = nextAction(chapter, { readDocs, done, revealed, reveal }).kind === 'doc' ? 1 : 0;
   const { calendar, clock, hotspots } = layout;
   const docs = hotspots.docs;
   return (
     <>
       <ObjectLabel sx={calendar.x + calendar.w / 2} sy={calendar.y + calendar.h + 20} text={strings.labels.calendar} />
-      <ObjectLabel sx={clock.cx} sy={clock.cy - clock.r - 16} text={strings.labels.clock} />
-      <ObjectLabel sx={hotspots.report.x + hotspots.report.w / 2} sy={hotspots.report.y - 14} text={strings.labels.report} />
+      {clockHung(chapter, revealed, reveal) && <ObjectLabel sx={clock.cx} sy={clock.cy - clock.r - 16} text={strings.labels.clock} />}
+      {hasPredict(chapter) && (
+        <ObjectLabel sx={hotspots.report.x + hotspots.report.w / 2} sy={hotspots.report.y - 14} text={strings.labels.report} />
+      )}
       <ObjectLabel
         sx={docs.x + docs.w + 10}
         sy={docs.y + docs.h / 2}

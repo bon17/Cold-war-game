@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { chapterById, nodes, strings } from '../../lib/data';
+import { chapterById, pinName, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { directTask, docForTask, optionOrder } from '../../lib/validateEdge';
 import { useGame } from '../../store/gameStore';
@@ -30,8 +30,7 @@ export function EdgeDialog() {
 
   if (!task || !dialogEdge) return null;
 
-  const name = (id: NodeId) => nodes.nodes[id]?.name ?? id;
-  const [a, b] = task.pair.map(name);
+  const [a, b] = task.pair.map((id: NodeId) => pinName(chapter, id));
   const doc = docForTask(chapter, task);
 
   return (
