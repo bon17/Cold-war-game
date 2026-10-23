@@ -8,17 +8,13 @@ import type { ClockCheckpoint, Spot } from '../../types';
 import { useStageFit } from '../Stage/Stage';
 import './Report.css';
 
-// 천천히 읽는 시계 카드(2026-10-23 교사 결정, 프롤로그 끝): 중2가 다 읽도록
-// ① 한 장에 한두 문장, 문장이 하나씩 나타나고 '다음'은 다 읽을 시간이 지난 뒤에 생긴다
-// ② 문장이 말하는 화면의 물건(벽시계, 바늘, 보드의 실)을 빛낸다
+// 나눠 읽는 시계 카드(2026-10-23 교사 결정, 프롤로그 끝): 중2가 다 읽도록
+// ① 한 장에 한두 문장을 큰 글씨로. 글은 한 번에 나오고 '다음'은 잠깐 뒤에 생긴다
+//    (교사 의견: 문장이 하나씩 나오거나 '다음'을 오래 기다리게 하면 너무 늦다)
+// ② 그 장이 말하는 화면의 물건(벽시계, 바늘, 보드의 실)을 빛낸다
 // ③ 끝에 확인 질문 하나. 틀리면 그 문장을 다시 보여 주고 다시 고른다
 // 카드는 화면 아래에 두어 보드와 시계가 가려지지 않게 한다.
-const MS_PER_CHAR = 100;      // 느리게 읽는 학생 기준(1초에 10자)
-const MIN_SENTENCE_MS = 800;
-const READY_AFTER_MS = 1000;
-
-const sentencesOf = (text: string) => text.split(/(?<=[.?!])\s+/).filter(Boolean);
-const readMs = (sentence: string) => Math.max(MIN_SENTENCE_MS, sentence.length * MS_PER_CHAR);
+const READY_AFTER_MS = 800;   // 장이 바뀐 뒤 '다음'까지(잘못 두 번 눌러 건너뛰지 않게)
 
 export function StoryCard({ point, onDone }: { point: ClockCheckpoint; onDone: () => void }) {
   const story = point.story!;
@@ -28,12 +24,10 @@ export function StoryCard({ point, onDone }: { point: ClockCheckpoint; onDone: (
     [entry, point],
   );
   const [page, setPage] = useState(0);
-  const [shown, setShown] = useState(1);      // 이 장에서 나타난 문장 수
   const [ready, setReady] = useState(false);  // '다음' 단추
   const [checking, setChecking] = useState(false);
   const [tried, setTried] = useState(false);  // 확인 질문에서 한 번 틀림
   const [right, setRight] = useState(false);
-  const sentences = useMemo(() => sentencesOf(pages[page]), [pages, page]);
   const nextRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (ready) nextRef.current?.focus();
@@ -41,26 +35,13 @@ export function StoryCard({ point, onDone }: { point: ClockCheckpoint; onDone: (
 
   useEffect(() => {
     if (checking) return;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setShown(reduce ? sentences.length : 1);
     setReady(false);
-    const timers: number[] = [];
-    let t = 0;
-    sentences.forEach((s, i) => {
-      t += readMs(s);
-      if (!reduce && i + 1 < sentences.length) timers.push(window.setTimeout(() => setShown(i + 2), t));
-    });
-    timers.push(window.setTimeout(() => setReady(true), t + READY_AFTER_MS));
-    return () => timers.forEach(window.clearTimeout);
-  }, [sentences, checking]);
+    const timer = window.setTimeout(() => setReady(true), READY_AFTER_MS);
+    return () => window.clearTimeout(timer);
+  }, [page, checking]);
 
-  // 빛낼 물건: 이 장에서 이미 나타난 문장들이 가리키는 것(쌓인다). 확인 질문에서 틀리면 보드와 바늘
-  const spots = new Set<Spot>();
-  if (checking) {
-    if (tried && !right) ['board', 'hand'].forEach((s) => spots.add(s as Spot));
-  } else {
-    (story.spots[page] ?? []).slice(0, shown).forEach((s) => s && spots.add(s));
-  }
+  // 빛낼 물건: 이 장이 가리키는 것. 확인 질문에서 틀리면 보드와 바늘
+  const spots = new Set<Spot>(checking ? (tried && !right ? ['board', 'hand'] : []) : (story.spots[page] ?? []));
 
   const next = () => {
     if (page + 1 < pages.length) setPage(page + 1);
@@ -79,10 +60,8 @@ export function StoryCard({ point, onDone }: { point: ClockCheckpoint; onDone: (
 
         {!checking && (
           <>
-            <p className="story-text" aria-live="polite">
-              {sentences.slice(0, shown).map((s, i) => (
-                <span key={`${page}-${i}`} className="story-sentence">{s} </span>
-              ))}
+            <p key={page} className="story-text story-sentence" aria-live="polite">
+              {pages[page]}
             </p>
             <div className="story-foot">
               <span className="story-dots" aria-label={`${page + 1}/${pages.length}`}>

@@ -61,10 +61,9 @@ export interface ClockCheckpoint {
   wrongNote?: string;          // 정정 보도 문구
   achievement?: string;
   annotateEdge?: { pair: Pair; mark: 'hotline' };  // 2장 직통선 매듭(끝까지 남음)
-  // 천천히 읽는 시계 카드(2026-10-23 교사 결정, 프롤로그): 발표 이유(bulletin.reason)와 explanation을 줄('\n')마다 한 장씩,
-  // 문장이 하나씩 나타나게 보여 준다. spots[장][문장]이 있으면 그 문장이 나타날 때 화면의 그 물건을 빛낸다('' = 그대로).
-  // 끝에 확인 질문 하나: 틀리면 hint를 보여 주고 다시 고른다.
-  story?: { spots: (Spot | '')[][]; check: { question: string; answer: string; wrong: string; hint: string } };
+  // 나눠 읽는 시계 카드(2026-10-23 교사 결정, 프롤로그): 발표 이유(bulletin.reason)와 explanation을 줄('\n')마다 한 장씩
+  // 큰 글씨로 보여 준다. spots[장]: 그 장에서 빛낼 화면 물건. 끝에 확인 질문 하나: 틀리면 hint를 보여 주고 다시 고른다.
+  story?: { spots: Spot[][]; check: { question: string; answer: string; wrong: string; hint: string } };
 }
 
 export type RoomId = 'room-1950s' | 'room-1970s' | 'room-1980s' | 'room-now';
