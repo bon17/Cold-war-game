@@ -119,3 +119,23 @@ describe('실이 없는 문서의 단추', () => {
     expect(game().openDocFresh).toBe(false);
   });
 });
+
+describe("'다 읽었어요'로 다음 문서 넘기기(2026-10-23 교사 의견)", () => {
+  beforeEach(() => useGame.setState(initialState('prologue')));
+
+  it('실이 없는 문서는 닫지 않고 다음 문서를 바로 연다', () => {
+    read('P-1');
+    game().submitEdge('SU-US', 'ALLY');
+    game().openDocument('P-2');
+    game().finishDocument();
+    expect(game().openDocId).toBe('P-3');
+    expect(game().readDocs).toContain('P-3');
+  });
+
+  it('실이 있는 문서는 닫고 실 바꾸기 창을 연다', () => {
+    game().openDocument('P-1');
+    game().finishDocument();
+    expect(game().openDocId).toBeNull();
+    expect(game().dialogEdge).toBe('SU-US');
+  });
+});

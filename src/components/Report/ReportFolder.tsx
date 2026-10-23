@@ -2,6 +2,7 @@ import { assetUrl, layout } from '../../lib/assets';
 import { chapterById, strings } from '../../lib/data';
 import { nextAction } from '../../lib/guide';
 import { useGame } from '../../store/gameStore';
+import { useSession } from '../../store/sessionStore';
 import { TapHint } from '../Desk/TapHint';
 
 // 책상 위 보고서철(그림). 시계 예측 지점이 열리면 빛나고, 누르면 보고서를 쓴다.
@@ -9,7 +10,8 @@ import { TapHint } from '../Desk/TapHint';
 export function ReportFolder() {
   const { chapterId, revealed, readDocs, done, reveal, openReport } = useGame();
   const chapter = chapterById(chapterId);
-  const ready = nextAction(chapter, { readDocs, done, revealed, reveal }).kind === 'report';
+  const atDesk = useSession((s) => s.phase === 'desk');
+  const ready = atDesk && nextAction(chapter, { readDocs, done, revealed, reveal }).kind === 'report';
   const { x, y, w, h } = layout.hotspots.report;
   return (
     <button

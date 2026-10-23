@@ -1,5 +1,5 @@
 import { layout } from '../../lib/assets';
-import { clockHung, hasPredict } from '../../lib/clockFlow';
+import { clockHung } from '../../lib/clockFlow';
 import { chapterById, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { stageToScreen } from '../../lib/stageFit';
@@ -10,6 +10,7 @@ import './DeskLabels.css';
 
 // 누를 수 있는 물건 옆의 작은 라벨(아트 계획서 4.7). 무대 밖 층에 실제 화면 px로 그린다.
 // 위치는 무대 좌표로 정하고, 글자 크기는 무대 배율과 상관없이 18px이다. 자리는 M1에서 물건을 다 놓은 뒤 다시 맞춘다.
+// 보고서철은 표지에 '보고서'가 적혀 있어 따로 라벨을 달지 않는다(두 번 적혀 어색했다, 2026-10-23 교사 의견).
 type Align = 'center' | 'left' | 'right';
 
 function ObjectLabel({ sx, sy, text, align = 'center', badge }: { sx: number; sy: number; text: string; align?: Align; badge?: string }) {
@@ -33,9 +34,6 @@ export function DeskLabels() {
     <>
       <ObjectLabel sx={calendar.x + calendar.w / 2} sy={calendar.y + calendar.h + 20} text={strings.labels.calendar} />
       {clockHung(chapter, revealed, reveal) && <ObjectLabel sx={clock.cx} sy={clock.cy - clock.r - 16} text={strings.labels.clock} />}
-      {hasPredict(chapter) && (
-        <ObjectLabel sx={hotspots.report.x + hotspots.report.w / 2} sy={hotspots.report.y - 14} text={strings.labels.report} />
-      )}
       <ObjectLabel
         sx={docs.x + docs.w + 10}
         sy={docs.y + docs.h / 2}

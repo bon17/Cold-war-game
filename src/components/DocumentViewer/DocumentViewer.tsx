@@ -12,14 +12,14 @@ import './DocumentViewer.css';
 
 // 문서 확대 보기(기획서 3·5.1). 무대 밖 층에 실제 화면 px로 띄운다(본문 22px).
 // 핵심 구절은 처음부터 형광펜으로 칠해져 있다. 밑줄 낱말을 누르면 풀이가 뜬다.
-// '다 읽었어요'를 누르면 닫히고, 그 문서와 짝인 실의 바꾸기 창이 열린다.
+// '다 읽었어요'를 누르면 닫히고, 그 문서와 짝인 실의 바꾸기 창이 열린다. 실이 없는 문서면 다음 문서가 바로 열린다.
 
 function docDate(doc: Doc): string {
   return doc.yearLabel ?? fmt(strings.docs.year, { year: doc.year });
 }
 
 export function DocumentViewer() {
-  const { chapterId, openDocId, openDocFresh, readDocs, done, revealed, openDocument, closeDocument } = useGame();
+  const { chapterId, openDocId, openDocFresh, readDocs, done, revealed, openDocument, closeDocument, finishDocument } = useGame();
   const chapter = chapterById(chapterId);
   const wordsByDoc = useMemo(() => glossaryByDoc(chapter, Object.keys(glossary)), [chapter]);
   const doc = chapter.documents.find((d) => d.id === openDocId);
@@ -138,9 +138,15 @@ export function DocumentViewer() {
           </article>
 
           <div className="viewer-buttons">
-            <button type="button" className="viewer-close" onClick={closeDocument}>
-              {(taskForDoc(chapter, doc.id) ? isDone(doc) : !openDocFresh) ? strings.docs.close : strings.docs.doneRead}
-            </button>
+            {(taskForDoc(chapter, doc.id) ? isDone(doc) : !openDocFresh) ? (
+              <button type="button" className="viewer-close" onClick={closeDocument}>
+                {strings.docs.close}
+              </button>
+            ) : (
+              <button type="button" className="viewer-close" onClick={finishDocument}>
+                {strings.docs.doneRead}
+              </button>
+            )}
           </div>
         </div>
 

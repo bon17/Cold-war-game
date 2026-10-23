@@ -10,7 +10,6 @@ import { useGame } from '../../store/gameStore';
 import { useSession, type ArchiveEntry } from '../../store/sessionStore';
 import './Screens.css';
 
-const COVER_MS = 3000;
 const WINDOW_MS = 8000;
 const WINDOW_SKIP_AFTER_MS = 1500;
 
@@ -31,51 +30,48 @@ export function NoticeCard() {
   );
 }
 
-// 장 표지: 3초 뒤 저절로, 누르면 바로(기획서 8.3). 다음은 '할 일' 카드
+// 장 표지: 누를 때까지 그대로 둔다(2026-10-23 교사 의견: 3초는 너무 짧다, 기획서 8.3). 다음은 '할 일' 카드
 export function CoverScreen() {
   const { phase, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
-  useEffect(() => {
-    if (phase !== 'cover') return;
-    const timer = window.setTimeout(() => setPhase('mission'), COVER_MS);
-    return () => window.clearTimeout(timer);
-  }, [phase, setPhase]);
   if (phase !== 'cover') return null;
   return (
-    <button type="button" className="cover-screen" onClick={() => setPhase('mission')} aria-label={strings.cover.tap}>
+    <button type="button" className="cover-screen" onClick={() => setPhase('mission')} aria-label={strings.cover.tap} autoFocus>
       <img className="kenburns" src={assetUrl(chapter.cover.image)} alt={chapter.cover.alt} />
       <div className="cover-text">
         <div className="cover-chapter">{chapterLabel(chapter)}</div>
         <div className="cover-title">{chapter.title}</div>
         <div className="cover-question">{chapter.cover.question}</div>
       </div>
+      <div className="cover-next">{strings.cover.tap}</div>
       <div className="cover-code">{fmt(strings.cover.code, { code: chapter.code })}</div>
     </button>
   );
 }
 
-// 이번 장에서 할 일(2026-10-23, 기획서 5.0): 시계와 실이 무엇인지, 이 장의 상황, 할 일 세 가지. 책상은 뒤에 보이기만 한다.
-// '이 방에서 알아 둘 것'과 할 일은 장 데이터에 있으면 그것을 쓴다(프롤로그: 아직 시계가 없고 예측도 없다).
+// 이번 장에서 할 일(2026-10-23, 기획서 5.0): 이 장의 상황, 시계와 실이 무엇인지, 할 일 세 가지. 책상은 뒤에 보이기만 한다.
+// 상황을 맨 위에 둔다(교사 의견: 누구인지·언제인지를 먼저). 제목, '이 방에서 알아 둘 것', 할 일은 장 데이터에 있으면 그것을 쓴다.
 export function MissionCard() {
   const { phase, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
   if (phase !== 'mission') return null;
   const m = strings.mission;
+  const title = chapter.mission.title ?? m.title;
   const room = chapter.mission.room ?? [m.clockLine, m.boardLine];
   const steps = chapter.mission.steps ?? m.steps;
   return (
     <div className="screen-backdrop">
-      <div className="screen-card mission" role="dialog" aria-modal="true" aria-label={m.title}>
-        <div className="result-title">{m.title}</div>
+      <div className="screen-card mission" role="dialog" aria-modal="true" aria-label={title}>
+        <div className="result-title">{title}</div>
+        {chapter.mission.lines.map((line, i) => (
+          <p key={i} className="mission-line">{line}</p>
+        ))}
         <div className="mission-room">
           <div className="mission-label">{m.roomTitle}</div>
           {room.map((line, i) => (
             <p key={i}>{line}</p>
           ))}
         </div>
-        {chapter.mission.lines.map((line, i) => (
-          <p key={i} className="mission-line">{line}</p>
-        ))}
         <div className="mission-label">{m.stepsTitle}</div>
         <ol className="mission-steps">
           {steps.map((step, i) => (

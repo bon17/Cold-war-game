@@ -72,9 +72,9 @@ export interface Chapter {
   cover: { image: string; alt: string; question: string };
   startClock: { minutes?: number; seconds?: number } | null;  // 프롤로그는 null(아직 걸리지 않음)
   startNote?: { text: string; signature: string };            // 장 시작 쪽지(2장)
-  // 장 표지 다음 '할 일' 카드: lines는 이 장의 상황(1~2문장씩). room, steps는 '이 방에서 알아 둘 것'과 할 일을
-  // 장마다 바꿀 때만 쓴다(프롤로그: 시계가 아직 걸리지 않음). 없으면 strings.mission의 공통 문구.
-  mission: { lines: string[]; room?: string[]; steps?: string[] };
+  // 장 표지 다음 '할 일' 카드: lines는 이 장의 상황(1~2문장씩, 카드 맨 위). title, room, steps는 카드 제목,
+  // '이 방에서 알아 둘 것', 할 일을 장마다 바꿀 때만 쓴다(프롤로그: 첫날, 시계가 아직 없음). 없으면 strings.mission의 공통 문구.
+  mission: { lines: string[]; title?: string; room?: string[]; steps?: string[] };
   nodeLabels?: Partial<Record<NodeId, string>>;   // 핀 이름 덮어쓰기(프롤로그: 남한 → '38선 이남')
   nodeSides?: Partial<Record<NodeId, LabelSide>>; // 핀 이름표 방향 덮어쓰기(이름이 길어 실을 가릴 때)
   startBoard: { pair: Pair; rel: Rel; fray?: boolean; mark?: 'hotline'; label?: string }[];

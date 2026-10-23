@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { applyTask, pairKey } from '../lib/board';
 import { isUnlocked, nextCheckpoint, nextPredict, revealPath, minutesOf } from '../lib/clockFlow';
-import { chapterById } from '../lib/data';
+import { chapterById, chapters } from '../lib/data';
+import { currentDoc } from '../lib/docFlow';
 import { autoTasksFor, directTask, judge, revealTasksFor, taskForDoc } from '../lib/validateEdge';
 import type { BoardEdge, Chapter, EdgeTask, Rel } from '../types';
 
@@ -40,6 +41,7 @@ interface GameState {
   table: { focus: string | null } | null;   // 표로 보기(실 이력표). focus: 강조할 실
   openDocument: (docId: string) => void;
   closeDocument: () => void;       // 다 읽었으면 짝인 실의 바꾸기 창을 연다
+  finishDocument: () => void;      // '다 읽었어요': 실이 없는 문서면 다음 문서를 바로 열고, 아니면 닫는다
   openEdgeDialog: (key: string) => void;
   closeEdgeDialog: () => void;
   submitEdge: (key: string, rel: Rel) => void;
@@ -113,8 +115,9 @@ function showToStart(s: Snapshot): GameState['reveal'] {
   return null;
 }
 
+// 처음에는 첫 장(프롤로그)의 빈 책상. 타이틀 화면 뒤로 흐리게 보이는 방이 이것이다.
 export const useGame = create<GameState>((set, get) => ({
-  ...initialState('ch3'),
+  ...initialState(chapters[0].id),
 
   openDocument: (docId) => {
     const s = get();
@@ -128,6 +131,19 @@ export const useGame = create<GameState>((set, get) => ({
     const task = s.openDocId ? taskForDoc(chapterById(s.chapterId), s.openDocId) : undefined;
     const key = task ? pairKey(task.pair) : null;
     set({ openDocId: null, openDocFresh: false, dialogEdge: key && !s.done[key] ? key : null, reveal: s.reveal ?? showToStart(s) });
+  },
+
+  // 실이 없는 문서(프롤로그 P-2)에서 '다 읽었어요'를 누르면 닫지 않고 다음 문서로 넘어간다(2026-10-23 교사 의견).
+  // 마지막 문서였으면 닫는다(그러면 시계 공개가 열린다).
+  finishDocument: () => {
+    const s = get();
+    const chapter = chapterById(s.chapterId);
+    const next = currentDoc(chapter, s.revealed, s.readDocs, s.done);
+    if (s.openDocId && !taskForDoc(chapter, s.openDocId) && next && !s.readDocs.includes(next.id)) {
+      get().openDocument(next.id);
+      return;
+    }
+    get().closeDocument();
   },
 
   openEdgeDialog: (key) => set({ dialogEdge: key }),
