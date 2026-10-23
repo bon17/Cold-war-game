@@ -4,5 +4,18 @@
     "calendar": "연도",
     "clock": "시계 설명"
   },
-  "rotateDevice": "태블릿을 가로로 돌려 주세요"
+  "rotateDevice": "태블릿을 가로로 돌려 주세요",
+  "relations": {
+    "ALLY": "같은 편",
+    "COLD": "대립",
+    "WAR": "전쟁",
+    "TALK": "대화",
+    "NORMAL": "수교·협력",
+    "OCCUPY": "점령"
+  },
+  "edgeMarks": {
+    "fray": "균열",
+    "hotline": "직통선"
+  },
+  "legendTitle": "실의 종류"
 }

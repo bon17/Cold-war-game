@@ -1,0 +1,339 @@
+{
+  "id": "ch3",
+  "session": 2,
+  "title": "녹는 얼음",
+  "period": "1964~1972",
+  "code": "핑퐁외교",
+  "room": "room-1970s",
+  "cover": {
+    "image": "/assets/covers/cover-ch3.webp",
+    "alt": "놋쇠 램프가 비추는 책상 위, 흰 접시에 반쯤 녹은 얼음 조각이 고인 물에 잠겨 있고 옆에 흰 탁구공 하나가 놓여 있다. 접시 아래로 황동색 실 한 가닥이 지나간다.",
+    "question": "같은 편이던 두 나라는 왜 국경에서 총을 겨눴을까?"
+  },
+  "startClock": {
+    "minutes": 12
+  },
+  "handover": {
+    "lines": [
+      "정전 협정(1953년) 뒤 남한–북한 실에 붙인 이름표: {blank}",
+      "중국–소련 실에는 균열이 생겼다. 같은 편이지만 사이가 벌어지고 있다.",
+      "쿠바 위기 뒤 미국–소련 실에는 직통선 매듭을 묶었다."
+    ],
+    "blankPair": [
+      "KR",
+      "NK"
+    ],
+    "answer": "COLD",
+    "options": [
+      "COLD",
+      "WAR",
+      "TALK"
+    ],
+    "signature": "7번 자리 · 1963년 겨울"
+  },
+  "startBoard": [
+    {
+      "pair": [
+        "US",
+        "SU"
+      ],
+      "rel": "COLD",
+      "mark": "hotline"
+    },
+    {
+      "pair": [
+        "US",
+        "CN"
+      ],
+      "rel": "COLD"
+    },
+    {
+      "pair": [
+        "CN",
+        "SU"
+      ],
+      "rel": "ALLY",
+      "fray": true
+    },
+    {
+      "pair": [
+        "KR",
+        "NK"
+      ],
+      "rel": "COLD"
+    },
+    {
+      "pair": [
+        "KR",
+        "SU"
+      ],
+      "rel": "COLD"
+    },
+    {
+      "pair": [
+        "KR",
+        "CN"
+      ],
+      "rel": "COLD"
+    }
+  ],
+  "backgroundEdges": [
+    {
+      "pair": [
+        "US",
+        "KR"
+      ],
+      "rel": "ALLY"
+    },
+    {
+      "pair": [
+        "US",
+        "JP"
+      ],
+      "rel": "ALLY"
+    },
+    {
+      "pair": [
+        "NK",
+        "SU"
+      ],
+      "rel": "ALLY"
+    },
+    {
+      "pair": [
+        "NK",
+        "CN"
+      ],
+      "rel": "ALLY"
+    }
+  ],
+  "documents": [
+    {
+      "id": "3-2",
+      "type": "newspaper",
+      "tier": "core",
+      "year": 1965,
+      "title": "베트남 전쟁, 국제전으로",
+      "body": "남북으로 나뉜 베트남의 전쟁이 국제전으로 커지고 있다. 1965년 미국은 남쪽 정부를 돕기 위해 대규모 군대를 보냈고, 소련과 중국은 북쪽을 돕고 있다. 같은 해 한국도 전투 부대를 베트남에 보냈다.",
+      "clues": [
+        "국제전"
+      ],
+      "source": "교과서 218쪽, 219쪽 지도(한국군 파병은 역사② 연계)"
+    },
+    {
+      "id": "3-3",
+      "type": "telegram",
+      "tier": "core",
+      "year": 1969,
+      "title": "중국과 소련, 국경에서 충돌",
+      "body": "1969년 3월, 중국군과 소련군이 국경을 흐르는 강의 작은 섬에서 총을 쏘며 맞붙었다. 같은 공산주의 진영이지만 두 나라는 1960년 무렵부터 사이가 벌어져 있었다. 이 국경 충돌은 전면 전쟁으로 번지지는 않았다.",
+      "clues": [
+        "국경 충돌"
+      ],
+      "source": "교과서 222쪽 '독자적 노선'과 연결",
+      "outsideTextbook": true
+    },
+    {
+      "id": "3-5",
+      "type": "radio",
+      "tier": "core",
+      "year": 1971,
+      "title": "미국 탁구 선수단, 중국 방문",
+      "body": "1971년 4월, 일본의 세계 탁구 대회에 나갔던 미국 선수단이 초청을 받아 중국 땅을 밟았습니다. 오랫동안 등을 돌려 온 두 나라 사이에 탁구공이 먼저 오간 것입니다. 사람들은 이를 '핑퐁 외교'라고 부릅니다.",
+      "clues": [
+        "미국 선수단"
+      ],
+      "source": "교과서 222쪽 자료 2"
+    },
+    {
+      "id": "3-6",
+      "type": "newspaper",
+      "tier": "core",
+      "year": 1972,
+      "yearLabel": "1971~1972년",
+      "title": "남과 북, 마주 앉다",
+      "body": "1971년 9월, 흩어진 가족을 찾기 위한 남북 적십자 회담이 시작되었다. 얼어붙어 있던 남과 북 사이에 대화의 문이 열린 것이다. 1972년 7월에는 평화 통일을 약속한 7·4 남북 공동 성명이 발표되었다.",
+      "clues": [
+        "공동 성명",
+        "적십자 회담"
+      ],
+      "source": "교과서 222쪽 같이 보기(역사② 194쪽)"
+    },
+    {
+      "id": "3-7",
+      "type": "telegram",
+      "tier": "core",
+      "year": 1972,
+      "title": "미국·소련, 전략 무기 제한 협정 서명",
+      "body": "1972년 5월, 미국과 소련의 정상이 전략 무기 제한 협정에 서명했다. 두 나라는 핵미사일 발사대를 더 늘리지 않고, 미사일을 막는 무기도 제한하기로 했다. 핵무기를 늘리는 경쟁에 처음으로 한도를 정한 약속이다.",
+      "clues": [
+        "전략 무기 제한"
+      ],
+      "source": "교과서 222쪽"
+    },
+    {
+      "id": "3-1",
+      "type": "radio",
+      "tier": "extra",
+      "year": 1964,
+      "title": "중국, 첫 핵실험",
+      "body": "1964년 10월, 중국이 첫 핵실험에 성공했다고 발표했습니다. 이제 핵무기를 가진 나라는 미국, 소련, 영국, 프랑스, 중국 다섯 나라입니다. 핵무기가 더 많은 나라로 퍼질까 걱정하는 목소리가 커지고 있습니다.",
+      "clues": [
+        "핵실험"
+      ],
+      "outsideTextbook": true
+    },
+    {
+      "id": "3-4",
+      "type": "newspaper",
+      "tier": "extra",
+      "year": 1969,
+      "title": "닉슨 대통령의 새 아시아 정책",
+      "body": "1969년 7월, 미국의 닉슨 대통령이 새 아시아 정책을 밝혔다. 아시아 나라들의 방위는 아시아의 힘으로 맡고, 미국은 군대를 직접 보내는 일을 줄이겠다는 것이다. 사람들은 이를 '닉슨 독트린'이라고 부른다.",
+      "clues": [
+        "아시아의 힘으로"
+      ],
+      "source": "교과서 222쪽 자료 1"
+    }
+  ],
+  "edgeTasks": [
+    {
+      "pair": [
+        "CN",
+        "SU"
+      ],
+      "from": "ALLY",
+      "to": "COLD",
+      "mode": "direct",
+      "year": 1969,
+      "evidence": [
+        "국경 충돌"
+      ],
+      "options": [
+        "COLD",
+        "ALLY",
+        "TALK"
+      ],
+      "explanation": "같은 공산주의 진영이던 두 나라가 국경에서 총을 겨누게 되었다."
+    },
+    {
+      "pair": [
+        "US",
+        "CN"
+      ],
+      "from": "COLD",
+      "to": "TALK",
+      "mode": "direct",
+      "year": 1971,
+      "evidence": [
+        "미국 선수단"
+      ],
+      "options": [
+        "TALK",
+        "NORMAL",
+        "ALLY"
+      ],
+      "explanation": "탁구 경기가 두 나라 사이의 얼음을 깨는 신호탄이 되었다."
+    },
+    {
+      "pair": [
+        "KR",
+        "NK"
+      ],
+      "from": "COLD",
+      "to": "TALK",
+      "mode": "direct",
+      "year": 1972,
+      "evidence": [
+        "공동 성명",
+        "적십자 회담"
+      ],
+      "options": [
+        "TALK",
+        "NORMAL",
+        "ALLY"
+      ],
+      "explanation": "주변 강대국들이 대화를 시작하자 남과 북도 대화에 나섰다."
+    },
+    {
+      "pair": [
+        "US",
+        "SU"
+      ],
+      "from": "COLD",
+      "to": "TALK",
+      "mode": "direct",
+      "year": 1972,
+      "evidence": [
+        "전략 무기 제한"
+      ],
+      "options": [
+        "TALK",
+        "NORMAL",
+        "ALLY"
+      ],
+      "explanation": "두 나라가 핵무기를 늘리는 경쟁에 처음으로 함께 한도를 정했다."
+    }
+  ],
+  "clock": [
+    {
+      "id": "ch3-c1",
+      "mode": "show",
+      "year": 1968,
+      "unlockAfterDocs": [
+        "3-2"
+      ],
+      "requireEdges": [],
+      "explanation": "베트남 전쟁이 커지고 핵무기를 가진 나라가 늘면서, 시계는 12분에서 7분으로 자정에 다가갔다. 남은 문서에서 얼음이 녹을 실마리를 찾아보자."
+    },
+    {
+      "id": "ch3-c2",
+      "mode": "predict",
+      "year": 1972,
+      "direction": "farther",
+      "pathYears": [
+        1969,
+        1972
+      ],
+      "bestEdges": [
+        [
+          "US",
+          "SU"
+        ],
+        [
+          "US",
+          "CN"
+        ]
+      ],
+      "edgeNotes": [
+        {
+          "pair": [
+            "US",
+            "CN"
+          ],
+          "note": "미중 접근도 긴장을 낮췄지만, 과학자들이 든 이유는 미국·소련의 무기 제한이었다."
+        }
+      ],
+      "unlockAfterDocs": [
+        "3-3",
+        "3-5",
+        "3-6",
+        "3-7"
+      ],
+      "explanation": "미국과 소련이 무기를 제한하는 약속을 맺으면서 시계는 다시 자정에서 멀어졌다."
+    }
+  ],
+  "bonusQuestion": {
+    "prompt": "미국과 중국을 가깝게 만든 또 다른 실은 무엇일까?",
+    "answer": [
+      "CN",
+      "SU"
+    ],
+    "achievement": "enemy-of-enemy"
+  },
+  "window": {
+    "image": "/assets/windows/window-ch3.webp",
+    "alt": "늦은 오후 햇빛이 비치는 서울의 거리. 인도에 모인 사람들이 막 받은 신문을 펼쳐 함께 읽고 있다.",
+    "caption": "1972년 여름, 서울. 남과 북이 함께 발표한 성명 소식에 사람들이 걸음을 멈췄다."
+  }
+}

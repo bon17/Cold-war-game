@@ -1,19 +1,21 @@
-import strings from './data/strings.ko.json';
+import { Board } from './components/Board/Board';
 import { Desk } from './components/Desk/Desk';
 import { DeskLabels } from './components/Desk/DeskLabels';
 import { Stage } from './components/Stage/Stage';
 import { assetUrl } from './lib/assets';
-import type { RoomId } from './types';
+import { startEdges } from './lib/board';
+import { chapterById, strings } from './lib/data';
 
-// M0: 3장 방의 빈 책상만 띄운다. M1에서 장 데이터(ch3.json의 room)로 바꾼다.
-const ROOM: RoomId = 'room-1970s';
-const CHAPTER = 'ch3';
+// M1 1단계: 3장 시작 보드를 보여 준다. 읽기·실 걸기·보고서는 다음 단계에서 붙인다.
+const chapter = chapterById('ch3');
 
 export default function App() {
   return (
-    <div data-chapter={CHAPTER}>
-      <Stage backdrop={assetUrl(`rooms/${ROOM}-blur.webp`)} overlay={<DeskLabels />}>
-        <Desk room={ROOM} />
+    <div data-chapter={chapter.id}>
+      <Stage backdrop={assetUrl(`rooms/${chapter.room}-blur.webp`)} overlay={<DeskLabels />}>
+        <Desk room={chapter.room}>
+          <Board chapter={chapter} edges={startEdges(chapter)} />
+        </Desk>
       </Stage>
       <div className="rotate-notice">{strings.rotateDevice}</div>
     </div>

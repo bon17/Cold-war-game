@@ -21,6 +21,7 @@ const OPAQUE_GROUPS = ['rooms', 'windows', 'covers'];
 const SPRITE_GROUP = 'shared';
 
 const layout = JSON.parse(await readFile('src/data/layout.json', 'utf8'));
+const nodes = JSON.parse(await readFile('src/data/nodes.json', 'utf8'));
 const stage = layout.stage;
 
 // 보드 가운데는 차트 종이(코드, 늘 맨 위)가 덮는다. 그 자리를 평균 색 하나로 칠하면 파일이 훨씬 작아진다.
@@ -39,7 +40,7 @@ function paneInside(win) {
   return { x: win.pane.x - win.x, y: win.pane.y - win.y, w: win.pane.w, h: win.pane.h };
 }
 
-// 크기가 layout.json에 정해진 공용 그림. 나머지(책상 위 물건, 커서, 테이프)는 M1에서 자리를 정할 때까지 잘라 내기만 한다.
+// 크기가 layout.json, nodes.json에 정해진 공용 그림. 나머지(책상 위 물건, 커서, 테이프)는 M1에서 자리를 정할 때까지 잘라 내기만 한다.
 const metalWindow = layout.eraOverrides['room-1980s'].window;
 const SPRITE_BOX = {
   board: { w: layout.board.w, h: layout.board.h, hidden: paperInside(layout.board) },
@@ -48,6 +49,7 @@ const SPRITE_BOX = {
   'frame-wood': { w: layout.window.w, h: layout.window.h, pane: paneInside(layout.window) },
   'frame-metal': { w: metalWindow.w, h: metalWindow.h, pane: paneInside(metalWindow) },
   calendar: { w: layout.calendar.w, h: layout.calendar.h },
+  'pin-head': { w: nodes.pinSize, h: nodes.pinSize },
 };
 
 const warnings = [];

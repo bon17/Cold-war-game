@@ -121,3 +121,23 @@ export interface Layout {
   hotspots: Record<'docs' | 'clues' | 'report' | 'archive', Rect>;
   eraOverrides: Partial<Record<RoomId, { window?: WindowLayout }>>;
 }
+
+// nodes.json: 핀 이름, 무대 좌표, 이름표 위치(아트 계획서 4.5)
+export type LabelSide = 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
+export interface NodesData {
+  pinSize: number;
+  nodes: Partial<Record<NodeId, { name: string; x: number; y: number; label: LabelSide }>>;
+  edgeLabelT: Record<string, number>;   // 실 이름표 위치(0.35~0.65). 키는 pairKey
+}
+
+// 보드에 지금 걸려 있는 실 하나
+export interface BoardEdge {
+  pair: Pair;
+  rel: Rel;
+  fray?: boolean;
+  mark?: 'hotline';
+  label?: string;
+  background?: boolean;       // 배경 실: 퍼즐 대상이 아님, 흐리게, 누를 수 없음
+  weakened?: boolean;
+}

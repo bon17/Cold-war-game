@@ -731,7 +731,7 @@ interface SaveSlot {
 
 ### 10.4 예시: `ch3.json` (버티컬 슬라이스)
 
-문서 `body`와 일부 문구는 자리표시다. 교사가 쓴 내용으로 바꾸기 전까지는 `TODO(교사 작성)`을 남긴다. 3장 문서 본문과 인계 메모, 1968년 해설, 대체 텍스트, 낱말 풀이는 `docs/drafts/ch3.md`에 있다(2026-10-22 확정). M1에서 그 글을 이 파일과 `glossary.json`으로 옮긴다.
+문서 `body`와 일부 문구는 자리표시다. 교사가 쓴 내용으로 바꾸기 전까지는 `TODO(교사 작성)`을 남긴다. 3장의 글은 2026-10-23에 `src/data/chapters/ch3.json`, `clock.json`, `glossary.json`으로 옮겼다. 이제 이 데이터 파일이 원본이다(초안과 검토 기록은 `docs/drafts/ch3.md`).
 
 ```json
 {

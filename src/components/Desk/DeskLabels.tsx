@@ -1,6 +1,6 @@
 import { layout } from '../../lib/assets';
 import { stageToScreen } from '../../lib/stageFit';
-import strings from '../../data/strings.ko.json';
+import { strings } from '../../lib/data';
 import { useStageFit } from '../Stage/Stage';
 import './DeskLabels.css';
 

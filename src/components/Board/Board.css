@@ -1,0 +1,61 @@
+/* 보드 위 글자는 무대 px 28 이상(0.63배에서 약 18px, 아트 계획서 4.6). 핀 이름 30.
+   글자 크기, 여백, 테두리를 바꾸면 src/lib/boardLayout.ts의 값도 함께 바꾼다(이름표 자리 계산). */
+.board-svg {
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.pin-tag,
+.edge-tag,
+.legend-card {
+  position: absolute;
+  background: var(--tag-paper);
+  border: 1.5px solid var(--string-outline);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans KR', sans-serif;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 1px 2px 3px rgba(42, 33, 24, 0.3);
+}
+
+.pin-tag {
+  padding: 2px 10px;
+  border-radius: 3px;
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.edge-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px 2px 4px;
+  border-radius: 3px;
+  font-size: 28px;
+  transform: translate(-50%, -50%);
+}
+
+.legend-card {
+  box-sizing: border-box;
+  padding: 8px 12px 10px;
+  border-radius: 2px;
+  transform: rotate(-1deg);
+}
+.legend-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 28px;
+  height: 42px;
+}
+
+.rel-swatch {
+  flex: none;
+  display: block;
+}
