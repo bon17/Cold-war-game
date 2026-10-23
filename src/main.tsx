@@ -1,12 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import '@fontsource/gowun-batang/400.css';
-import '@fontsource/gowun-batang/700.css';
-import '@fontsource/nanum-myeongjo/400.css';
-import '@fontsource/nanum-myeongjo/800.css';
-import '@fontsource/nanum-gothic-coding/400.css';
-import '@fontsource/nanum-gothic-coding/700.css';
-import '@fontsource/gaegu/700.css';
+import './styles/fonts';
 import './styles/tokens.css';
 import './styles/global.css';
 import { strings } from './lib/data';
