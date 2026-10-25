@@ -44,17 +44,22 @@ export function BoardTable() {
               // 근거 문서: 이 실을 마지막으로 바꾼 과제의 문서(1장 남한–북한은 1948 대립 → 1950 전쟁)
               const task = chapter.edgeTasks.filter((t) => pairKey(t.pair) === key && done[taskKey(chapter, t)]).pop();
               const evidence = task?.doc ? chapter.documents.find((d) => d.id === task.doc)?.title : '';
-              const history = edgeHistory(chapters, chapterId, key, done)
-                .map((h) => `${h.year ?? strings.boardTable.start} ${h.label ?? strings.relations[h.rel]}${h.fray ? ` · ${strings.edgeMarks.fray}` : ''}`)
-                .join(' → ');
+              // 에필로그 남북 실: 흰 실 '지금은?'. 이력은 1991년까지, 끝에 "그 뒤의 변화는 이 보드에 없어요."
+              const ep = chapter.epilogueBoard && pairKey(chapter.epilogueBoard.pair) === key ? chapter.epilogueBoard : undefined;
+              const history = [
+                ...edgeHistory(chapters, chapterId, key, done).map(
+                  (h) => `${h.year ?? strings.boardTable.start} ${h.label ?? strings.relations[h.rel]}${h.fray ? ` · ${strings.edgeMarks.fray}` : ''}`,
+                ),
+                ...(ep ? [ep.label] : []),
+              ].join(' → ') + (ep ? ` (${ep.caption})` : '');
               const marks = [e.fray && strings.edgeMarks.fray, e.mark === 'hotline' && strings.edgeMarks.hotline].filter(Boolean);
               return (
                 <tr key={key} className={table.focus === key ? 'focus' : undefined}>
                   <td>{fmt(strings.report.edgeName, { a, b })}</td>
                   <td>
                     <span className="board-table-rel">
-                      <RelSwatch rel={e.rel} width={40} />
-                      {e.label ?? strings.relations[e.rel]}
+                      <RelSwatch rel={e.rel} width={40} undyed={!!ep} />
+                      {ep?.label ?? e.label ?? strings.relations[e.rel]}
                       {marks.length > 0 && ` · ${marks.join(' · ')}`}
                     </span>
                   </td>

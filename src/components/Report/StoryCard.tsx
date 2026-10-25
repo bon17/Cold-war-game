@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { layout } from '../../lib/assets';
-import { clockEntry, minutesOf } from '../../lib/clockFlow';
+import { clockEntry, clockText, minutesOf } from '../../lib/clockFlow';
 import { strings } from '../../lib/data';
-import { fmt } from '../../lib/format';
 import { stageToScreen } from '../../lib/stageFit';
 import type { ClockCheckpoint, Spot } from '../../types';
 import { useStageFit } from '../Stage/Stage';
@@ -55,7 +54,7 @@ export function StoryCard({ point, onDone }: { point: ClockCheckpoint; onDone: (
       <div className="reveal-card story-card" role="dialog" aria-modal="true" aria-label={entry.bulletin.headline}>
         <div className="story-head">
           <span className="bulletin-headline">{entry.bulletin.headline}</span>
-          <span className="reveal-minutes">{fmt(strings.clock.plaque, { n: minutesOf(entry) })}</span>
+          <span className="reveal-minutes">{clockText(minutesOf(entry))}</span>
         </div>
 
         {!checking && (

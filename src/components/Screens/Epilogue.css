@@ -1,0 +1,244 @@
+/* 에필로그 끝맺음(2026-10-25): 80년의 창, 서랍 속 편지, 쓰기 화면, 마지막 매듭. 무대 밖 실제 px, 본문 20px 안팎 */
+
+/* 80년의 창: 그림이 천천히 겹치며 바뀐다 */
+.montage-frame {
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.montage-frame.on {
+  opacity: 1;
+  animation: kenburns 6s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .montage-frame { transition: none; }
+  .montage-frame.on { animation: none; }
+}
+
+/* 서랍 속 편지 */
+.letter-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--tag-paper);
+  font-size: 22px;
+}
+.letter-found p {
+  margin: 0;
+}
+.letter-envelope {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px 12px;
+  border: 1.5px dashed rgba(244, 239, 228, 0.6);
+  border-radius: 6px;
+  background: rgba(12, 9, 6, 0.4);
+  color: var(--tag-paper);
+  font: 700 20px 'Gowun Batang', serif;
+  cursor: pointer;
+  animation: letter-glow 2.4s ease-in-out infinite;
+}
+.letter-envelope img {
+  width: 220px;
+  height: auto;
+  transform: rotate(-4deg);
+}
+@keyframes letter-glow {
+  50% { box-shadow: 0 0 22px rgba(243, 201, 105, 0.55); }
+}
+.letter-paper {
+  box-sizing: border-box;
+  width: min(640px, 94vw);
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  padding: 26px 34px 18px;
+  background: #efe2c2;
+  background-image: var(--paper-grain);
+  border-radius: 2px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  color: #2e2418;
+  font-family: 'Gaegu', 'Gowun Batang', cursive;
+  font-size: 27px;
+  line-height: 1.55;
+  transform: rotate(-1deg);
+  animation: letter-open 700ms ease-out;
+}
+@keyframes letter-open {
+  from { opacity: 0; transform: rotate(-1deg) translateY(24px) scale(0.96); }
+  to { opacity: 1; transform: rotate(-1deg); }
+}
+.letter-salutation {
+  margin: 0 0 10px;
+}
+.letter-line {
+  margin: 0 0 4px;
+  word-break: keep-all;
+}
+.letter-signature {
+  margin: 14px 0 12px;
+  text-align: right;
+}
+.letter-reply {
+  display: block;
+  margin-left: auto;
+  font: 700 20px 'Gowun Batang', serif;
+}
+
+/* 쓰기 화면 */
+.screen-card.writing {
+  width: min(900px, 94vw);
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  text-align: left;
+}
+.writing-guide {
+  margin: 4px 0;
+  font-size: 18px;
+  color: #5a4a36;
+  word-break: keep-all;
+}
+.writing-question {
+  margin: 8px 0 10px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+.writing-box {
+  margin: 6px 0;
+  padding: 2px 14px 6px;
+  border-left: 5px solid var(--brass);
+  background: rgba(156, 122, 60, 0.12);
+}
+.writing-history,
+.writing-frame {
+  margin: 2px 0;
+  font-size: 20px;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+.writing-hint {
+  font-weight: 400;
+  font-size: 16px;
+}
+.writing-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 6px 0 4px;
+}
+.writing-word {
+  padding: 3px 12px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 14px;
+  background: #fffdf6;
+  font: 18px 'Gowun Batang', serif;
+  cursor: pointer;
+}
+.writing-word.has-meaning {
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+}
+.writing-word.on {
+  background: #2a2118;
+  color: var(--tag-paper);
+}
+.writing-meaning {
+  min-height: 1.5em;
+  margin: 2px 0 8px;
+  font-size: 18px;
+  color: #5a4a36;
+}
+
+/* 마지막 매듭과 램프 꺼짐: 그늘 위에 흰 실을 무대 좌표로 다시 그린다 */
+.finale-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+}
+.finale-shade {
+  position: absolute;
+  inset: 0;
+  background: #070504;
+  opacity: 0.62;
+  transition: opacity 2.6s ease;
+}
+.finale-scene.dark .finale-shade {
+  opacity: 0.97;
+}
+.finale-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.finale-stage svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.finale-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 44;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+.finale-knot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: knot-in 520ms cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+@keyframes knot-in {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+.finale-plaque {
+  position: absolute;   /* 무대 좌표의 숫자판 자리(layout.clock.plaque) */
+  animation: finale-plaque-in 1.8s ease 0.8s both;
+}
+@keyframes finale-plaque-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.finale-text {
+  position: absolute;
+  left: 50%;
+  bottom: 6vh;
+  transform: translateX(-50%);
+  width: min(760px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--tag-paper);
+  font-size: 24px;
+  text-align: center;
+  word-break: keep-all;
+}
+.finale-text p {
+  margin: 0;
+}
+.finale-text .reveal-ok {
+  margin: 0;
+  font-size: 20px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .letter-envelope, .letter-paper, .finale-knot, .finale-plaque { animation: none; }
+  .finale-shade { transition: none; }
+}
+
+/* 에필로그 끝 화면: 램프가 꺼진 어둠 그대로 */
+.screen-backdrop.dark {
+  background: #070504;
+}
+.end-notes {
+  margin: 8px 0 12px;
+  padding-left: 1.2em;
+  font-size: 18px;
+  line-height: 1.6;
+  text-align: left;
+}

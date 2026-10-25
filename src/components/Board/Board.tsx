@@ -120,7 +120,10 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
   const animClass = (key: string) => (anim?.key === key ? (anim.kind === 'ok' ? ' settle' : ' shake') : '');
   const background = edges.filter((e) => e.background);
   const hotline = edges.find((e) => e.mark === 'hotline');
-  const rels = chapterRels(chapter);
+  const undyed = edges.some((e) => e.undyed);
+  // 에필로그: 흰 실이 된 남북 실의 원래 종류(대화)는 범례에서 뺀다
+  const rels = chapterRels(chapter).filter((r) => !undyed || edges.some((e) => !e.undyed && e.rel === r));
+  const legendRows = rels.length + (hotline ? 1 : 0) + (undyed ? 1 : 0);
   const puzzle = edges.filter((e) => !e.background);
   const pin = nodes.pinSize;
 
@@ -138,10 +141,10 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
           return (
             <g
               key={`${key}:${anim?.key === key ? anim.id : 0}`}
-              className={`edge-g${animClass(key)}`}
+              className={`edge-g${animClass(key)}${e.undyed ? ' edge-undyed' : ''}`}
               opacity={play?.faint.has(key) ? 0.4 : undefined}
             >
-              <EdgeStroke curve={edgeCurve(e)} rel={e.rel} fray={e.fray} hotline={e.mark === 'hotline'} />
+              <EdgeStroke curve={edgeCurve(e)} rel={e.rel} fray={e.fray} hotline={e.mark === 'hotline'} undyed={e.undyed} />
             </g>
           );
         })}
@@ -165,7 +168,7 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
         const p = pointAt(edgeCurve(e), labels.get(key)?.t ?? 0.5);
         const content = (
           <>
-            <RelSwatch rel={e.rel} width={SWATCH_W} />
+            <RelSwatch rel={e.rel} width={SWATCH_W} undyed={e.undyed} />
             <span>{edgeName(e)}</span>
           </>
         );
@@ -236,7 +239,7 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
         </button>
       )}
       <div
-        className={`legend-card${rels.length + (hotline ? 1 : 0) > 4 ? ' dense' : ''}`}
+        className={`legend-card${legendRows > 4 ? ' dense' : ''}`}
         style={{ left: layout.legend.x, top: layout.legend.y, width: layout.legend.w }}
       >
         <div className="legend-title">{strings.legendTitle}</div>
@@ -251,6 +254,12 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
           <div className="legend-row">
             <RelSwatch rel={hotline.rel} hotline />
             <span>{strings.legendHotline}</span>
+          </div>
+        )}
+        {undyed && (
+          <div className="legend-row">
+            <RelSwatch rel="TALK" undyed />
+            <span>{strings.legendUndyed}</span>
           </div>
         )}
       </div>

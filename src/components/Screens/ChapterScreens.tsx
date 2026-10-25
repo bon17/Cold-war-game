@@ -10,7 +10,8 @@ import { useGame } from '../../store/gameStore';
 import { useSession, type ArchiveEntry } from '../../store/sessionStore';
 import './Screens.css';
 
-const WINDOW_MS = 8000;
+// 머리말과 이어 주는 한 줄까지 읽을 수 있게(2026-10-25 교사 의견: 창밖 그림의 의미를 모른다) 8초 → 11초
+const WINDOW_MS = 11000;
 const WINDOW_SKIP_AFTER_MS = 1500;
 
 // 허구 고지(기획서 13.2): '확인'을 눌러야 넘어간다
@@ -99,7 +100,8 @@ export function MissionCard() {
   );
 }
 
-// 창밖 장면(기획서 5.5): 8초 이내, 캡션을 한 번 보여 준 뒤 넘어갈 수 있다. 'AI 일러스트 · 실제 사진 아님'
+// 창밖 장면(기획서 5.5): 캡션을 한 번 보여 준 뒤 넘어갈 수 있다. 'AI 일러스트 · 실제 사진 아님'.
+// 머리말 '창밖 · 그해 한반도의 한 장면'과, 보드의 실과 창밖 사람들을 이어 주는 한 줄(장의 window.link)을 함께 보여 준다.
 // 다음은 근무 평정표(별이 없는 프롤로그는 바로 다음 장 표지)
 export function WindowScene() {
   const { phase, setPhase } = useSession();
@@ -121,7 +123,12 @@ export function WindowScene() {
   return (
     <div className="window-scene">
       <img className="kenburns slow" src={assetUrl(chapter.window.image)} alt={chapter.window.alt} />
-      <p className="window-caption">{chapter.window.caption}</p>
+      <div className="window-header">{strings.windowScene.header}</div>
+      <div className="window-caption">
+        <p className="window-caption-main">{chapter.window.caption}</p>
+        {chapter.window.link && <p className="window-link">{chapter.window.link}</p>}
+        {chapter.window.note && <p className="window-note">{chapter.window.note}</p>}
+      </div>
       <div className="window-ai">{strings.notices.aiShort}</div>
       {canSkip && (
         <button type="button" className="window-skip" onClick={next}>
@@ -196,6 +203,32 @@ export function EndScreen() {
   const label = chapterLabel(chapter);
   const nextId = storyNeighbor(chapter.id, 1);
   const next = endsSession(chapter.id) ? chapterById(nextId!) : undefined;
+  // 에필로그: 80년의 당직을 마친 끝 화면(허구·AI 그림 안내). 램프가 꺼진 어둠 위에
+  if (chapter.finale) {
+    const e = chapter.finale.end;
+    return (
+      <div className="screen-backdrop dark">
+        <div className="screen-card end">
+          <div className="result-title">{e.title}</div>
+          <p>{fmt(e.thanks, { name: name ?? '' })}</p>
+          <div className="mission-label">{e.notesTitle}</div>
+          <ul className="end-notes">
+            {e.notes.map((n, i) => (
+              <li key={i}>{n}</li>
+            ))}
+          </ul>
+          <div className="start-row">
+            <button type="button" className="big-button" onClick={() => name && startWithCode(name, chapter.id)}>
+              {fmt(strings.end.again, { chapter: label })}
+            </button>
+            <button type="button" className="big-button quiet" onClick={() => setPhase('start')}>
+              {strings.end.toTitle}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="screen-backdrop">
       <div className="screen-card end">

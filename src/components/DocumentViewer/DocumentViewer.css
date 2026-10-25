@@ -186,6 +186,24 @@
   font-weight: 800;
   font-size: 28px;
 }
+/* 에필로그(지금): BONSSAM 인터넷 기사. 흰 화면, 고딕 글씨, 위에 파란 띠(종이 결 없음) */
+.doc-web::after {
+  display: none;
+}
+.doc-web {
+  background: #fbfbf8;
+  font-family: system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  border-top: 6px solid #1f3550;
+}
+.doc-web .doc-head {
+  color: #1f3550;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(31, 53, 80, 0.3);
+}
+.doc-web .doc-title {
+  font-weight: 800;
+  font-size: 27px;
+}
 .doc-speech {
   background: #ece5d3;
   font-family: 'Nanum Myeongjo', serif;

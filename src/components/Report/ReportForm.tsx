@@ -52,7 +52,7 @@ export function ReportForm() {
           </>
         )}
 
-        <div className="report-q">{fmt(strings.report.q, { year: point.year })}</div>
+        <div className="report-q">{point.question ?? fmt(strings.report.q, { year: point.year })}</div>
         {point.hint && <p className="report-hint">{point.hint}</p>}
         <div className="report-stamps">
           {stamp('closer', strings.report.closer, strings.report.closerSub, '▲')}

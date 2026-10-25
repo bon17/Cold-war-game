@@ -83,9 +83,10 @@ describe('5장', () => {
     expect(rels).toEqual({ 'SU-US': 'NORMAL', 'CN-US': 'NORMAL', 'CN-SU': 'NORMAL', 'KR-NK': 'TALK', 'KR-SU': 'NORMAL', 'CN-KR': 'NORMAL' });
   });
 
-  it('에필로그가 아직 없어서 5장을 마치면 끝 화면', () => {
+  it('같은 2차시라 5장을 마치면 에필로그 표지로 바로 간다', () => {
     useSession.setState({ phase: 'result', name: '오장' });
     goNextChapter();
-    expect(useSession.getState().phase).toBe('end');
+    expect(useSession.getState().phase).toBe('cover');
+    expect(game().chapterId).toBe('epilogue');
   });
 });

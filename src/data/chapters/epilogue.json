@@ -1,0 +1,267 @@
+{
+  "id": "epilogue",
+  "session": 2,
+  "title": "남은 실",
+  "period": "지금",
+  "calendarYear": 2026,
+  "code": "바늘과실",
+  "room": "room-now",
+  "cover": {
+    "image": "/assets/covers/cover-epilogue.webp",
+    "alt": "흐린 낮빛과 램프 빛이 함께 비추는 책상 위, 두 놋쇠 압정 사이에 염색하지 않은 흰 무명실 한 가닥이 걸려 있다.",
+    "question": "냉전이 끝난 지금, 세계는 더 안전해졌을까?"
+  },
+  "startClock": {
+    "minutes": 17
+  },
+  "mission": {
+    "lines": [
+      "때는 지금이에요. 처음으로 낮에 분석실에 들어왔어요. 책상에는 1945년의 램프가 그대로 놓여 있어요.",
+      "냉전은 1991년에 끝났어요. 그 뒤 세계는 더 안전해졌을까요? 문서를 읽고 시계를 예측해 보세요."
+    ],
+    "carried": [
+      "보드는 1992년에 멈춰 있어요. 남한–북한 실은 그 뒤로도 여러 번 바뀌어서, 색을 뺀 흰 실과 '지금은?' 이름표로 두었어요."
+    ],
+    "room": [
+      "벽의 시계: 세계가 핵전쟁(자정)에 얼마나 가까운지 과학자들이 알려 주는 시계예요.",
+      "보드의 실: 두 나라가 어떤 사이인지 보여 줘요(같은 편, 수교·협력)."
+    ],
+    "steps": [
+      "문서 {n}개를 읽어요.",
+      "시계가 어떻게 됐을지 예측해요.",
+      "마지막에 다음 당직자에게 남길 메모를 종이에 써요."
+    ]
+  },
+  "nodeLabels": {
+    "SU": "러시아"
+  },
+  "startBoard": [
+    {
+      "pair": [
+        "US",
+        "SU"
+      ],
+      "rel": "NORMAL",
+      "label": "협력",
+      "mark": "hotline"
+    },
+    {
+      "pair": [
+        "US",
+        "CN"
+      ],
+      "rel": "NORMAL"
+    },
+    {
+      "pair": [
+        "CN",
+        "SU"
+      ],
+      "rel": "NORMAL",
+      "label": "관계 정상화"
+    },
+    {
+      "pair": [
+        "KR",
+        "NK"
+      ],
+      "rel": "TALK"
+    },
+    {
+      "pair": [
+        "KR",
+        "SU"
+      ],
+      "rel": "NORMAL"
+    },
+    {
+      "pair": [
+        "KR",
+        "CN"
+      ],
+      "rel": "NORMAL"
+    }
+  ],
+  "backgroundEdges": [
+    {
+      "pair": [
+        "US",
+        "KR"
+      ],
+      "rel": "ALLY"
+    },
+    {
+      "pair": [
+        "US",
+        "JP"
+      ],
+      "rel": "ALLY"
+    },
+    {
+      "pair": [
+        "NK",
+        "SU"
+      ],
+      "rel": "ALLY"
+    },
+    {
+      "pair": [
+        "NK",
+        "CN"
+      ],
+      "rel": "ALLY"
+    }
+  ],
+  "epilogueBoard": {
+    "pair": [
+      "KR",
+      "NK"
+    ],
+    "style": "undyed",
+    "label": "지금은?",
+    "caption": "그 뒤의 변화는 이 보드에 없어요."
+  },
+  "documents": [
+    {
+      "id": "E-1",
+      "type": "web",
+      "year": 1998,
+      "yearLabel": "1998·2006년",
+      "title": "핵무기를 가진 나라가 늘다",
+      "body": "냉전이 끝난 뒤에도 핵무기는 사라지지 않았어요. 1998년 인도와 파키스탄이, 2006년 북한이 핵실험을 했어요. 핵무기를 가진 나라는 오히려 늘었어요.",
+      "keyPhrase": "핵무기를 가진 나라는 오히려 늘었어요",
+      "outsideTextbook": true
+    },
+    {
+      "id": "E-2",
+      "type": "web",
+      "year": 2026,
+      "yearLabel": "지금",
+      "title": "새로운 걱정거리",
+      "body": "과학자들은 이제 핵무기만 걱정하지 않아요. 기후 변화, 새로운 감염병, 인공지능처럼 세계를 위협하는 것이 늘었다고 말해요.",
+      "keyPhrase": "세계를 위협하는 것이 늘었다고",
+      "outsideTextbook": true
+    }
+  ],
+  "edgeTasks": [],
+  "clock": [
+    {
+      "id": "epi-c1",
+      "mode": "predict",
+      "year": 2026,
+      "direction": "closer",
+      "pathYears": [
+        2026
+      ],
+      "unlockAfterDocs": [
+        "E-1",
+        "E-2"
+      ],
+      "question": "1991년 이후 지금까지, 운명의 날 시계는 어떻게 됐을까?",
+      "explanation": "냉전은 끝났지만 핵무기는 남았고, 새로운 위험도 생겼어요. 1991년 뒤 여러 번 바뀐 시계는 이제 자정까지 85초예요. 방은 밝은 낮인데, 시계는 가장 자정에 가까워요.",
+      "wrongNote": "냉전은 끝났지만 핵무기가 남고 새로운 위험이 늘면서, 시계는 역사상 가장 자정에 가까워졌다."
+    }
+  ],
+  "paper": {
+    "masthead": "BONSSAM",
+    "dateline": "지금 · 인터넷 신문",
+    "headlineCloser": "[BONSSAM] 지금, 세계는 자정에 가까워졌다",
+    "headlineFarther": "[BONSSAM] 지금, 세계는 자정에서 멀어졌다"
+  },
+  "finale": {
+    "montage": {
+      "title": "80년 동안 이 창으로 본 한반도",
+      "frames": [
+        {
+          "chapter": "prologue",
+          "caption": "1945년 8월, 서울"
+        },
+        {
+          "chapter": "ch1",
+          "caption": "1951년 1월, 서울"
+        },
+        {
+          "chapter": "ch2",
+          "caption": "1950년대 후반, 서울"
+        },
+        {
+          "chapter": "ch3",
+          "caption": "1972년 여름, 서울"
+        },
+        {
+          "chapter": "ch4",
+          "caption": "1983년 9월, 서울"
+        },
+        {
+          "chapter": "ch5",
+          "caption": "1988년 가을, 서울"
+        },
+        {
+          "image": "/assets/windows/window-epilogue-seoul.webp",
+          "alt": "흐린 낮 서울 거리. 유리창이 큰 건물들 앞 인도를 사람들이 걸어간다.",
+          "caption": "지금, 서울"
+        },
+        {
+          "chapter": "epilogue",
+          "caption": "지금, 휴전선 부근."
+        }
+      ],
+      "lastLine": "80년이 지난 지금도, 이 선은 남아 있어요."
+    },
+    "letter": {
+      "found": "서랍 안쪽에서 오래된 봉투가 나왔어요.",
+      "open": "봉투 열기",
+      "salutation": "다음 당직자에게",
+      "lines": [
+        "오늘 밤, 이 램프 아래서 보드에 처음 실을 걸었어요.",
+        "38선이 그어진 뒤로, 북쪽 고향에 계신 어머니를 언제 다시 뵐 수 있을지 모르겠어요.",
+        "이 선이 오래가지 않기를 바라요.",
+        "이 실이 어떻게 되는지, 당신이 지켜봐 주세요."
+      ],
+      "signature": "1945년 9월, 7번 자리 당직자",
+      "reply": "답장 쓰기"
+    },
+    "writing": {
+      "title": "다음 당직자에게 남기는 인계 메모",
+      "guide": "1945년의 당직자에게 답장을 쓰듯, 다음 당직자에게 메모를 남겨요. 게임은 글을 저장하지 않아요. 화면을 보며 종이 활동지에 쓰세요.",
+      "question": "세계의 냉전은 끝났는데, 이 실은 왜 아직 남아 있을까?",
+      "historyTitle": "이 실의 이력",
+      "frameTitle": "문장 틀",
+      "frame": "세계의 냉전은 1991년에 끝났지만 한반도의 분단은 아직 남아 있다. 그 까닭은 ______ 때문이라고 생각한다. 다음 당직자는 ______을/를 지켜보면 좋겠다.",
+      "wordsTitle": "낱말 상자",
+      "wordsHint": "낱말을 누르면 풀이가 나와요.",
+      "words": [
+        "38도선",
+        "6·25 전쟁",
+        "정전",
+        "휴전선",
+        "7·4 남북 공동 성명",
+        "남북 기본 합의서",
+        "냉전",
+        "이산가족",
+        "핵무기"
+      ],
+      "done": "다 썼어요"
+    },
+    "knot": {
+      "prompt": "바늘을 들어 이 실에 매듭을 하나 지어 주세요.",
+      "after": "이 매듭은 당신이 남긴 인계 메모예요. 실은 아직 이어지고 있어요.",
+      "button": "흰 실에 매듭 짓기"
+    },
+    "end": {
+      "title": "80년의 당직을 마쳤어요",
+      "thanks": "{name} 당직자, 1945년부터 지금까지 7번 자리를 지켜 주어 고마워요.",
+      "notesTitle": "알아 둘 것",
+      "notes": [
+        "분석실, 본샘일보·BONSSAM, 당직자와 편지는 지어낸 이야기예요.",
+        "문서 속 사건과 시계 값은 실제 역사예요. 운명의 날 시계는 원자 과학자 회보(Bulletin of the Atomic Scientists)가 발표해요.",
+        "창밖 그림은 AI로 그린 상상 그림이에요(실제 사진 아님)."
+      ]
+    }
+  },
+  "window": {
+    "image": "/assets/windows/window-epilogue.webp",
+    "alt": "흐린 하늘 아래 넓은 들판을 가로지르는 철책. 마른 풀이 바람에 눕고, 멀리 산이 이어진다. 사람은 없다.",
+    "caption": "지금, 휴전선 부근."
+  }
+}

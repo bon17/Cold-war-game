@@ -281,3 +281,15 @@ button.edge-tag {
 @media (prefers-reduced-motion: reduce) {
   .pin-tag.fresh, .pin-ring { animation: none; }
 }
+
+/* 에필로그 남북 실: 천천히 숨 쉬듯 빛난다(기획서 7.2). 움직임 줄이기에서는 멈춘 빛 */
+.edge-undyed {
+  animation: undyed-pulse 3.2s ease-in-out infinite;
+}
+@keyframes undyed-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 236, 190, 0)); }
+  50% { filter: drop-shadow(0 0 7px rgba(255, 236, 190, 0.95)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edge-undyed { animation: none; filter: drop-shadow(0 0 5px rgba(255, 236, 190, 0.85)); }
+}

@@ -21,6 +21,7 @@
   },
   "legendTitle": "실의 종류",
   "legendHotline": "직통선 매듭",
+  "legendUndyed": "지금은?",
   "docs": {
     "types": {
       "telegram": "외신 전보",
@@ -28,7 +29,8 @@
       "radio": "라디오 받아쓰기",
       "speech": "연설문",
       "memo": "타자 문서",
-      "flash": "속보"
+      "flash": "속보",
+      "web": "BONSSAM 인터넷 기사"
     },
     "year": "{year}년",
     "unread": "새 문서 {n}",
@@ -44,7 +46,8 @@
       "radio": "라디오",
       "speech": "연설",
       "memo": "타자",
-      "flash": "속보"
+      "flash": "속보",
+      "web": "기사"
     },
     "doneRead": "다 읽었어요",
     "waiting": "다음 문서는 실을 바꾸면 와요."
@@ -85,6 +88,7 @@
     "aboutTitle": "운명의 날 시계",
     "about": "이 시계는 실제 시각이 아닙니다. 과학자 단체가 세계가 핵전쟁(자정)에 얼마나 가까운지 평가해 발표하는 상징 시계입니다.",
     "plaque": "자정까지 {n}분",
+    "plaqueSeconds": "자정까지 {n}초",
     "open": "시계 설명 보기"
   },
   "report": {
@@ -130,7 +134,7 @@
     "headlineFarther": "[분석실 보고] {year}년, 세계는 자정에서 멀어졌다",
     "byline": "글 · 분석실 7번 자리",
     "correctionTitle": "정정 보도",
-    "correction": "과학자들의 판단은 달랐다. {year}년 시계는 자정까지 {n}분, {result}.",
+    "correction": "과학자들의 판단은 달랐다. {year}년 시계는 {time}, {result}.",
     "resultCloser": "자정에 가까워졌다",
     "resultFarther": "자정에서 멀어졌다",
     "ok": "확인",
@@ -145,7 +149,7 @@
   "titleScreen": {
     "logoTop": "바늘과 실",
     "logoBottom": "자정의 분석실",
-    "trial": "체험판 · 프롤로그~5장",
+    "trial": "체험판 · 프롤로그~에필로그",
     "soundQuestion": "소리를 켤까요?",
     "soundOn": "소리 켜기",
     "soundOff": "소리 끄기",
@@ -203,7 +207,8 @@
     "go": "시작하기"
   },
   "windowScene": {
-    "skip": "넘어가기"
+    "skip": "넘어가기",
+    "header": "창밖 · 그해 한반도의 한 장면"
   },
   "result": {
     "title": "근무 평정표 · {chapter}",

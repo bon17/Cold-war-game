@@ -14,6 +14,7 @@ import { ClockReveal } from './components/Report/ClockReveal';
 import { ReportFolder } from './components/Report/ReportFolder';
 import { ReportForm } from './components/Report/ReportForm';
 import { CoverScreen, EndScreen, MissionCard, NoticeCard, ResultCard, WindowScene } from './components/Screens/ChapterScreens';
+import { FinaleScene, LetterScene, Montage, WritingScreen } from './components/Screens/EpilogueScreens';
 import { TitleScreen } from './components/Screens/TitleScreen';
 import { Stage } from './components/Stage/Stage';
 import { assetUrl } from './lib/assets';
@@ -27,7 +28,8 @@ import { setSoundEnabled, sfx } from './lib/sound';
 import { useGame } from './store/gameStore';
 import { useSession } from './store/sessionStore';
 
-// 체험판(프롤로그~5장). 타이틀 → 이름 → (고지) → 표지 → 할 일 카드 → 책상(문서 → 실 바꾸기 → 보고서 → 시계) → 창밖 → 근무 평정표 → 끝
+// 체험판(프롤로그~에필로그). 타이틀 → 이름 → (고지) → 표지 → 할 일 카드 → 책상(문서 → 실 바꾸기 → 보고서 → 시계) → 창밖 → 근무 평정표 → 끝
+// 에필로그는 시계 뒤 80년의 창 → 서랍 속 편지 → 쓰기 화면 → 마지막 매듭 → 끝 화면(근무 평정표 없음).
 // 프롤로그는 보고서 없이 문서 5개를 마치면 시계가 처음 걸리고, 별이 없어 근무 평정표를 건너뛴다.
 const ANIM_MS = 700;
 // 장의 마지막 일을 마친 뒤 창밖 장면까지 잠깐 쉬는 시간(마지막 보드를 볼 수 있게)
@@ -67,7 +69,12 @@ export default function App() {
   const setPhase = useSession((s) => s.setPhase);
   const chapter = chapterById(chapterId);
   const progress = useMemo(() => ({ readDocs, done }), [readDocs, done]);
-  const edges = useMemo(() => [...backgroundFor(chapter, progress), ...board], [chapter, progress, board]);
+  const edges = useMemo(() => {
+    // 에필로그 남북 실: 종류(대화)는 그대로 두고 흰 실과 '지금은?' 이름표로 보여 준다
+    const ep = chapter.epilogueBoard;
+    const shown = ep ? board.map((e) => (pairKey(e.pair) === pairKey(ep.pair) ? { ...e, undyed: true, label: ep.label } : e)) : board;
+    return [...backgroundFor(chapter, progress), ...shown];
+  }, [chapter, progress, board]);
 
   useEffect(() => startAutosave(), []);
   useSoundEffects();
@@ -113,7 +120,8 @@ export default function App() {
       zone: zoneRead ? (done[ZONE_KEY] ? 'done' : 'pending') : undefined,
       // '여기를 누르세요'는 책상 화면에서, 문서와 실 바꾸기 창을 닫은 뒤에(읽는 동안 문서 위로 비치지 않게)
       hint: action.kind === 'edge' && !dialogEdge && !openDocId && phase === 'desk' ? action.key : undefined,
-      faint: new Set(board.map((e) => pairKey(e.pair)).filter((k) => !changing.has(k))),
+      // 바꾸는 실이 없는 에필로그는 흐리게 그리지 않는다
+      faint: new Set(chapter.edgeTasks.length ? board.map((e) => pairKey(e.pair)).filter((k) => !changing.has(k)) : []),
       anim,
       onPick: (key) => openEdgeDialog(key),
       onInfo: (key) => openTable(key),
@@ -147,7 +155,10 @@ export default function App() {
             <TitleScreen />
             <NoticeCard />
             <CoverScreen />
-            <WindowScene />
+            {chapter.finale ? <Montage /> : <WindowScene />}
+            <LetterScene />
+            <WritingScreen />
+            <FinaleScene edges={edges} />
             <ResultCard />
             <EndScreen />
           </>

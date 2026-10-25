@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { layout } from '../../lib/assets';
 import { changedEdges, pairKey } from '../../lib/board';
-import { clockEntry, isFirstHang, minutesOf, revealPath } from '../../lib/clockFlow';
+import { clockEntry, clockText, isFirstHang, minutesOf, revealPath } from '../../lib/clockFlow';
 import { chapterById, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { sfx } from '../../lib/sound';
@@ -73,12 +73,14 @@ export function ClockReveal() {
       if (reduce) {
         cur = target;
       } else {
-        while (cur !== target) {
+        // 한 칸(1분)씩. 1분 밑으로 쪼개지는 값(2026년 85초)은 마지막 칸에서 그 값으로
+        while (Math.abs(target - cur) >= 1) {
           cur += Math.sign(target - cur);
           t += STEP_MS;
           const m = cur;
           at(t, () => setClockShown(m, entry.year));
         }
+        cur = target;
       }
       at(t + 150, () => {
         setClockShown(target, entry.year);
@@ -159,7 +161,7 @@ export function ClockReveal() {
         )}
         {!first && <div className="bulletin-from">{strings.reveal.from}</div>}
         <div className="bulletin-headline">{entry.bulletin.headline}</div>
-        <div className="reveal-minutes">{fmt(strings.clock.plaque, { n: after })}</div>
+        <div className="reveal-minutes">{clockText(after)}</div>
         <p>{!first && <><strong>{strings.reveal.moved[moved]}</strong> </>}{lead}</p>
         {rest.map((line, i) => <p key={i}>{line}</p>)}
         <p>{point.explanation}</p>
@@ -192,17 +194,20 @@ export function ClockReveal() {
       </div>
     );
   } else if (reveal.step === 'newspaper' && report) {
-    const headline = fmt(report.direction === 'closer' ? strings.newspaper.headlineCloser : strings.newspaper.headlineFarther, {
-      year: point.year,
-    });
+    // 에필로그는 인터넷 신문 BONSSAM(장의 paper)
+    const paper = chapter.paper;
+    const closer = report.direction === 'closer';
+    const headline = paper
+      ? closer ? paper.headlineCloser : paper.headlineFarther
+      : fmt(closer ? strings.newspaper.headlineCloser : strings.newspaper.headlineFarther, { year: point.year });
     const list = changedEdges(chapter, board, done)
       .map((e) => `${edgeTitle(chapter, e)} ${e.label ?? strings.relations[e.rel]}${e.fray ? ` · ${strings.edgeMarks.fray}` : ''}`)
       .join(' · ');
     const wrong = report.direction !== point.direction;
     card = (
-      <div className={`reveal-card newspaper${printed ? ' printed' : ''}`} role="dialog" aria-modal="true" aria-label={headline}>
-        <div className="paper-masthead">{strings.newspaper.masthead}</div>
-        <div className="paper-dateline">{fmt(strings.newspaper.dateline, { year: point.year })}</div>
+      <div className={`reveal-card newspaper${paper ? ' web' : ''}${printed ? ' printed' : ''}`} role="dialog" aria-modal="true" aria-label={headline}>
+        <div className="paper-masthead">{paper?.masthead ?? strings.newspaper.masthead}</div>
+        <div className="paper-dateline">{paper?.dateline ?? fmt(strings.newspaper.dateline, { year: point.year })}</div>
         <h2 className="paper-headline">{headline}</h2>
         {list && <p className="paper-sub">{fmt(strings.newspaper.sub, { list })}</p>}
         <div className="paper-byline">{strings.newspaper.byline}</div>
@@ -211,7 +216,7 @@ export function ClockReveal() {
             <strong>{strings.newspaper.correctionTitle}</strong>{' '}
             {fmt(strings.newspaper.correction, {
               year: point.year,
-              n: minutesOf(entry),
+              time: clockText(minutesOf(entry)),
               result: point.direction === 'closer' ? strings.newspaper.resultCloser : strings.newspaper.resultFarther,
             })}
             {point.wrongNote && ` ${point.wrongNote}`}

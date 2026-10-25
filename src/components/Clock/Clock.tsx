@@ -1,6 +1,6 @@
 import { layout } from '../../lib/assets';
 import { strings } from '../../lib/data';
-import { fmt } from '../../lib/format';
+import { clockText } from '../../lib/clockFlow';
 import { useGame } from '../../store/gameStore';
 import './Clock.css';
 
@@ -22,7 +22,7 @@ export function Clock({ appear = false }: { appear?: boolean }) {
         type="button"
         className={`clock-face${appear ? ' clock-appear' : ''}`}
         style={{ left: cx - R, top: cy - R, width: R * 2, height: R * 2 }}
-        aria-label={`${strings.clock.open}: ${fmt(strings.clock.plaque, { n: m })}`}
+        aria-label={`${strings.clock.open}: ${clockText(m)}`}
         onClick={() => !reveal && setAboutClock(true)}
       >
         <svg width={R * 2} height={R * 2} viewBox={`0 0 ${R * 2} ${R * 2}`} aria-hidden="true">
@@ -58,7 +58,7 @@ export function Clock({ appear = false }: { appear?: boolean }) {
         </svg>
       </button>
       <div className={`clock-plaque${appear ? ' clock-appear' : ''}`} style={{ left: plaque.x, top: plaque.y, width: plaque.w, height: plaque.h }}>
-        <span key={m} className="clock-plaque-text">{fmt(strings.clock.plaque, { n: m })}</span>
+        <span key={m} className="clock-plaque-text">{clockText(m)}</span>
       </div>
     </>
   );

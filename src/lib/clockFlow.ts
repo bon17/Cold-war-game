@@ -1,6 +1,7 @@
 // 시계 지점(기획서 5.3·5.4): 언제 열리는지, 보고서를 쓰려면 무엇이 남았는지.
 import { pairKey, taskKey, ZONE_KEY } from './board';
-import { clock } from './data';
+import { clock, strings } from './data';
+import { fmt } from './format';
 import type { Chapter, ClockCheckpoint, ClockEntry } from '../types';
 
 export function clockEntry(year: number): ClockEntry {
@@ -51,6 +52,11 @@ export function revealPath(point: ClockCheckpoint): ClockEntry[] {
 
 export function minutesOf(entry: { minutes?: number; seconds?: number }): number {
   return entry.minutes ?? (entry.seconds ?? 0) / 60;
+}
+
+// 숫자판 글: '자정까지 3분', 1분 밑으로 쪼개지는 값은 초로 '자정까지 85초'(2026년)
+export function clockText(minutes: number): string {
+  return Number.isInteger(minutes) ? fmt(strings.clock.plaque, { n: minutes }) : fmt(strings.clock.plaqueSeconds, { n: Math.round(minutes * 60) });
 }
 
 // 이 장에 보고서를 쓰는 예측 지점이 있는지(프롤로그는 없다: 보고서철과 '시계 예측' 진행 표시를 숨긴다)

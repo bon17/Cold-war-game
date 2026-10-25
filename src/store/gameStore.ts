@@ -110,7 +110,7 @@ export function initialState(chapterId: string) {
     done: {},
     event: null,
     dialogEdge: null,
-    clockShown: { minutes: minutesOf(chapter.startClock ?? {}), year: Number(chapter.period.slice(0, 4)) },
+    clockShown: { minutes: minutesOf(chapter.startClock ?? {}), year: chapter.calendarYear ?? Number(chapter.period.slice(0, 4)) },
     revealed: [],
     reports: {},
     reportOpen: false,

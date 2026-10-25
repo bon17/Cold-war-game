@@ -434,3 +434,19 @@
   line-height: 1.5;
   word-break: keep-all;
 }
+
+/* 에필로그 1면: 인터넷 신문 BONSSAM(흰 화면, 고딕 글씨). 1950~80년대 「본샘일보」와 다르게 */
+.reveal-card.newspaper.web {
+  background: #fbfbf8;
+  font-family: system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  animation: none;
+}
+.reveal-card.newspaper.web .paper-masthead {
+  font-family: system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  color: #1f3550;
+}
+.reveal-card.newspaper.web .paper-headline {
+  font-family: system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+}

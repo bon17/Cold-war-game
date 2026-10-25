@@ -22,11 +22,24 @@ interface EdgeStrokeProps {
   rel: Rel;
   fray?: boolean;
   hotline?: boolean;
+  undyed?: boolean;       // 에필로그 남북 실: 색을 뺀 흰 무명실(종류 무늬 없이)
   background?: boolean;   // 배경 실: 굵기 80%, 투명도 55%(그룹에서), 빛 없음
   compact?: boolean;      // 범례·이름표 견본: 장식 간격을 좁힌다
 }
 
-export function EdgeStroke({ curve, rel, fray, hotline, background, compact }: EdgeStrokeProps) {
+const UNDYED = '#f6f2e8';
+
+export function EdgeStroke({ curve, rel, fray, hotline, undyed, background, compact }: EdgeStrokeProps) {
+  if (undyed) {
+    const d = pathD(curve);
+    return (
+      <g fill="none">
+        {!compact && <path d={d} stroke="#fff6dc" strokeWidth={18} strokeOpacity={0.35} strokeLinecap="round" />}
+        <path d={d} stroke={INK} strokeWidth={6 + OUTLINE * 2} strokeLinecap="round" />
+        <path d={d} stroke={UNDYED} strokeWidth={6} strokeLinecap="round" />
+      </g>
+    );
+  }
   const k = background ? 0.8 : 1;
   const w = WIDTH[rel] * k;
   const color = COLOR[rel];
@@ -101,12 +114,12 @@ function HotlineKnot({ curve, color }: { curve: Curve; color: string }) {
 }
 
 // 범례 카드와 이름표 왼쪽의 짧은 견본. fray: '같은 편(금이 감)' 선택지(2장 중국–소련)
-export function RelSwatch({ rel, width = 52, fray, hotline }: { rel: Rel; width?: number; fray?: boolean; hotline?: boolean }) {
+export function RelSwatch({ rel, width = 52, fray, hotline, undyed }: { rel: Rel; width?: number; fray?: boolean; hotline?: boolean; undyed?: boolean }) {
   const h = 24;
   const curve = { p0: { x: 4, y: h / 2 }, c: { x: width / 2, y: h / 2 }, p1: { x: width - 4, y: h / 2 } };
   return (
     <svg className="rel-swatch" width={width} height={h} viewBox={`0 0 ${width} ${h}`} aria-hidden="true">
-      <EdgeStroke curve={curve} rel={rel} fray={fray} hotline={hotline} compact />
+      <EdgeStroke curve={curve} rel={rel} fray={fray} hotline={hotline} undyed={undyed} compact />
     </svg>
   );
 }

@@ -9,7 +9,7 @@ export type Pair = [NodeId, NodeId];
 
 export interface Doc {
   id: string;
-  type: 'telegram' | 'newspaper' | 'radio' | 'speech' | 'memo' | 'flash';
+  type: 'telegram' | 'newspaper' | 'radio' | 'speech' | 'memo' | 'flash' | 'web';   // web: 에필로그(지금)의 BONSSAM 인터넷 기사
   year: number;
   yearLabel?: string;          // 예: '1950년 6~10월'
   title: string;
@@ -75,6 +75,7 @@ export interface ClockCheckpoint {
   wrongNote?: string;          // 정정 보도 문구
   achievement?: string;
   annotateEdge?: { pair: Pair; mark: 'hotline' };  // 2장 직통선 매듭(끝까지 남음)
+  question?: string;           // 보고서 질문 덮어쓰기(에필로그: '1991년 이후 지금까지, …')
   hint?: string;               // 보고서 질문 아래 도움말(4장: 미국–중국은 가까워졌지만 시계는 미국·소련을 본다는 단서)
   // 나눠 읽는 시계 카드(2026-10-23 교사 결정, 프롤로그): 발표 이유(bulletin.reason)와 explanation을 줄('\n')마다 한 장씩
   // 큰 글씨로 보여 준다. spots[장]: 그 장에서 빛낼 화면 물건. 끝에 확인 질문 하나: 틀리면 hint를 보여 주고 다시 고른다.
@@ -88,6 +89,7 @@ export interface Chapter {
   session: 1 | 2;
   title: string;
   period: string;
+  calendarYear?: number;       // 장 시작에 일력이 보여 줄 해. 없으면 period의 앞 네 자리(에필로그는 period가 '지금'이라 2026)
   code: string;                // 막 시작 코드(한글 4글자). 다른 곳에 두지 않는다
   room: RoomId;
   cover: { image: string; alt: string; question: string };
@@ -115,8 +117,25 @@ export interface Chapter {
   zone?: ZoneTask;
   clock: ClockCheckpoint[];    // 시계는 장마다 한 번
   endEvents?: ('renameSU' | 'weakenNKSU' | 'greenCascade')[];  // 5장 끝. greenCascade는 이미 녹색인 실을 다시 울리는 확인 연출
-  epilogueBoard?: { pair: Pair; style: 'undyed'; label: string; caption: string };  // 에필로그 남북 실
-  window: { image: string; caption: string; alt: string; crop?: { x: number; w: number } };
+  // 에필로그 남북 실: 지금의 관계를 단정하지 않도록 색을 뺀 흰 실과 '지금은?' 이름표(기획서 7.2). caption은 실 이력표 끝에 붙인다
+  epilogueBoard?: { pair: Pair; style: 'undyed'; label: string; caption: string };
+  paper?: { masthead: string; dateline: string; headlineCloser: string; headlineFarther: string };   // 1면 덮어쓰기(에필로그 BONSSAM)
+  finale?: Finale;
+  // link: 창밖 사람들과 보드의 실을 이어 주는 한 줄, note: 그 아래 한 줄 더(프롤로그만: 창의 의미). 2026-10-25 교사 의견
+  window: { image: string; caption: string; alt: string; link?: string; note?: string; crop?: { x: number; w: number } };
+}
+
+// 에필로그 끝맺음(2026-10-25 교사 결정, docs/drafts/epilogue.md): 시계 공개 뒤 80년의 창 → 서랍 속 편지 → 쓰기 화면 →
+// 마지막 매듭 → 램프 꺼짐 → 끝 화면. 창 그림은 chapter를 주면 그 장의 창밖 그림과 대체 텍스트를 쓴다(그 장 데이터에만 둔다).
+export interface Finale {
+  montage: { title: string; frames: { chapter?: string; image?: string; alt?: string; caption: string }[]; lastLine: string };
+  letter: { found: string; open: string; salutation: string; lines: string[]; signature: string; reply: string };
+  writing: {
+    title: string; guide: string; question: string; historyTitle: string; frameTitle: string; frame: string;
+    wordsTitle: string; wordsHint: string; words: string[]; done: string;
+  };
+  knot: { prompt: string; after: string; button: string };
+  end: { title: string; thanks: string; notesTitle: string; notes: string[] };
 }
 
 export interface SaveSlot {
@@ -168,4 +187,5 @@ export interface BoardEdge {
   label?: string;
   background?: boolean;       // 배경 실: 퍼즐 대상이 아님, 흐리게, 누를 수 없음
   weakened?: boolean;
+  undyed?: boolean;           // 에필로그 남북 실: 색을 뺀 흰 실, 숨 쉬듯 빛남
 }
