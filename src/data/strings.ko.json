@@ -20,6 +20,7 @@
     "hotline": "직통선"
   },
   "legendTitle": "실의 종류",
+  "legendHotline": "직통선 매듭",
   "docs": {
     "types": {
       "telegram": "외신 전보",
@@ -72,7 +73,8 @@
       "nextDoc": "다음 문서 보기",
       "ok": "확인",
       "renamedTitle": "바뀐 핀 이름",
-      "renamed": "{from} → {to}"
+      "renamed": "{from} → {to}",
+      "countryRenamed": "나라 이름이 바뀌었어요"
     },
     "result": {
       "ok": "맞아요!",
@@ -189,6 +191,7 @@
   "mission": {
     "title": "이번 당직에서 할 일",
     "roomTitle": "이 방에서 알아 둘 것",
+    "carriedTitle": "지난 장에서 이어진 것",
     "clockLine": "벽의 시계: 세계가 핵전쟁(자정)에 얼마나 가까운지 과학자들이 알려 주는 시계예요.",
     "boardLine": "보드의 실: 두 나라가 어떤 사이인지 보여 줘요(같은 편, 대립, 대화).",
     "stepsTitle": "할 일",

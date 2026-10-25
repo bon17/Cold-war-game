@@ -75,6 +75,7 @@ export interface ClockCheckpoint {
   wrongNote?: string;          // 정정 보도 문구
   achievement?: string;
   annotateEdge?: { pair: Pair; mark: 'hotline' };  // 2장 직통선 매듭(끝까지 남음)
+  hint?: string;               // 보고서 질문 아래 도움말(4장: 미국–중국은 가까워졌지만 시계는 미국·소련을 본다는 단서)
   // 나눠 읽는 시계 카드(2026-10-23 교사 결정, 프롤로그): 발표 이유(bulletin.reason)와 explanation을 줄('\n')마다 한 장씩
   // 큰 글씨로 보여 준다. spots[장]: 그 장에서 빛낼 화면 물건. 끝에 확인 질문 하나: 틀리면 hint를 보여 주고 다시 고른다.
   story?: { spots: Spot[][]; check: { question: string; answer: string; wrong: string; hint: string } };
@@ -94,12 +95,14 @@ export interface Chapter {
   startNote?: { text: string; signature: string };            // 장 시작 쪽지(2장)
   // 장 표지 다음 '할 일' 카드: lines는 이 장의 상황(1~2문장씩, 카드 맨 위). title, room, steps는 카드 제목,
   // '이 방에서 알아 둘 것', 할 일을 장마다 바꿀 때만 쓴다(프롤로그: 첫날, 시계가 아직 없음). 없으면 strings.mission의 공통 문구.
-  mission: { lines: string[]; title?: string; room?: string[]; steps?: string[] };
+  // carried: '지난 장에서 이어진 것'. 앞 장 시계 카드에서만 바뀌어 놓치기 쉬운 것(직통선 매듭, 3장 끝 미국–소련 대화)
+  mission: { lines: string[]; title?: string; room?: string[]; steps?: string[]; carried?: string[] };
   nodeLabels?: Partial<Record<NodeId, string>>;   // 핀 이름 덮어쓰기(프롤로그: 남한 → '38선 이남')
   nodeSides?: Partial<Record<NodeId, LabelSide>>; // 핀 이름표 방향 덮어쓰기(이름이 길어 실을 가릴 때)
   nodeLabelsUntil?: string;    // 이 문서를 마치면 덮어쓰기를 그만둔다(1장: 1948년 정부 수립 문서 → '남한', '북한')
   // 이 문서를 마친 뒤부터 쓰는 새 이름(5장: 소련 해체 문서 → '러시아'). 나라 자체가 바뀌는 것이라 그 문서의 질문은 바뀌기 전 이름
-  renameAfter?: { doc: string; labels: Partial<Record<NodeId, string>> };
+  // note: 이름이 바뀌는 순간 '맞아요!' 창의 큰 이름 바뀜 칸에 함께 보여 주는 한 줄
+  renameAfter?: { doc: string; labels: Partial<Record<NodeId, string>>; note?: string };
   // 앞 장 끝 보드와 일부러 다르게 시작하는 실(1장: 1948년 남북 정부 수립으로 점령 실이 배경 실이 되고 대립 실이 걸림).
   // 여기 적은 쌍만 달라도 된다(validateData가 나머지는 앞 장 끝과 같은지 본다).
   startChanges?: { note: string; pairs: Pair[] };

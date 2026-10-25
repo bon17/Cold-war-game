@@ -107,8 +107,8 @@ describe('2장 흐름', () => {
     expect(chapterAchievements(ch2, { done: { ...game().done, [ZONE_KEY]: { wrong: 1 } } })).toEqual([]);
   });
 
-  it('배경 실은 처음부터 셋(미국–남한, 북한–소련, 북한–중국)', () => {
-    expect(backgroundFor(ch2, game()).map((e) => pairKey(e.pair))).toEqual(['KR-US', 'NK-SU', 'CN-NK']);
+  it('배경 실은 처음부터 넷(미국–남한, 미국–일본, 북한–소련, 북한–중국)', () => {
+    expect(backgroundFor(ch2, game()).map((e) => pairKey(e.pair))).toEqual(['KR-US', 'JP-US', 'NK-SU', 'CN-NK']);
   });
 });
 

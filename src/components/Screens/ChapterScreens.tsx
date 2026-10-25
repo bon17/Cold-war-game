@@ -54,6 +54,11 @@ export function CoverScreen() {
 export function MissionCard() {
   const { phase, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
+  const go = useRef<HTMLButtonElement>(null);
+  // 카드가 화면보다 길면(작은 화면, 지난 장에서 이어진 것) autoFocus가 카드를 맨 아래로 내려 맨 위 상황 글이 가려졌다. 위에서 시작한다
+  useEffect(() => {
+    if (phase === 'mission') go.current?.focus({ preventScroll: true });
+  }, [phase, chapter]);
   if (phase !== 'mission') return null;
   const m = strings.mission;
   const title = chapter.mission.title ?? m.title;
@@ -66,6 +71,14 @@ export function MissionCard() {
         {chapter.mission.lines.map((line, i) => (
           <p key={i} className="mission-line">{line}</p>
         ))}
+        {chapter.mission.carried && (
+          <div className="mission-room carried">
+            <div className="mission-label">{m.carriedTitle}</div>
+            {chapter.mission.carried.map((line, i) => (
+              <p key={i}>{line}</p>
+            ))}
+          </div>
+        )}
         <div className="mission-room">
           <div className="mission-label">{m.roomTitle}</div>
           {room.map((line, i) => (
@@ -78,7 +91,7 @@ export function MissionCard() {
             <li key={i}>{fmt(step, { n: chapter.documents.length })}</li>
           ))}
         </ol>
-        <button type="button" className="reveal-ok" onClick={() => setPhase('desk')} autoFocus>
+        <button ref={go} type="button" className="reveal-ok" onClick={() => setPhase('desk')}>
           {m.go}
         </button>
       </div>

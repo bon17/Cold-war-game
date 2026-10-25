@@ -423,3 +423,14 @@
   .spot { animation: none; }
   .story-sentence { animation: none; }
 }
+
+/* 보고서 도움말(4장): 고르기 전에 볼 단서 한 줄(2026-10-25 교사 결정) */
+.report-hint {
+  margin: -2px 0 10px;
+  padding: 4px 10px;
+  border-left: 4px solid var(--brass);
+  background: rgba(156, 122, 60, 0.12);
+  font-size: 19px;
+  line-height: 1.5;
+  word-break: keep-all;
+}

@@ -132,3 +132,69 @@
   color: var(--tag-paper) !important;
   font-weight: 700;
 }
+
+/* 5장 '소련 → 러시아': 나라 이름이 바뀌는 순간을 크게(2026-10-25 교사 의견). 줄은 0.3초, 도장은 0.9초에(EdgeDialog RENAME_STAMP_MS) */
+.rename-moment {
+  margin: 8px 0 10px;
+  padding: 8px 14px 10px;
+  border: 1.5px dashed rgba(168, 50, 42, 0.5);
+  border-radius: 4px;
+  background: #fffaf0;
+  text-align: center;
+}
+.rename-moment-title {
+  font-size: 18px;
+  color: #5a4a36;
+}
+.rename-moment-names {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+  margin: 4px 0;
+  font: 800 44px/1.25 'Nanum Myeongjo', serif;
+}
+.rename-from {
+  position: relative;
+  color: #6b5a44;
+}
+.rename-from::after {
+  content: '';
+  position: absolute;
+  left: -8%;
+  top: 50%;
+  width: 116%;
+  height: 5px;
+  background: #a8322a;
+  transform-origin: left center;
+  transform: rotate(-5deg) scaleX(0);
+  animation: rename-strike 450ms 300ms ease-out forwards;
+}
+.rename-arrow {
+  font-size: 32px;
+  color: #8a7a62;
+}
+.rename-to {
+  padding: 0 14px;
+  border: 5px double currentColor;
+  border-radius: 6px;
+  color: #a8322a;
+  opacity: 0;
+  transform: rotate(-6deg);
+  animation: rename-stamp 280ms 900ms cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+}
+.rename-moment-note {
+  margin: 4px 0 0;
+  font-size: 19px;
+}
+@keyframes rename-strike {
+  to { transform: rotate(-5deg) scaleX(1); }
+}
+@keyframes rename-stamp {
+  from { opacity: 0; transform: rotate(-6deg) scale(1.8); }
+  to { opacity: 1; transform: rotate(-6deg) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rename-from::after { animation: none; transform: rotate(-5deg); }
+  .rename-to { animation: none; opacity: 1; }
+}

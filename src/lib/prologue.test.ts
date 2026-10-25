@@ -193,11 +193,13 @@ describe('1장', () => {
     game().openDocument('1-6');
     expect(game().done['CN-KR']).toBeUndefined();
     expect(background()).not.toContain('CN-NK');
+    expect(background()).not.toContain('JP-US');
     game().closeDocument();
     game().submitEdge('CN-US', 'WAR');
     expect(game().done['CN-KR']).toEqual({ wrong: 0, auto: true });
     expect(rels()['CN-KR']).toBe('WAR');
     expect(background()).toContain('CN-NK');
+    expect(background()).toContain('JP-US');   // 일본은 6·25 전쟁 문서 뒤에 한 줄 설명과 함께 처음 나온다(2026-10-25 교사 결정)
     expect(game().event).toMatchObject({ kind: 'ok', key: 'CN-US', allDone: true });
     read('1-7');
     expect(action()).toEqual({ kind: 'report' });

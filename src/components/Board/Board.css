@@ -54,6 +54,10 @@
   font-size: 28px;
   height: 42px;
 }
+/* 다섯 줄(4장, 5장: 실 네 종류 + 직통선 매듭)이면 줄 사이를 좁혀 범례 칸(layout.legend) 안에 둔다. 아래 일본 핀을 가리지 않게 */
+.legend-card.dense .legend-row {
+  height: 34px;
+}
 
 .rel-swatch {
   flex: none;
@@ -223,4 +227,57 @@ button.edge-tag {
 }
 @media (prefers-reduced-motion: reduce) {
   .neutral-zone.pending::before { animation: none; }
+}
+
+/* 5장 '소련 → 러시아': 바뀐 이름표 위에 옛 이름을 빨간 줄로 지워 붙여 둔다(2026-10-25 교사 의견) */
+.pin-old {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  padding: 0 8px;
+  transform: translate(-50%, 2px) rotate(-6deg);
+  background: var(--tag-paper);
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px;
+  font-size: 24px;
+  color: #6b5a44;
+  text-decoration: none;
+}
+.pin-old::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 54%;
+  height: 2.5px;
+  background: rgba(168, 50, 42, 0.85);
+}
+/* 바뀌는 순간: 이름표가 커지며 빛났다가 돌아오고, 몇 번 더 반짝인다. transform은 자리 잡기에 쓰므로 scale로 키운다 */
+.pin-tag.fresh {
+  z-index: 2;
+  animation: pin-renamed 1.4s ease-out 0.9s both, pin-glow 0.9s ease-in-out 2.3s 3;
+}
+.pin-ring {
+  fill: none;
+  stroke: #f3c969;
+  stroke-width: 5;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pin-ring 1.3s ease-out both;
+}
+@keyframes pin-renamed {
+  0% { scale: 1; }
+  25% { scale: 1.5; box-shadow: 0 0 0 5px rgba(243, 201, 105, 0.95), 0 0 30px 8px rgba(243, 201, 105, 0.8); }
+  100% { scale: 1; }
+}
+@keyframes pin-glow {
+  50% { box-shadow: 0 0 0 4px rgba(243, 201, 105, 0.9), 0 0 22px 6px rgba(243, 201, 105, 0.7); }
+}
+@keyframes pin-ring {
+  0% { opacity: 0.95; transform: scale(0.6); }
+  100% { opacity: 0; transform: scale(3.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pin-tag.fresh, .pin-ring { animation: none; }
 }

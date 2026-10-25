@@ -25,6 +25,11 @@ describe('4장', () => {
     expect(sig(ch4.startBoard)).toEqual(sig(endBoard(chapterById('ch3'))));
   });
 
+  it('지난 장 시계 카드에서 바뀐 미국–소련 대화를 할 일 카드에 알리고, 보고서에 미국·소련을 보라는 도움말이 있다', () => {
+    expect(ch4.mission.carried?.join(' ')).toContain('대화');
+    expect(ch4.clock[0].hint).toContain('미국과 소련');
+  });
+
   it('미국–중국은 수교·협력, 미국–소련과 남한–북한은 대립. 직통선 매듭은 남는다', () => {
     read('4-1');
     game().submitEdge('KR-NK', 'COLD');

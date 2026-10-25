@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { initialState, useGame } from '../store/gameStore';
 import { useSession } from '../store/sessionStore';
 import { endBoard, pairKey } from './board';
-import { chapterById, pinName } from './data';
+import { chapterById, oldPinName, pinName } from './data';
 import { availableDocs } from './docFlow';
 import { nextAction } from './guide';
 import { goNextChapter } from './session';
@@ -52,8 +52,11 @@ describe('5장', () => {
     game().submitEdge('KR-NK', 'TALK');
     read('5-6');
     expect(pinName(ch5, 'SU', game(), '5-6')).toBe('소련');   // 질문: 미국–소련
+    expect(oldPinName(ch5, 'SU', game())).toBeUndefined();
     game().submitEdge('SU-US', 'NORMAL');
     expect(pinName(ch5, 'SU', game())).toBe('러시아');
+    expect(oldPinName(ch5, 'SU', game())).toBe('소련');      // 보드 이름표 위에 줄 그어 붙이는 옛 이름
+    expect(oldPinName(ch5, 'US', game())).toBeUndefined();
     expect(edge('SU-US')).toMatchObject({ rel: 'NORMAL', label: '협력', mark: 'hotline' });
     expect(pinName(ch5, 'SU')).toBe('러시아');               // 장 끝(보고서, 근무 평정표)
   });

@@ -88,6 +88,15 @@
       "rel": "ALLY",
       "appearAfterDoc": "1-6",
       "note": "중국군은 북한 편에 서서 싸웠어요."
+    },
+    {
+      "pair": [
+        "US",
+        "JP"
+      ],
+      "rel": "ALLY",
+      "appearAfterDoc": "1-6",
+      "note": "전쟁 중에 미국은 일본과 같은 편이 되는 조약을 맺었어요(1951년)."
     }
   ],
   "documents": [

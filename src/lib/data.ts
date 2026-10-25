@@ -65,6 +65,11 @@ function renamed(chapter: Chapter, id: NodeId, s?: DocState): string | undefined
   return r && (!s || docFinished(chapter, r.doc, s)) ? r.labels[id] : undefined;
 }
 
+// 이름이 바뀐 핀의 옛 이름(5장 '소련'). 보드 이름표 위에 줄을 그어 함께 보여 준다
+export function oldPinName(chapter: Chapter, id: NodeId, s?: DocState): string | undefined {
+  return renamed(chapter, id, s) ? nodes.nodes[id]?.name ?? id : undefined;
+}
+
 // 그 장에서 보이는 핀 이름(장마다 덮어쓸 수 있다. 프롤로그의 '38선 이남', '38선 이북', 5장 끝의 '러시아')
 export function pinName(chapter: Chapter, id: NodeId, s?: DocState, asIfDone?: string): string {
   return renamed(chapter, id, s) ?? (labelsOn(chapter, s, asIfDone) ? chapter.nodeLabels?.[id] : undefined) ?? nodes.nodes[id]?.name ?? id;

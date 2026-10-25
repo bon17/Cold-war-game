@@ -3,6 +3,7 @@ import { pairKey, taskKey } from '../../lib/board';
 import { chapterById, nodes, pinName, strings } from '../../lib/data';
 import { currentDoc } from '../../lib/docFlow';
 import { fmt } from '../../lib/format';
+import { sfx } from '../../lib/sound';
 import { autoTasksFor, directTask, docForTask, optionOrder } from '../../lib/validateEdge';
 import { useGame } from '../../store/gameStore';
 import type { NodeId } from '../../types';
@@ -13,6 +14,10 @@ import './EdgeDialog.css';
 // 두 나라가 어떤 사이가 됐는지(관계 두 개 중 하나) 고르면(숫자 키 1~2) 바로 판정한다. 틀리면 문서의 핵심 구절을 다시 보여 준다.
 // 맞히면 창에 '맞아요!'와 한 줄 설명, '다음 문서 보기'(다음 문서가 없으면 '확인')가 나온다(2026-10-23 교사 결정).
 // 그 문서로 함께 바뀐 것(핀 이름, 새로 나타난 배경 실, 저절로 바뀐 실)도 같은 창에 한 줄씩 보여 준다(1장 1948년 정부 수립).
+// 5장 '소련 → 러시아'는 작은 줄 대신 큰 칸으로: 옛 이름에 빨간 줄이 그어지고 새 이름이 도장처럼 찍힌다(2026-10-25 교사 의견).
+// 도장이 찍히는 때(CSS 애니메이션 지연과 같게), 보드의 핀 이름표도 이때 커졌다 돌아온다(Board)
+const RENAME_STAMP_MS = 900;
+
 // '맞아요!' 창의 아래 단추: 다음 문서가 왔으면 '다음 문서 보기', 아니면 '확인'(중립 구역 창도 같이 쓴다)
 export function SolvedFoot() {
   const { chapterId, done, readDocs, revealed, closeEdgeDialog, openDocument } = useGame();
@@ -41,6 +46,13 @@ export function EdgeDialog() {
   const options = useMemo(() => (task ? optionOrder(chapter, task) : []), [chapter, task]);
   const wrong = event && event.kind === 'wrong' && event.key === dialogEdge ? event : null;
   const solved = !!(task && done[taskKey(chapter, task)]);
+  const renameMoment = solved && !!task?.doc && chapter.renameAfter?.doc === task.doc;
+
+  useEffect(() => {
+    if (!renameMoment) return;
+    const timer = window.setTimeout(() => sfx.stamp(), RENAME_STAMP_MS);
+    return () => window.clearTimeout(timer);
+  }, [renameMoment]);
 
   useEffect(() => {
     if (!task || solved) return;
@@ -65,17 +77,27 @@ export function EdgeDialog() {
   if (solved) {
     // 이 문서로 바뀐 핀 이름: 1장 '38선 이남 → 남한'(임시 이름이 끝남), 5장 '소련 → 러시아'(새 이름이 생김)
     const base = (id: string) => nodes.nodes[id as NodeId]?.name ?? id;
-    const renames = [
-      ...(task.doc && chapter.nodeLabelsUntil === task.doc ? Object.entries(chapter.nodeLabels ?? {}).map(([id, from]) => [from, base(id)]) : []),
-      ...(task.doc && chapter.renameAfter?.doc === task.doc ? Object.entries(chapter.renameAfter.labels).map(([id, to]) => [base(id), to]) : []),
-    ];
-    const renamed = renames.map(([from, to]) => fmt(strings.board.dialog.renamed, { from, to })).join(', ');
+    const renamed = (task.doc && chapter.nodeLabelsUntil === task.doc ? Object.entries(chapter.nodeLabels ?? {}) : [])
+      .map(([id, from]) => fmt(strings.board.dialog.renamed, { from, to: base(id) }))
+      .join(', ');
+    const countries = renameMoment ? Object.entries(chapter.renameAfter!.labels).map(([id, to]) => [base(id), to!]) : [];
     const now = (id: NodeId) => pinName(chapter, id, progress);
     const appeared = chapter.backgroundEdges.filter((e) => e.appearAfterDoc && e.appearAfterDoc === task.doc && e.note);
     return (
       <div className="edge-dialog solved" role="dialog" aria-modal="false" aria-label={strings.board.result.ok} aria-live="polite">
         <div className="edge-dialog-title">{strings.board.result.ok}</div>
         <p className="edge-dialog-explain">{task.explanation}</p>
+        {countries.map(([from, to]) => (
+          <div key={to} className="rename-moment">
+            <div className="rename-moment-title">{strings.board.dialog.countryRenamed}</div>
+            <div className="rename-moment-names">
+              <span className="rename-from">{from}</span>
+              <span className="rename-arrow" aria-hidden="true">→</span>
+              <span className="rename-to">{to}</span>
+            </div>
+            {chapter.renameAfter?.note && <p className="rename-moment-note">{chapter.renameAfter.note}</p>}
+          </div>
+        ))}
         {renamed && (
           <p className="edge-dialog-auto">
             <span>{strings.board.dialog.renamedTitle}:</span>

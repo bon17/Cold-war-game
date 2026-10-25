@@ -267,36 +267,41 @@ select.start-input {
 
 /* 이번 장에서 할 일 */
 .screen-card.mission {
-  width: min(760px, 94vw);
+  width: min(880px, 94vw);   /* 넓혀서 줄을 줄인다: 지난 장에서 이어진 것이 들어가도 1366×650에서 '시작하기'까지 한 화면에 */
   max-height: calc(100vh - 16px);
   overflow-y: auto;
   text-align: left;
 }
 .mission-room {
-  margin: 10px 0 12px;
-  padding: 8px 14px;
+  margin: 8px 0 8px;
+  padding: 4px 14px;
   border-left: 5px solid var(--brass);
   background: rgba(156, 122, 60, 0.12);
 }
+/* 지난 장에서 이어진 것(3장, 4장): 앞 장 시계 카드에서만 바뀐 것 */
+.mission-room.carried {
+  border-left-color: #6a8fb0;
+  background: rgba(106, 143, 176, 0.12);
+}
 .mission-room p,
 .mission-line {
-  margin: 4px 0;
+  margin: 3px 0;
   font-size: 20px;
-  line-height: 1.6;
+  line-height: 1.5;
   word-break: keep-all;
 }
 .mission-label {
-  margin-top: 10px;
+  margin-top: 6px;
   font-weight: 700;
   font-size: 18px;
   color: #5a4a36;
 }
 .mission-steps {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   padding-left: 1.6em;
   font-size: 22px;
   font-weight: 700;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .quiet-button {
