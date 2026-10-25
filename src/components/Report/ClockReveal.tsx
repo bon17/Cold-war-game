@@ -4,6 +4,7 @@ import { changedEdges, pairKey } from '../../lib/board';
 import { clockEntry, isFirstHang, minutesOf, revealPath } from '../../lib/clockFlow';
 import { chapterById, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
+import { sfx } from '../../lib/sound';
 import { stageToScreen } from '../../lib/stageFit';
 import { revealTasksFor } from '../../lib/validateEdge';
 import { useGame } from '../../store/gameStore';
@@ -19,6 +20,8 @@ import './Report.css';
 const STEP_MS = 130;
 const HOLD_MS = 2500;
 const PRINT_MS = 2000;
+// 예측이었으면 바늘이 멈춘 뒤 시계 위에 '예측 적중 / 예측 빗나감' 도장이 찍히고 이만큼 머문다(2026-10-25 교사 의견: 틀려도 반응이 없다)
+const VERDICT_MS = 2000;
 
 // 이 지점 공개 전에 시계가 가리키던 분(앞 지점의 마지막 값, 첫 지점이면 장 시작 값)
 function minutesBefore(chapter: Chapter, point: ClockCheckpoint): number {
@@ -33,6 +36,7 @@ export function ClockReveal() {
   const point = reveal ? chapter.clock.find((p) => p.id === reveal.pointId) : undefined;
   const fit = useStageFit();
   const [caption, setCaption] = useState<ClockEntry | null>(null);
+  const [verdict, setVerdict] = useState<'right' | 'wrong' | null>(null);
   const [printed, setPrinted] = useState(false);
 
   // 바늘 단계: 경로의 해마다 한 칸씩 움직이고 캡션을 보여 준 뒤 저절로 다음으로
@@ -42,6 +46,7 @@ export function ClockReveal() {
     const timers: number[] = [];
     const at = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
     let t = 0;
+    setVerdict(null);
     // 처음 걸리는 시계(프롤로그)는 바늘을 돌리지 않고 그 값으로 건다
     let cur = isFirstHang(chapter, point) ? minutesOf(revealPath(point)[0]) : useGame.getState().clockShown.minutes;
     for (const entry of revealPath(point)) {
@@ -66,6 +71,18 @@ export function ClockReveal() {
         setCaption(entry);
       });
       t += 150 + HOLD_MS;
+    }
+    const report = useGame.getState().reports[point.id];
+    if (point.mode === 'predict' && report) {
+      const right = report.direction === point.direction;
+      at(t, () => {
+        setCaption(null);
+        setVerdict(right ? 'right' : 'wrong');
+        sfx.stamp();
+        if (right) sfx.chime();
+        else sfx.wrong();
+      });
+      t += VERDICT_MS;
     }
     at(t, () => {
       setCaption(null);
@@ -94,11 +111,17 @@ export function ClockReveal() {
 
   if (reveal.step === 'needle') {
     const p = stageToScreen(fit, layout.clock.cx, layout.clock.plaque.y + layout.clock.plaque.h + 14);
+    const c = stageToScreen(fit, layout.clock.cx, layout.clock.cy);
     return (
       <div className="reveal-dim">
         {caption && (
           <div className="reveal-caption" style={{ left: p.x, top: p.y }} aria-live="polite">
             {fmt(strings.reveal.caption, { year: caption.year, caption: caption.caption })}
+          </div>
+        )}
+        {verdict && (
+          <div className={`verdict-stamp ${verdict}`} style={{ left: c.x, top: c.y }} role="status">
+            {verdict === 'right' ? strings.reveal.stampRight : strings.reveal.stampWrong}
           </div>
         )}
       </div>
@@ -120,12 +143,23 @@ export function ClockReveal() {
     const [lead, ...rest] = entry.bulletin.reason.split('\n');
     card = (
       <div className="reveal-card explanation" role="dialog" aria-modal="true" aria-label={entry.bulletin.headline}>
+        {report && point.direction && (
+          <div className={`reveal-verdict ${same ? 'right' : 'wrong'}`}>
+            <strong>{same ? strings.reveal.verdictRight : strings.reveal.verdictWrong}</strong>
+            <span>
+              {fmt(strings.reveal.verdictLine, {
+                mine: strings.reveal.dir[report.direction],
+                actual: strings.reveal.dir[point.direction],
+              })}
+            </span>
+            {!same && <span className="reveal-verdict-why">{strings.reveal.whyWrong}</span>}
+          </div>
+        )}
         {!first && <div className="bulletin-from">{strings.reveal.from}</div>}
         <div className="bulletin-headline">{entry.bulletin.headline}</div>
         <div className="reveal-minutes">{fmt(strings.clock.plaque, { n: after })}</div>
         <p>{!first && <><strong>{strings.reveal.moved[moved]}</strong> </>}{lead}</p>
         {rest.map((line, i) => <p key={i}>{line}</p>)}
-        {report && <div className={`reveal-compare${same ? ' same' : ' different'}`}>{same ? strings.reveal.same : strings.reveal.different}</div>}
         <p>{point.explanation}</p>
         {changed.map((t) => {
           const e = board.find((x) => pairKey(x.pair) === pairKey(t.pair));

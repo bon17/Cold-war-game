@@ -99,8 +99,16 @@
   "reveal": {
     "from": "원자 과학자 회보 → 본샘일보 분석실",
     "caption": "{year}년 · {caption}",
-    "same": "과학자들도 같은 판단을 했어요.",
-    "different": "과학자들은 다르게 봤어요.",
+    "stampRight": "예측 적중",
+    "stampWrong": "예측 빗나감",
+    "verdictRight": "예측 적중!",
+    "verdictWrong": "예측이 빗나갔어요",
+    "verdictLine": "내 예측: {mine} → 실제: {actual}",
+    "dir": {
+      "closer": "가까워졌다",
+      "farther": "멀어졌다"
+    },
+    "whyWrong": "왜 그랬을까요? 아래 해설을 읽어 보세요.",
     "explanationTitle": "해설",
     "ok": "확인",
     "changedTitle": "함께 바뀐 실",

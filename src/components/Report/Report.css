@@ -189,20 +189,59 @@
   line-height: 1.7;
   word-break: keep-all;
 }
-.reveal-compare {
-  margin-bottom: 10px;
-  padding: 6px 12px;
+/* 해설 카드 맨 위: 내 예측과 실제(맞으면 초록, 빗나가면 붉은색) */
+.reveal-verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 12px;
+  padding: 8px 14px;
   border-radius: 3px;
   font-size: 20px;
+}
+.reveal-verdict strong {
+  font-size: 26px;
+}
+.reveal-verdict.right {
+  background: rgba(62, 125, 79, 0.15);
+  border-left: 6px solid var(--string-normal);
+}
+.reveal-verdict.right strong {
+  color: #2f6b3a;
+}
+.reveal-verdict.wrong {
+  background: rgba(168, 50, 42, 0.12);
+  border-left: 6px solid #a8322a;
+}
+.reveal-verdict.wrong strong {
+  color: #a8322a;
+}
+.reveal-verdict-why {
   font-weight: 700;
 }
-.reveal-compare.same {
-  background: rgba(62, 125, 79, 0.15);
-  border-left: 5px solid var(--string-normal);
+
+/* 바늘이 멈춘 뒤 시계 위에 찍히는 도장 */
+.verdict-stamp {
+  position: absolute;
+  padding: 8px 20px;
+  border: 5px double currentColor;
+  border-radius: 6px;
+  background: rgba(244, 239, 228, 0.88);
+  font: 800 34px/1.1 'Nanum Myeongjo', serif;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  animation: verdict-in 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
-.reveal-compare.different {
-  background: rgba(156, 122, 60, 0.18);
-  border-left: 5px solid var(--brass);
+.verdict-stamp.right {
+  color: #2f6b3a;
+}
+.verdict-stamp.wrong {
+  color: #a8322a;
+}
+@keyframes verdict-in {
+  from { opacity: 0; transform: translate(-50%, -50%) rotate(-12deg) scale(1.8); }
+  to { opacity: 1; transform: translate(-50%, -50%) rotate(-12deg) scale(1); }
 }
 
 /* 본샘일보 1면(1970년대 신문, 나눔명조) */
@@ -257,7 +296,7 @@
   100% { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reveal-caption, .reveal-card.newspaper { animation: none; }
+  .reveal-caption, .reveal-card.newspaper, .verdict-stamp { animation: none; }
   .report-stamp.on { transform: none; }
 }
 
