@@ -46,7 +46,7 @@ function NeutralZone({ task, state, hint, onPick }: { task: ZoneTask; state: 'pe
   }
   return (
     <div className="neutral-zone" style={style}>
-      <span className="neutral-zone-title">{task.title}</span>
+      <span className="neutral-zone-title">{task.solvedTitle ?? task.title}</span>
       <ul className="neutral-zone-countries">
         {task.countries.map((name) => (
           <li key={name}>{name}</li>

@@ -227,9 +227,10 @@
   background: #f0eadb;
   font-family: 'Gowun Batang', serif;
 }
-/* 받아쓰기 공책의 가로줄: 본문 줄(20px × 1.7 = 34px) 아래에 맞춘다 */
+/* 받아쓰기 공책의 가로줄: 본문 줄 높이(.doc-body의 line-height 1.8)마다 한 줄. em으로 써서 글자 크기가 바뀌어도
+   줄이 글자를 가로지르지 않는다(px로 34px였을 때 줄이 점점 올라가 글자와 겹쳤다, 2026-10-25 교사 댓글) */
 .doc-radio .doc-body {
-  background: repeating-linear-gradient(transparent 0 33px, rgba(63, 100, 117, 0.22) 33px 34px);
+  background: repeating-linear-gradient(transparent 0 calc(1.8em - 1px), rgba(63, 100, 117, 0.22) calc(1.8em - 1px) 1.8em);
 }
 .doc-radio .doc-head {
   font-weight: 700;

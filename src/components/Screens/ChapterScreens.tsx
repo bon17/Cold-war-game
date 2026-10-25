@@ -140,7 +140,7 @@ export function ResultCard() {
   if (phase !== 'result') return null;
   const g = grade(stars);
   const rows = s.rows.map((r) => {
-    if (r.zone) return [r.firstTry, fmt(r.firstTry ? strings.result.starZoneFirst : strings.result.starZoneAgain, { title: r.zone.title })] as const;
+    if (r.zone) return [r.firstTry, fmt(r.firstTry ? strings.result.starZoneFirst : strings.result.starZoneAgain, { title: r.zone.solvedTitle ?? r.zone.title })] as const;
     const [a, b] = r.task!.pair.map((id) => pinName(chapter, id));
     return [r.firstTry, fmt(r.firstTry ? strings.result.starFirst : strings.result.starAgain, { a, b })] as const;
   });

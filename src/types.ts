@@ -42,7 +42,8 @@ export interface EdgeTask {
 // 짝인 문서를 읽고 실처럼 둘 중 하나를 고른다. 맞히면 보드 왼쪽 위(layout.neutralZone)에 칸이 열리고 나라 이름이 들어간다.
 export interface ZoneTask {
   doc: string;
-  title: string;               // 칸 이름
+  title: string;               // 칸 이름(고르기 전)
+  solvedTitle?: string;        // 맞힌 뒤의 칸 이름(2장: '제3 세계'. 설명에서 이름을 알려 준 뒤 칸 이름도 바뀐다)
   countries: string[];
   question: string;
   options: string[];           // 2개(정답 포함)
