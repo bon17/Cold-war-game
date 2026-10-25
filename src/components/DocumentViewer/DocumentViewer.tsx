@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { assetUrl } from '../../lib/assets';
-import { pairKey } from '../../lib/board';
+import { docFinished } from '../../lib/board';
 import { chapterById, glossary, strings } from '../../lib/data';
 import { glossaryByDoc, splitBody, type Chunk } from '../../lib/docText';
 import { fmt } from '../../lib/format';
@@ -47,10 +47,7 @@ export function DocumentViewer() {
 
   if (!doc) return null;
 
-  const isDone = (d: Doc) => {
-    const task = taskForDoc(chapter, d.id);
-    return task ? !!done[pairKey(task.pair)] : readDocs.includes(d.id);
-  };
+  const isDone = (d: Doc) => docFinished(chapter, d.id, { readDocs, done });
 
   const showWord = (word: string, el: HTMLElement) => {
     const r = el.getBoundingClientRect();

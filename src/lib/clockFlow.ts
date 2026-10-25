@@ -1,5 +1,5 @@
 // 시계 지점(기획서 5.3·5.4): 언제 열리는지, 보고서를 쓰려면 무엇이 남았는지.
-import { pairKey } from './board';
+import { pairKey, taskKey } from './board';
 import { clock } from './data';
 import type { Chapter, ClockCheckpoint, ClockEntry } from '../types';
 
@@ -28,9 +28,10 @@ export function remaining(
 ): { docs: string[]; edges: string[] } {
   const upto = chapter.clock.slice(0, chapter.clock.indexOf(point) + 1);
   const docs = [...new Set(upto.flatMap((p) => p.unlockAfterDocs ?? []))].filter((id) => !readDocs.includes(id));
-  const required = point.requireEdges
-    ? point.requireEdges.map(pairKey)
-    : chapter.edgeTasks.filter((t) => t.mode === 'direct').map((t) => pairKey(t.pair));
+  const listed = point.requireEdges?.map(pairKey);
+  const required = chapter.edgeTasks
+    .filter((t) => (listed ? listed.includes(pairKey(t.pair)) : t.mode === 'direct'))
+    .map((t) => taskKey(chapter, t));
   const edges = required.filter((k) => !done[k]);
   return { docs, edges };
 }

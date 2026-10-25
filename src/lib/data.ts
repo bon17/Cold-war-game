@@ -7,6 +7,7 @@ import glossaryData from '../data/glossary.json';
 import nodesData from '../data/nodes.json';
 import schoolData from '../data/school.json';
 import stringsData from '../data/strings.ko.json';
+import { docFinished, type DocState } from './board';
 import type { Chapter, ClockEntry, LabelSide, NodeId, NodesData, Rel } from '../types';
 
 // 이야기 순서. 아직 없는 장(2·4·5장, 에필로그)은 M3에서 채운다.
@@ -40,12 +41,19 @@ export function chapterById(id: string): Chapter {
   return chapter;
 }
 
-// 그 장에서 보이는 핀 이름(장마다 덮어쓸 수 있다. 프롤로그의 '38선 이남', '38선 이북')
-export function pinName(chapter: Pick<Chapter, 'nodeLabels'>, id: NodeId): string {
-  return chapter.nodeLabels?.[id] ?? nodes.nodes[id]?.name ?? id;
+// 핀 이름 덮어쓰기를 지금 쓰는지. nodeLabelsUntil이 있으면 그 문서를 마칠 때까지만 쓴다(1장: 1948년 정부 수립 문서까지 '38선 이남').
+// 진행 상태를 안 주면 장이 끝났을 때의 이름이다(실 바꾸기 창, 보고서, 근무 평정표).
+function labelsOn(chapter: Chapter, s?: DocState): boolean {
+  if (!chapter.nodeLabelsUntil) return true;
+  return !!s && !docFinished(chapter, chapter.nodeLabelsUntil, s);
 }
 
-// 그 장에서 핀 이름표를 다는 방향(이름이 길어져 실을 가리면 장마다 바꾼다)
-export function pinSide(chapter: Pick<Chapter, 'nodeSides'>, id: NodeId): LabelSide {
-  return chapter.nodeSides?.[id] ?? nodes.nodes[id]?.label ?? 'top';
+// 그 장에서 보이는 핀 이름(장마다 덮어쓸 수 있다. 프롤로그의 '38선 이남', '38선 이북')
+export function pinName(chapter: Chapter, id: NodeId, s?: DocState): string {
+  return (labelsOn(chapter, s) ? chapter.nodeLabels?.[id] : undefined) ?? nodes.nodes[id]?.name ?? id;
+}
+
+// 그 장에서 핀 이름표를 다는 방향(이름이 길어져 실을 가리면 장마다 바꾼다). 덮어쓴 이름과 함께 바뀐다.
+export function pinSide(chapter: Chapter, id: NodeId, s?: DocState): LabelSide {
+  return (labelsOn(chapter, s) ? chapter.nodeSides?.[id] : undefined) ?? nodes.nodes[id]?.label ?? 'top';
 }

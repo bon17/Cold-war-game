@@ -83,10 +83,13 @@ export interface Chapter {
   mission: { lines: string[]; title?: string; room?: string[]; steps?: string[] };
   nodeLabels?: Partial<Record<NodeId, string>>;   // 핀 이름 덮어쓰기(프롤로그: 남한 → '38선 이남')
   nodeSides?: Partial<Record<NodeId, LabelSide>>; // 핀 이름표 방향 덮어쓰기(이름이 길어 실을 가릴 때)
+  nodeLabelsUntil?: string;    // 이 문서를 마치면 덮어쓰기를 그만둔다(1장: 1948년 정부 수립 문서 → '남한', '북한')
   // 앞 장 끝 보드와 일부러 다르게 시작하는 실(1장: 1948년 남북 정부 수립으로 점령 실이 배경 실이 되고 대립 실이 걸림).
   // 여기 적은 쌍만 달라도 된다(validateData가 나머지는 앞 장 끝과 같은지 본다).
   startChanges?: { note: string; pairs: Pair[] };
-  startBoard: { pair: Pair; rel: Rel; fray?: boolean; mark?: 'hotline'; label?: string }[];
+  // untilDoc: 이 문서를 마치면 보드에서 내려가는 실(1장 점령 실 → 배경 실 '같은 편'으로 바뀜)
+  startBoard: { pair: Pair; rel: Rel; fray?: boolean; mark?: 'hotline'; label?: string; untilDoc?: string }[];
+  // appearAfterDoc: 이 문서를 마치면 나타나는 배경 실. note는 그때 '맞아요!' 창에 함께 보여 주는 한 줄
   backgroundEdges: { pair: Pair; rel: Rel; weakened?: boolean; appearAfterDoc?: string; note?: string }[];
   documents: Doc[];            // 배열 순서 = 도착 순서. 앞 문서의 실을 바꿔야 다음 문서가 온다(3개)
   edgeTasks: EdgeTask[];

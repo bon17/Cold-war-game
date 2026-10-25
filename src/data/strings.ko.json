@@ -67,7 +67,9 @@
       "wrong": "다시 생각해 볼까요? 문서에 이렇게 적혀 있어요.",
       "close": "닫기",
       "nextDoc": "다음 문서 보기",
-      "ok": "확인"
+      "ok": "확인",
+      "renamedTitle": "바뀐 핀 이름",
+      "renamed": "{from} → {to}"
     },
     "result": {
       "ok": "맞아요!",

@@ -6,9 +6,10 @@ export function judge(task: EdgeTask, rel: Rel): boolean {
   return rel === task.to;
 }
 
-// 학생이 직접 바꾸는 실 과제(그 쌍에 있으면)
-export function directTask(chapter: Chapter, key: string): EdgeTask | undefined {
-  return chapter.edgeTasks.find((t) => t.mode === 'direct' && pairKey(t.pair) === key);
+// 학생이 직접 바꾸는 실 과제(그 쌍에 있으면). 같은 쌍을 두 번 바꾸는 장(1장 남한–북한)이면 짝인 문서를 읽은 것 가운데 마지막 것
+export function directTask(chapter: Chapter, key: string, readDocs: string[]): EdgeTask | undefined {
+  const tasks = chapter.edgeTasks.filter((t) => t.mode === 'direct' && pairKey(t.pair) === key);
+  return tasks.filter((t) => t.doc && readDocs.includes(t.doc)).pop() ?? tasks[0];
 }
 
 // 이 문서를 읽고 나서 학생이 바꿀 실

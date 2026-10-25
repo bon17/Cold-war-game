@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { assetUrl, layout } from '../../lib/assets';
-import { chapterRels, pairKey } from '../../lib/board';
+import { chapterRels, pairKey, type DocState } from '../../lib/board';
 import { boardLayout, edgeCurve, nodeAt, pinTagAnchor, SWATCH_W, type Measure, type PinStyle } from '../../lib/boardLayout';
 import { nodes, pinName, pinSide, strings } from '../../lib/data';
 import { pointAt } from '../../lib/stringPath';
@@ -49,7 +49,8 @@ function useFontsVersion(): number {
   return version;
 }
 
-export function Board({ chapter, edges: shown, play }: { chapter: Chapter; edges: BoardEdge[]; play?: BoardPlay }) {
+// progress: 읽은 문서와 끝난 실. 핀 이름이 장 중간에 바뀌는 장(1장 '38선 이남' → '남한')에서 지금 이름을 고른다.
+export function Board({ chapter, edges: shown, play, progress }: { chapter: Chapter; edges: BoardEdge[]; play?: BoardPlay; progress?: DocState }) {
   const { stage } = layout;
   const fontsVersion = useFontsVersion();
   const anim = play?.anim;
@@ -59,7 +60,10 @@ export function Board({ chapter, edges: shown, play }: { chapter: Chapter; edges
       : shown),
     [shown, anim],
   );
-  const pins: PinStyle = useMemo(() => ({ text: (id) => pinName(chapter, id), side: (id) => pinSide(chapter, id) }), [chapter]);
+  const pins: PinStyle = useMemo(
+    () => ({ text: (id) => pinName(chapter, id, progress), side: (id) => pinSide(chapter, id, progress) }),
+    [chapter, progress],
+  );
   const { pinIds, labels } = useMemo(() => boardLayout(edges, measure, edgeName, pins), [edges, pins, fontsVersion]);
   const animClass = (key: string) => (anim?.key === key ? (anim.kind === 'ok' ? ' settle' : ' shake') : '');
   const background = edges.filter((e) => e.background);

@@ -1,6 +1,6 @@
 // 별과 등급(기획서 5.6). 장마다 별 3개: 실을 한 번에 맞힐 때마다 별 하나(실이 3개가 아니면 비율로).
 // 시계 예측은 별과 상관없다. 2장과 4장의 반전은 일부러 틀리기 쉽게 만든 장치다.
-import { pairKey } from './board';
+import { taskKey } from './board';
 import type { Chapter, EdgeTask } from '../types';
 
 export interface ChapterProgress {
@@ -17,7 +17,7 @@ export function hasStars(chapter: Pick<Chapter, 'id'>): boolean {
 export function chapterStars(chapter: Chapter, p: ChapterProgress): Stars {
   const rows = chapter.edgeTasks
     .filter((t) => t.mode === 'direct')
-    .map((task) => ({ task, firstTry: p.done[pairKey(task.pair)]?.wrong === 0 }));
+    .map((task) => ({ task, firstTry: p.done[taskKey(chapter, task)]?.wrong === 0 }));
   const got = rows.filter((r) => r.firstTry).length;
   return { rows, total: rows.length === 0 ? 0 : Math.round((3 * got) / rows.length) };
 }
@@ -37,5 +37,5 @@ export function grade(stars: Record<string, number | null>): { grade: Grade; got
 // 도전 과제(기획서 5.7) 가운데 한 장 안에서 정해지는 것
 export function chapterAchievements(chapter: Chapter, p: ChapterProgress): string[] {
   const direct = chapter.edgeTasks.filter((t) => t.mode === 'direct');
-  return direct.length > 0 && direct.every((t) => p.done[pairKey(t.pair)]?.wrong === 0) ? ['perfect-board'] : [];
+  return direct.length > 0 && direct.every((t) => p.done[taskKey(chapter, t)]?.wrong === 0) ? ['perfect-board'] : [];
 }

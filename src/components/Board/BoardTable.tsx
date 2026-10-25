@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { pairKey } from '../../lib/board';
+import { pairKey, taskKey } from '../../lib/board';
 import { chapterById, chapters, pinName, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { edgeHistory } from '../../lib/history';
@@ -11,7 +11,7 @@ import './BoardTable.css';
 // 표로 보기(아트 계획서 3.7): 두 나라, 지금 관계, 근거 문서, 이력. 실 이력표(2.7 ②)를 겸한다.
 // 이력은 장 데이터로 만든다(지난 장은 모두, 지금 장은 끝난 과제만).
 export function BoardTable() {
-  const { chapterId, board, done, table, closeTable } = useGame();
+  const { chapterId, board, readDocs, done, table, closeTable } = useGame();
   const chapter = chapterById(chapterId);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export function BoardTable() {
   }, [table, closeTable]);
 
   if (!table) return null;
-  const name = (id: NodeId) => pinName(chapter, id);
+  const name = (id: NodeId) => pinName(chapter, id, { readDocs, done });
 
   return (
     <div className="reveal-backdrop" onClick={(e) => e.target === e.currentTarget && closeTable()}>
@@ -41,8 +41,9 @@ export function BoardTable() {
             {board.map((e) => {
               const key = pairKey(e.pair);
               const [a, b] = e.pair.map(name);
-              const task = chapter.edgeTasks.find((t) => pairKey(t.pair) === key);
-              const evidence = done[key] && task?.doc ? chapter.documents.find((d) => d.id === task.doc)?.title : '';
+              // 근거 문서: 이 실을 마지막으로 바꾼 과제의 문서(1장 남한–북한은 1948 대립 → 1950 전쟁)
+              const task = chapter.edgeTasks.filter((t) => pairKey(t.pair) === key && done[taskKey(chapter, t)]).pop();
+              const evidence = task?.doc ? chapter.documents.find((d) => d.id === task.doc)?.title : '';
               const history = edgeHistory(chapters, chapterId, key, done)
                 .map((h) => `${h.year ?? strings.boardTable.start} ${h.label ?? strings.relations[h.rel]}`)
                 .join(' → ');

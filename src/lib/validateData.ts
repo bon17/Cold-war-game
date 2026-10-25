@@ -2,9 +2,10 @@ import type { Chapter, ClockEntry, NodesData } from '../types';
 import { endBoard, pairKey } from './board';
 
 // 장 데이터 검사(기획서 10.3). 문제를 글로 모아 돌려준다. 빈 배열이면 통과.
-// 실을 바꾸는 문서는 장마다 3~4개, 실 없이 읽고 넘어가는 문서를 더해 6개까지(기획서 5.0, 2026-10-25).
-const MAX_EDGE_DOCS = 4;
-const MAX_DOCS = 6;
+// 실을 바꾸는 문서는 장마다 3~5개, 실 없이 읽고 넘어가는 문서를 더해 7개까지(기획서 5.0, 2026-10-25.
+// 1장은 1948년 정부 수립 문서를 더해 실 문서 5개, 모두 7개).
+const MAX_EDGE_DOCS = 5;
+const MAX_DOCS = 7;
 const BODY_LIMIT = 100;
 
 export function validateChapter(
@@ -55,6 +56,16 @@ export function validateChapter(
       if (!task.options || task.options.length !== 2) errors.push(where(`실 ${key}: 선택지는 2개여야 함`));
       else if (!task.options.includes(task.to)) errors.push(where(`실 ${key}: 선택지에 정답 ${task.to}가 없음`));
     }
+  }
+
+  // 장 중간에 바뀌는 것(핀 이름, 내려가는 실, 나타나는 배경 실)이 가리키는 문서가 있는지
+  const untilDocs = [
+    chapter.nodeLabelsUntil,
+    ...chapter.startBoard.map((e) => e.untilDoc),
+    ...chapter.backgroundEdges.map((e) => e.appearAfterDoc),
+  ].filter((id): id is string => !!id);
+  for (const id of untilDocs) {
+    if (!docIds.has(id)) errors.push(where(`보드가 바뀌는 문서 ${id}가 없음`));
   }
 
   // 시계 지점: clock.json에 그 해가 있는지, 경로의 마지막이 그 해인지, 열어야 할 문서가 있는지

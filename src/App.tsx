@@ -16,7 +16,7 @@ import { CoverScreen, EndScreen, MissionCard, NoticeCard, ResultCard, WindowScen
 import { TitleScreen } from './components/Screens/TitleScreen';
 import { Stage } from './components/Stage/Stage';
 import { assetUrl } from './lib/assets';
-import { backgroundFor, pairKey } from './lib/board';
+import { backgroundFor, pairKey, taskKey } from './lib/board';
 import { clockHung, hasPredict } from './lib/clockFlow';
 import { chapterById, strings } from './lib/data';
 import { autoOpenDoc } from './lib/docFlow';
@@ -63,7 +63,8 @@ export default function App() {
   const phase = useSession((s) => s.phase);
   const setPhase = useSession((s) => s.setPhase);
   const chapter = chapterById(chapterId);
-  const edges = useMemo(() => [...backgroundFor(chapter, readDocs), ...board], [chapter, readDocs, board]);
+  const progress = useMemo(() => ({ readDocs, done }), [readDocs, done]);
+  const edges = useMemo(() => [...backgroundFor(chapter, progress), ...board], [chapter, progress, board]);
 
   useEffect(() => startAutosave(), []);
   useSoundEffects();
@@ -92,9 +93,13 @@ export default function App() {
   const play: BoardPlay = useMemo(() => {
     // 문서를 읽고 아직 바꾸지 않은 실만 누를 수 있게 빛나고, 이번 장에서 바뀌지 않는 실은 흐리게 그린다
     const pending = chapter.edgeTasks
-      .filter((t) => t.mode === 'direct' && t.doc && readDocs.includes(t.doc) && !done[pairKey(t.pair)])
+      .filter((t) => t.mode === 'direct' && t.doc && readDocs.includes(t.doc) && !done[taskKey(chapter, t)])
       .map((t) => pairKey(t.pair));
-    const changing = new Set(chapter.edgeTasks.map((t) => pairKey(t.pair)));
+    // 장 중간에 내려가는 실(1장 점령 실)도 바뀌는 실로 친다
+    const changing = new Set([
+      ...chapter.edgeTasks.map((t) => pairKey(t.pair)),
+      ...chapter.startBoard.filter((e) => e.untilDoc).map((e) => pairKey(e.pair)),
+    ]);
     const action = nextAction(chapter, { readDocs, done, revealed, reveal });
     return {
       pending: new Set(pending),
@@ -145,7 +150,7 @@ export default function App() {
         >
           {hung && <Clock appear={appearing} />}
           <CalendarYear />
-          <Board chapter={chapter} edges={edges} play={play} />
+          <Board chapter={chapter} edges={edges} play={play} progress={progress} />
         </Desk>
       </Stage>
       <div className="rotate-notice">{strings.rotateDevice}</div>

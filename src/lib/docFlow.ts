@@ -1,7 +1,6 @@
 // 문서 도착 규칙(기획서 5.1): 문서는 하나씩 온다. 앞 문서와 짝인 실을 바꿔야(실이 없으면 앞 문서를 읽어야) 다음 문서가 온다.
 // revealAfter가 있는 문서는 그 시계 지점이 끝난 뒤에 오고(5-8), autoOpen 문서는 장 시작에 저절로 열린다(4-1).
-import { pairKey } from './board';
-import { taskForDoc } from './validateEdge';
+import { docFinished } from './board';
 import type { Chapter, Doc } from '../types';
 
 export function availableDocs(chapter: Chapter, revealed: string[], readDocs: string[], done: Record<string, unknown>): Doc[] {
@@ -9,9 +8,7 @@ export function availableDocs(chapter: Chapter, revealed: string[], readDocs: st
   for (const doc of chapter.documents) {
     if (doc.revealAfter && !revealed.includes(doc.revealAfter)) break;
     out.push(doc);
-    const task = taskForDoc(chapter, doc.id);
-    const waiting = task ? !done[pairKey(task.pair)] : !readDocs.includes(doc.id);
-    if (waiting) break;
+    if (!docFinished(chapter, doc.id, { readDocs, done })) break;
   }
   return out;
 }
@@ -21,9 +18,7 @@ export function currentDoc(chapter: Chapter, revealed: string[], readDocs: strin
   const docs = availableDocs(chapter, revealed, readDocs, done);
   const last = docs[docs.length - 1];
   if (!last) return undefined;
-  const task = taskForDoc(chapter, last.id);
-  const finished = task ? !!done[pairKey(task.pair)] : readDocs.includes(last.id);
-  return finished ? undefined : last;
+  return docFinished(chapter, last.id, { readDocs, done }) ? undefined : last;
 }
 
 export function autoOpenDoc(chapter: Chapter, readDocs: string[], revealed: string[], done: Record<string, unknown>): Doc | undefined {

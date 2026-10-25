@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { applyTask, pairKey } from '../lib/board';
+import { applyTask, endingAt, pairKey, taskKey } from '../lib/board';
 import { isUnlocked, nextCheckpoint, nextPredict, revealPath, minutesOf } from '../lib/clockFlow';
 import { chapterById, chapters } from '../lib/data';
 import { currentDoc } from '../lib/docFlow';
@@ -66,20 +66,27 @@ function setEdge(board: BoardEdge[], task: EdgeTask): BoardEdge[] {
 }
 
 // 저절로 바뀌는 실들을 한꺼번에 적용한다(이미 끝난 실은 건너뜀)
-function applyAuto(s: Pick<GameState, 'board' | 'done' | 'event'>, tasks: EdgeTask[]) {
+function applyAuto(chapter: Chapter, s: Pick<GameState, 'board' | 'done' | 'event'>, tasks: EdgeTask[]) {
   let { board, done, event } = s;
   for (const task of tasks) {
-    const key = pairKey(task.pair);
+    const key = taskKey(chapter, task);
     if (done[key]) continue;
     board = setEdge(board, task);
     done = { ...done, [key]: { wrong: 0, auto: true } };
-    event = stamp({ kind: 'auto', key });
+    event = stamp({ kind: 'auto', key: pairKey(task.pair) });
   }
   return { board, done, event };
 }
 
+// 문서를 마치면 함께 바뀌는 것: 보드에서 내려가는 실(1장 점령 실)과 저절로 바뀌는 실
+function finishDoc(chapter: Chapter, s: Pick<GameState, 'board' | 'done' | 'event'>, docId: string) {
+  const ending = endingAt(chapter, docId);
+  const board = s.board.filter((e) => !ending.has(pairKey(e.pair)));
+  return applyAuto(chapter, { ...s, board }, autoTasksFor(chapter, docId));
+}
+
 function allDirectDone(chapter: Chapter, done: Record<string, EdgeResult>): boolean {
-  return chapter.edgeTasks.filter((t) => t.mode === 'direct').every((t) => done[pairKey(t.pair)]);
+  return chapter.edgeTasks.filter((t) => t.mode === 'direct').every((t) => done[taskKey(chapter, t)]);
 }
 
 export function initialState(chapterId: string) {
@@ -119,21 +126,22 @@ function showToStart(s: Snapshot): GameState['reveal'] {
 export const useGame = create<GameState>((set, get) => ({
   ...initialState(chapters[0].id),
 
-  // 저절로 바뀌는 실: 학생이 바꿀 실이 없는 문서(4-1 속보)면 열 때 바뀐다.
-  // 바꿀 실이 있는 문서(1-5 중국군 참전 → 남한–중국)면 그 실을 맞힌 뒤에 함께 바뀐다(submitEdge).
+  // 저절로 바뀌는 실과 내려가는 실: 학생이 바꿀 실이 없는 문서(4-1 속보)면 열 때 바뀐다.
+  // 바꿀 실이 있는 문서(1-6 중국군 참전 → 남한–중국)면 그 실을 맞힌 뒤에 함께 바뀐다(submitEdge).
   openDocument: (docId) => {
     const s = get();
     const chapter = chapterById(s.chapterId);
     const first = !s.readDocs.includes(docId);
-    const auto = first && !taskForDoc(chapter, docId) ? applyAuto(s, autoTasksFor(chapter, docId)) : {};
+    const auto = first && !taskForDoc(chapter, docId) ? finishDoc(chapter, s, docId) : {};
     set({ ...auto, openDocId: docId, openDocFresh: first, dialogEdge: null, readDocs: first ? [...s.readDocs, docId] : s.readDocs });
   },
 
   closeDocument: () => {
     const s = get();
-    const task = s.openDocId ? taskForDoc(chapterById(s.chapterId), s.openDocId) : undefined;
-    const key = task ? pairKey(task.pair) : null;
-    set({ openDocId: null, openDocFresh: false, dialogEdge: key && !s.done[key] ? key : null, reveal: s.reveal ?? showToStart(s) });
+    const chapter = chapterById(s.chapterId);
+    const task = s.openDocId ? taskForDoc(chapter, s.openDocId) : undefined;
+    const open = task && !s.done[taskKey(chapter, task)] ? pairKey(task.pair) : null;
+    set({ openDocId: null, openDocFresh: false, dialogEdge: open, reveal: s.reveal ?? showToStart(s) });
   },
 
   // 실이 없는 문서(프롤로그 P-2)에서 '다 읽었어요'를 누르면 닫지 않고 다음 문서로 넘어간다(2026-10-23 교사 의견).
@@ -156,11 +164,13 @@ export const useGame = create<GameState>((set, get) => ({
   submitEdge: (key, rel) => {
     const s = get();
     const chapter = chapterById(s.chapterId);
-    const task = directTask(chapter, key);
-    if (!task || s.done[key]) return;
+    const task = directTask(chapter, key, s.readDocs);
+    if (!task) return;
+    const tk = taskKey(chapter, task);
+    if (s.done[tk]) return;
     if (judge(task, rel)) {
-      const solved = { board: setEdge(s.board, task), done: { ...s.done, [key]: { wrong: s.wrong[key] ?? 0 } }, event: s.event };
-      const withAuto = task.doc ? applyAuto(solved, autoTasksFor(chapter, task.doc)) : solved;
+      const solved = { board: setEdge(s.board, task), done: { ...s.done, [tk]: { wrong: s.wrong[tk] ?? 0 } }, event: s.event };
+      const withAuto = task.doc ? finishDoc(chapter, solved, task.doc) : solved;
       set({
         board: withAuto.board,
         done: withAuto.done,
@@ -169,7 +179,7 @@ export const useGame = create<GameState>((set, get) => ({
       return;
     }
     // 틀리면 창은 그대로 두고 핵심 구절을 힌트로 보여 준다(선택지가 둘이라 다음에는 맞힌다)
-    set({ wrong: { ...s.wrong, [key]: (s.wrong[key] ?? 0) + 1 }, event: stamp({ kind: 'wrong', key, rel }) });
+    set({ wrong: { ...s.wrong, [tk]: (s.wrong[tk] ?? 0) + 1 }, event: stamp({ kind: 'wrong', key, rel }) });
   },
 
   openReport: () => {
@@ -203,7 +213,7 @@ export const useGame = create<GameState>((set, get) => ({
       // 바늘이 멈추면 과학자들이 든 이유와 함께 그 지점의 실이 저절로 바뀐다
       const last = revealPath(point).pop()!;
       set({
-        ...applyAuto(s, revealTasksFor(chapter, point.id)),
+        ...applyAuto(chapter, s, revealTasksFor(chapter, point.id)),
         clockShown: { minutes: minutesOf(last), year: last.year },
         reveal: { pointId: point.id, step: 'explanation' },
       });

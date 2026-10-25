@@ -1,5 +1,5 @@
 // 지금 할 일(기획서 5.0, 2026-10-23): 다음에 누를 곳 하나를 정한다. '지금 할 일' 쪽지와 반짝임·'여기를 누르세요'가 이것을 따른다.
-import { pairKey } from './board';
+import { docFinished, pairKey } from './board';
 import { isUnlocked, nextCheckpoint, nextPredict } from './clockFlow';
 import { currentDoc } from './docFlow';
 import { taskForDoc } from './validateEdge';
@@ -36,9 +36,6 @@ export function nextAction(chapter: Chapter, s: GuideState): NextAction {
 
 // 진행 막대: 실을 바꾼(실이 없으면 읽은) 문서 수 / 전체 문서 수
 export function docProgress(chapter: Chapter, s: GuideState): { done: number; total: number } {
-  const finished = chapter.documents.filter((d) => {
-    const task = taskForDoc(chapter, d.id);
-    return task ? !!s.done[pairKey(task.pair)] : s.readDocs.includes(d.id);
-  }).length;
+  const finished = chapter.documents.filter((d) => docFinished(chapter, d.id, s)).length;
   return { done: finished, total: chapter.documents.length };
 }

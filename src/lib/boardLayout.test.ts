@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { layout } from './assets';
-import { endBoard, pairKey, startEdges } from './board';
+import { backgroundFor, endBoard, pairKey, startEdges, taskKey, type DocState } from './board';
 import { boardLayout, edgeCurve, type Measure, type PinStyle } from './boardLayout';
 import { chapterById, pinName, pinSide, strings } from './data';
 import { boxesOverlap, LABEL_GAP, type Box } from './labelLayout';
@@ -13,7 +13,7 @@ const measure: Measure = (text, px, bold) =>
 
 const edgeText = (e: BoardEdge) => [strings.relations[e.rel], e.fray && '균열', e.mark && '직통선'].filter(Boolean).join(' · ');
 
-const pinsOf = (chapter: Chapter): PinStyle => ({ text: (id) => pinName(chapter, id), side: (id) => pinSide(chapter, id) });
+const pinsOf = (chapter: Chapter, s?: DocState): PinStyle => ({ text: (id) => pinName(chapter, id, s), side: (id) => pinSide(chapter, id, s) });
 
 function problems(edges: BoardEdge[], pins?: PinStyle): string[] {
   const { pinTags, legend, labels } = boardLayout(edges, measure, edgeText, pins);
@@ -89,14 +89,24 @@ describe('프롤로그 보드 이름표 자리', () => {
 
 describe('1장 보드 이름표 자리', () => {
   const ch1 = chapterById('ch1');
-  const background = startEdges(ch1).filter((e) => e.background);
-  const withNkCn = [...background, { pair: ['NK', 'CN'] as BoardEdge['pair'], rel: 'ALLY' as const, background: true }];
+  // 1948년 문서(1-2)까지 마친 상태: 핀 이름이 남한·북한, 점령 실은 배경 같은 편 실, 남한–북한·남한–소련 대립
+  const after1948: DocState = { readDocs: ['1-1', '1-2'], done: { 'SU-US': {}, 'KR-NK': {}, 'KR-SU': {} } };
+  const allDone: DocState = { readDocs: ch1.documents.map((d) => d.id), done: Object.fromEntries(ch1.edgeTasks.map((t) => [taskKey(ch1, t), {}])) };
 
-  it('시작 보드: 겹치지 않고 차트 종이 안에 있다', () => {
-    expect(problems(startEdges(ch1), pinsOf(ch1))).toEqual([]);
+  it("시작 보드(프롤로그 끝 그대로, '38선 이남·이북'): 겹치지 않고 차트 종이 안에 있다", () => {
+    expect(problems(startEdges(ch1), pinsOf(ch1, { readDocs: [], done: {} }))).toEqual([]);
   });
 
-  it('끝 보드(실 5개가 바뀌고 북한–중국 배경 실이 생긴 뒤)도 겹치지 않는다', () => {
-    expect(problems([...withNkCn, ...endBoard(ch1)], pinsOf(ch1))).toEqual([]);
+  it('1948년 문서를 마친 뒤도 겹치지 않는다', () => {
+    const board: BoardEdge[] = [
+      { pair: ['US', 'SU'], rel: 'COLD' },
+      { pair: ['KR', 'NK'], rel: 'COLD' },
+      { pair: ['KR', 'SU'], rel: 'COLD' },
+    ];
+    expect(problems([...backgroundFor(ch1, after1948), ...board], pinsOf(ch1, after1948))).toEqual([]);
+  });
+
+  it('끝 보드(배경 실 셋, 바뀐 실 여섯)도 겹치지 않는다', () => {
+    expect(problems([...backgroundFor(ch1, allDone), ...endBoard(ch1)], pinsOf(ch1, allDone))).toEqual([]);
   });
 });

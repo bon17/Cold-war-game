@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { initialState, useGame } from '../store/gameStore';
-import { chapterRels, endBoard, pairKey } from './board';
+import { backgroundFor, chapterRels, endBoard, pairKey, taskKey } from './board';
 import { clockHung, hasPredict, isFirstHang } from './clockFlow';
 import { chapterById, chapters, nodes, pinName, previousChapter } from './data';
 import { nextAction } from './guide';
@@ -142,28 +142,64 @@ describe("'다 읽었어요'로 다음 문서 넘기기(2026-10-23 교사 의견
 
 describe('1장', () => {
   const ch1 = chapterById('ch1');
+  const rels = () => Object.fromEntries(game().board.map((e) => [pairKey(e.pair), e.rel]));
+  const background = () => backgroundFor(ch1, game()).map((e) => pairKey(e.pair));
+  const play = (steps: readonly (readonly [string, string?, string?])[]) => {
+    for (const [doc, key, rel] of steps) {
+      read(doc);
+      if (key && rel) game().submitEdge(key, rel as never);
+    }
+  };
   beforeEach(() => useGame.setState(initialState('ch1')));
 
-  it('프롤로그 다음 장이고, 시작 보드는 1948년 정부 수립으로 바뀐 실만 다르다', () => {
+  it('프롤로그 끝 보드 그대로 시작하고, 핀 이름은 1948년 문서(1-2)를 마칠 때까지 38선 이남·이북', () => {
     expect(previousChapter(ch1)?.id).toBe('prologue');
-    expect(pinName(ch1, 'KR')).toBe('남한');
-    const start = new Map(ch1.startBoard.map((e) => [pairKey(e.pair), e.rel]));
-    expect(Object.fromEntries(start)).toEqual({ 'SU-US': 'ALLY', 'KR-NK': 'COLD', 'KR-SU': 'COLD' });
+    const prologueEnd = Object.fromEntries(endBoard(prologue).map((e) => [pairKey(e.pair), e.rel]));
+    expect(rels()).toEqual(prologueEnd);
+    expect(pinName(ch1, 'KR', game())).toBe('38선 이남');
+    expect(pinName(ch1, 'NK', game())).toBe('38선 이북');
+    expect(pinName(ch1, 'KR')).toBe('남한');   // 진행 상태 없이(보고서, 근무 평정표)는 장 끝 이름
+    expect(background()).toEqual([]);
   });
 
-  it('중국군 참전(1-5): 미국–중국을 맞히면 남한–중국도 함께 전쟁이 된다(문서를 열 때가 아니라)', () => {
-    for (const [doc, key, rel] of [['1-1', 'SU-US', 'COLD'], ['1-2'], ['1-3', 'CN-SU', 'ALLY'], ['1-4', 'KR-NK', 'WAR']] as const) {
-      read(doc);
-      if (key) game().submitEdge(key, rel);
-    }
-    game().openDocument('1-5');
+  it('1948년 문서(1-2): 남한–북한을 대립으로 맞히면 핀 이름이 바뀌고, 점령 실은 배경 같은 편 실이 되고, 남한–소련도 대립', () => {
+    play([['1-1', 'SU-US', 'COLD'], ['1-2']]);
+    expect(game().dialogEdge).toBe('KR-NK');
+    expect(pinName(ch1, 'KR', game())).toBe('38선 이남');   // 맞히기 전에는 그대로
+    expect(rels()).toMatchObject({ 'KR-US': 'OCCUPY', 'NK-SU': 'OCCUPY' });
+    game().submitEdge('KR-NK', 'COLD');
+    expect(pinName(ch1, 'KR', game())).toBe('남한');
+    expect(pinName(ch1, 'NK', game())).toBe('북한');
+    expect(rels()).toEqual({ 'SU-US': 'COLD', 'KR-NK': 'COLD', 'KR-SU': 'COLD' });
+    expect(background()).toEqual(['KR-US', 'NK-SU']);
+    expect(game().done['KR-SU']).toEqual({ wrong: 0, auto: true });
+  });
+
+  it('남한–북한은 두 번 바뀐다: 1948 대립(1-2), 1950 전쟁(1-5). 과제마다 따로 센다', () => {
+    play([['1-1', 'SU-US', 'COLD'], ['1-2', 'KR-NK', 'COLD'], ['1-3'], ['1-4', 'CN-SU', 'ALLY'], ['1-5']]);
+    const war = ch1.edgeTasks.find((t) => t.doc === '1-5')!;
+    expect(taskKey(ch1, war)).toBe('KR-NK@1-5');
+    expect(game().dialogEdge).toBe('KR-NK');
+    game().submitEdge('KR-NK', 'COLD');   // 이번에는 전쟁이 정답
+    expect(game().done['KR-NK@1-5']).toBeUndefined();
+    game().submitEdge('KR-NK', 'WAR');
+    expect(game().done['KR-NK@1-5']).toEqual({ wrong: 1 });
+    expect(game().done['KR-NK']).toEqual({ wrong: 0 });
+    expect(rels()['KR-NK']).toBe('WAR');
+  });
+
+  it('중국군 참전(1-6): 미국–중국을 맞히면 남한–중국도 전쟁, 북한–중국 배경 실이 나타난다(문서를 열 때가 아니라)', () => {
+    play([['1-1', 'SU-US', 'COLD'], ['1-2', 'KR-NK', 'COLD'], ['1-3'], ['1-4', 'CN-SU', 'ALLY'], ['1-5', 'KR-NK', 'WAR']]);
+    game().openDocument('1-6');
     expect(game().done['CN-KR']).toBeUndefined();
+    expect(background()).not.toContain('CN-NK');
     game().closeDocument();
     game().submitEdge('CN-US', 'WAR');
     expect(game().done['CN-KR']).toEqual({ wrong: 0, auto: true });
-    expect(game().board.find((e) => pairKey(e.pair) === 'CN-KR')?.rel).toBe('WAR');
+    expect(rels()['CN-KR']).toBe('WAR');
+    expect(background()).toContain('CN-NK');
     expect(game().event).toMatchObject({ kind: 'ok', key: 'CN-US', allDone: true });
-    read('1-6');
+    read('1-7');
     expect(action()).toEqual({ kind: 'report' });
   });
 });
