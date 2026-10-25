@@ -1,0 +1,310 @@
+{
+  "id": "ch5",
+  "session": 2,
+  "title": "장벽이 무너지다",
+  "period": "1985~1992",
+  "code": "장벽붕괴",
+  "room": "room-1980s",
+  "cover": {
+    "image": "/assets/covers/cover-ch5.webp",
+    "alt": "놋쇠 램프가 비추는 책상 위에 깨진 회색 콘크리트 조각 하나가 놓여 있고, 그 옆에 매듭이 풀린 미색 무명실 한 가닥이 느슨하게 늘어져 있다.",
+    "question": "냉전은 어떻게 끝났고, 무엇이 남았을까?"
+  },
+  "startClock": {
+    "minutes": 3
+  },
+  "mission": {
+    "lines": [
+      "1985년, 다시 얼어붙었던 세계에 어떤 변화가 찾아올까요?",
+      "얼어붙은 실들이 하나둘 바뀌어요. 문서를 읽고 실을 바꾼 뒤 시계를 예측해 보세요. 예측 뒤에도 문서가 하나 더 와요."
+    ],
+    "room": [
+      "벽의 시계: 세계가 핵전쟁(자정)에 얼마나 가까운지 과학자들이 알려 주는 시계예요.",
+      "보드의 실: 두 나라가 어떤 사이인지 보여 줘요(같은 편, 대립, 대화, 수교·협력)."
+    ],
+    "steps": [
+      "문서 {n}개를 하나씩 읽어요.",
+      "문서를 읽고, 나라 사이가 바뀌었으면 실을 바꿔요.",
+      "실을 보고 시계가 어떻게 될지 예측해요."
+    ]
+  },
+  "renameAfter": {
+    "doc": "5-6",
+    "labels": {
+      "SU": "러시아"
+    }
+  },
+  "startBoard": [
+    {
+      "pair": [
+        "US",
+        "SU"
+      ],
+      "rel": "COLD",
+      "mark": "hotline"
+    },
+    {
+      "pair": [
+        "US",
+        "CN"
+      ],
+      "rel": "NORMAL"
+    },
+    {
+      "pair": [
+        "CN",
+        "SU"
+      ],
+      "rel": "COLD"
+    },
+    {
+      "pair": [
+        "KR",
+        "NK"
+      ],
+      "rel": "COLD"
+    },
+    {
+      "pair": [
+        "KR",
+        "SU"
+      ],
+      "rel": "COLD"
+    },
+    {
+      "pair": [
+        "KR",
+        "CN"
+      ],
+      "rel": "COLD"
+    }
+  ],
+  "backgroundEdges": [
+    {
+      "pair": [
+        "US",
+        "KR"
+      ],
+      "rel": "ALLY"
+    },
+    {
+      "pair": [
+        "US",
+        "JP"
+      ],
+      "rel": "ALLY"
+    },
+    {
+      "pair": [
+        "NK",
+        "SU"
+      ],
+      "rel": "ALLY"
+    },
+    {
+      "pair": [
+        "NK",
+        "CN"
+      ],
+      "rel": "ALLY"
+    }
+  ],
+  "documents": [
+    {
+      "id": "5-1",
+      "type": "speech",
+      "year": 1985,
+      "yearLabel": "1985~1987년",
+      "title": "고르바초프의 개혁",
+      "body": "1985년, 소련의 새 지도자 고르바초프가 개혁과 개방을 시작했어요. 1987년에는 미국과 중거리 핵미사일을 모두 없애기로 약속했어요.",
+      "keyPhrase": "중거리 핵미사일을 모두 없애기로 약속했어요",
+      "source": "교과서 223쪽(1987년 조약은 교과서 밖)"
+    },
+    {
+      "id": "5-2",
+      "type": "radio",
+      "year": 1988,
+      "yearLabel": "1988년 9월",
+      "title": "다시 모인 올림픽",
+      "body": "1988년 서울 올림픽에는 소련과 중국 선수단도 참가했어요. 반쪽짜리였던 두 올림픽과 달리, 동서 양쪽의 나라들이 다시 함께 모였어요. 북한은 참가하지 않았어요.",
+      "keyPhrase": "동서 양쪽의 나라들이 다시 함께 모였어요",
+      "outsideTextbook": true
+    },
+    {
+      "id": "5-3",
+      "type": "telegram",
+      "year": 1989,
+      "yearLabel": "1989년 5월",
+      "title": "중국과 소련, 관계를 정상화하다",
+      "body": "1989년 5월, 고르바초프가 중국을 방문했어요. 30년 가까이 맞서 온 중국과 소련은 관계를 정상화하기로 했어요.",
+      "keyPhrase": "관계를 정상화하기로 했어요",
+      "outsideTextbook": true
+    },
+    {
+      "id": "5-4",
+      "type": "newspaper",
+      "year": 1989,
+      "yearLabel": "1989년 11월",
+      "title": "베를린 장벽이 무너지다",
+      "body": "1989년 11월, 동서 독일을 가르던 베를린 장벽이 무너졌어요. 동유럽의 공산 정권들도 잇따라 무너졌고, 이듬해 독일은 하나로 통일되었어요.",
+      "keyPhrase": "베를린 장벽이 무너졌어요",
+      "source": "교과서 223쪽"
+    },
+    {
+      "id": "5-5",
+      "type": "newspaper",
+      "year": 1990,
+      "yearLabel": "1990~1991년",
+      "title": "남과 북, 다시 마주 앉다",
+      "body": "1990년, 남과 북의 총리들이 처음으로 마주 앉았어요. 1991년에는 남북한이 함께 유엔에 가입하고, 서로 화해하자는 남북 기본 합의서를 맺었어요.",
+      "keyPhrase": "서로 화해하자는 남북 기본 합의서를 맺었어요",
+      "source": "역사② 연계",
+      "outsideTextbook": true
+    },
+    {
+      "id": "5-6",
+      "type": "telegram",
+      "year": 1991,
+      "title": "소련이 무너지다",
+      "body": "1991년 7월, 미국과 소련은 전략 핵무기를 줄이기로 약속했어요. 그해 12월 소련은 해체되었고, 그 자리를 러시아가 이어받았어요.",
+      "keyPhrase": "전략 핵무기를 줄이기로 약속했어요",
+      "source": "교과서 223쪽(감축 조약은 교과서 밖)"
+    },
+    {
+      "id": "5-7",
+      "type": "newspaper",
+      "year": 1990,
+      "yearLabel": "1990·1992년",
+      "title": "우리나라, 소련·중국과 수교하다",
+      "body": "1990년, 우리나라는 오랫동안 맞서 온 소련과 수교했어요. 1992년에는 중국과도 수교했어요. 소련과 맺은 국교는 러시아가 이어받았어요.",
+      "keyPhrase": "오랫동안 맞서 온 소련과 수교했어요",
+      "revealAfter": "ch5-c1",
+      "source": "역사② 연계",
+      "outsideTextbook": true
+    }
+  ],
+  "edgeTasks": [
+    {
+      "pair": [
+        "US",
+        "SU"
+      ],
+      "from": "COLD",
+      "to": "TALK",
+      "mode": "direct",
+      "year": 1987,
+      "doc": "5-1",
+      "options": [
+        "COLD",
+        "TALK"
+      ],
+      "explanation": "다시 얼어붙었던 미국과 소련이 대화를 시작했어요. 4장에서 서유럽에 놓았던 핵미사일도 없애기로 했어요."
+    },
+    {
+      "pair": [
+        "CN",
+        "SU"
+      ],
+      "from": "COLD",
+      "to": "NORMAL",
+      "label": "관계 정상화",
+      "mode": "direct",
+      "year": 1989,
+      "doc": "5-3",
+      "options": [
+        "COLD",
+        "NORMAL"
+      ],
+      "explanation": "중국과 소련이 다시 손을 잡았어요. 두 나라는 원래 국교가 있었기 때문에 '수교'가 아니라 '관계 정상화'라고 해요."
+    },
+    {
+      "pair": [
+        "KR",
+        "NK"
+      ],
+      "from": "COLD",
+      "to": "TALK",
+      "mode": "direct",
+      "year": 1991,
+      "doc": "5-5",
+      "options": [
+        "COLD",
+        "TALK"
+      ],
+      "explanation": "남과 북이 다시 대화에 나섰어요. 하지만 다른 실처럼 수교·협력까지 가지는 못했어요."
+    },
+    {
+      "pair": [
+        "US",
+        "SU"
+      ],
+      "from": "TALK",
+      "to": "NORMAL",
+      "label": "협력",
+      "mode": "direct",
+      "year": 1991,
+      "doc": "5-6",
+      "options": [
+        "TALK",
+        "NORMAL"
+      ],
+      "explanation": "핵무기를 줄이기로 한 두 나라는 협력하는 사이가 되었어요. 냉전이 끝난 거예요."
+    },
+    {
+      "pair": [
+        "KR",
+        "SU"
+      ],
+      "from": "COLD",
+      "to": "NORMAL",
+      "mode": "direct",
+      "year": 1990,
+      "doc": "5-7",
+      "options": [
+        "COLD",
+        "NORMAL"
+      ],
+      "explanation": "우리나라와 러시아(옛 소련)가 수교했어요."
+    },
+    {
+      "pair": [
+        "KR",
+        "CN"
+      ],
+      "from": "COLD",
+      "to": "NORMAL",
+      "mode": "auto",
+      "year": 1992,
+      "doc": "5-7",
+      "explanation": "1992년에는 중국과도 수교했어요."
+    }
+  ],
+  "clock": [
+    {
+      "id": "ch5-c1",
+      "mode": "predict",
+      "year": 1991,
+      "direction": "farther",
+      "pathYears": [
+        1988,
+        1990,
+        1991
+      ],
+      "unlockAfterDocs": [
+        "5-1",
+        "5-2",
+        "5-3",
+        "5-4",
+        "5-5",
+        "5-6"
+      ],
+      "explanation": "미국과 소련이 협력하는 사이가 되고 핵무기를 줄이기로 하자, 시계는 자정 17분 전까지 멀어졌어요. 시계가 생긴 뒤 가장 먼 시간이에요.",
+      "wrongNote": "냉전이 끝나고 두 나라가 핵무기를 줄이기로 하면서, 시계는 역사상 가장 멀리 물러났다."
+    }
+  ],
+  "window": {
+    "image": "/assets/windows/window-ch5.webp",
+    "alt": "맑은 가을 낮 서울 거리. 인도에 늘어선 사람들이 화면 밖의 무언가를 향해 손을 흔들고, 건물 창문에서도 사람들이 내다본다.",
+    "caption": "1988년 가을, 서울. 사람들이 거리에 나와 반갑게 손을 흔들었다."
+  }
+}

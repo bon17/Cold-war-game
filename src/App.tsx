@@ -17,7 +17,7 @@ import { CoverScreen, EndScreen, MissionCard, NoticeCard, ResultCard, WindowScen
 import { TitleScreen } from './components/Screens/TitleScreen';
 import { Stage } from './components/Stage/Stage';
 import { assetUrl } from './lib/assets';
-import { backgroundFor, pairKey, taskKey, ZONE_KEY } from './lib/board';
+import { backgroundFor, docFinished, pairKey, taskKey, ZONE_KEY } from './lib/board';
 import { clockHung, hasPredict } from './lib/clockFlow';
 import { chapterById, strings } from './lib/data';
 import { autoOpenDoc } from './lib/docFlow';
@@ -27,9 +27,11 @@ import { setSoundEnabled, sfx } from './lib/sound';
 import { useGame } from './store/gameStore';
 import { useSession } from './store/sessionStore';
 
-// 체험판(프롤로그, 3장). 타이틀 → 이름 → (고지) → 표지 → 할 일 카드 → 책상(문서 → 실 바꾸기 → 보고서 → 시계) → 창밖 → 근무 평정표 → 끝
+// 체험판(프롤로그~5장). 타이틀 → 이름 → (고지) → 표지 → 할 일 카드 → 책상(문서 → 실 바꾸기 → 보고서 → 시계) → 창밖 → 근무 평정표 → 끝
 // 프롤로그는 보고서 없이 문서 5개를 마치면 시계가 처음 걸리고, 별이 없어 근무 평정표를 건너뛴다.
 const ANIM_MS = 700;
+// 장의 마지막 일을 마친 뒤 창밖 장면까지 잠깐 쉬는 시간(마지막 보드를 볼 수 있게)
+const WINDOW_PAUSE_MS = 1200;
 
 // 상태 변화에 맞춰 효과음을 낸다(소리를 끄면 sound.ts가 아무것도 내지 않는다)
 function useSoundEffects() {
@@ -78,10 +80,13 @@ export default function App() {
     if (doc) openDocument(doc.id);
   }, [phase, reveal, chapter, readDocs, revealed, done, openDocument]);
 
-  // 시계 지점을 모두 마치면 창밖 장면으로
+  // 시계 지점과 문서를 모두 마치면(5장은 예측 뒤에 오는 문서까지) 잠깐 마지막 보드를 보여 준 뒤 창밖 장면으로
   useEffect(() => {
-    if (phase === 'desk' && !reveal && revealed.length === chapter.clock.length) setPhase('window');
-  }, [phase, reveal, revealed, chapter, setPhase]);
+    const docsDone = chapter.documents.every((d) => docFinished(chapter, d.id, { readDocs, done }));
+    if (phase !== 'desk' || reveal || dialogEdge || revealed.length !== chapter.clock.length || !docsDone) return;
+    const timer = window.setTimeout(() => setPhase('window'), WINDOW_PAUSE_MS);
+    return () => window.clearTimeout(timer);
+  }, [phase, reveal, dialogEdge, revealed, readDocs, done, chapter, setPhase]);
 
   const [anim, setAnim] = useState<BoardPlay['anim']>();
   useEffect(() => {

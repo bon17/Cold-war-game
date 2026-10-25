@@ -29,8 +29,10 @@ export function remaining(
   const upto = chapter.clock.slice(0, chapter.clock.indexOf(point) + 1);
   const docs = [...new Set(upto.flatMap((p) => p.unlockAfterDocs ?? []))].filter((id) => !readDocs.includes(id));
   const listed = point.requireEdges?.map(pairKey);
+  // 시계 공개 뒤에 오는 문서(5장 5-7 한소·한중 수교)의 실은 예측 전에 바꿀 수 없으니 빼고 센다
+  const later = new Set(chapter.documents.filter((d) => d.revealAfter).map((d) => d.id));
   const required = chapter.edgeTasks
-    .filter((t) => (listed ? listed.includes(pairKey(t.pair)) : t.mode === 'direct'))
+    .filter((t) => (listed ? listed.includes(pairKey(t.pair)) : t.mode === 'direct' && !(t.doc && later.has(t.doc))))
     .map((t) => taskKey(chapter, t));
   if (!listed && chapter.zone) required.push(ZONE_KEY);   // 2장 '어느 편도 아닌 나라' 칸
   const edges = required.filter((k) => !done[k]);

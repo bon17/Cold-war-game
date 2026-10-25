@@ -56,15 +56,21 @@ export function EdgeDialog() {
 
   if (!task || !dialogEdge) return null;
 
-  const [a, b] = task.pair.map((id: NodeId) => pinName(chapter, id));
+  // 질문의 나라 이름: 임시 이름('38선 이남')은 이 문서를 마친 뒤의 이름(남한)으로, 나라가 바뀌는 이름(소련 → 러시아)은 지금 이름으로
+  const progress = { readDocs, done };
+  const name = (id: NodeId) => pinName(chapter, id, progress, task.doc);
+  const [a, b] = task.pair.map(name);
   const doc = docForTask(chapter, task);
 
   if (solved) {
-    const renamed = task.doc && chapter.nodeLabelsUntil === task.doc
-      ? Object.entries(chapter.nodeLabels ?? {})
-          .map(([id, from]) => fmt(strings.board.dialog.renamed, { from, to: nodes.nodes[id as NodeId]?.name ?? id }))
-          .join(', ')
-      : '';
+    // 이 문서로 바뀐 핀 이름: 1장 '38선 이남 → 남한'(임시 이름이 끝남), 5장 '소련 → 러시아'(새 이름이 생김)
+    const base = (id: string) => nodes.nodes[id as NodeId]?.name ?? id;
+    const renames = [
+      ...(task.doc && chapter.nodeLabelsUntil === task.doc ? Object.entries(chapter.nodeLabels ?? {}).map(([id, from]) => [from, base(id)]) : []),
+      ...(task.doc && chapter.renameAfter?.doc === task.doc ? Object.entries(chapter.renameAfter.labels).map(([id, to]) => [base(id), to]) : []),
+    ];
+    const renamed = renames.map(([from, to]) => fmt(strings.board.dialog.renamed, { from, to })).join(', ');
+    const now = (id: NodeId) => pinName(chapter, id, progress);
     const appeared = chapter.backgroundEdges.filter((e) => e.appearAfterDoc && e.appearAfterDoc === task.doc && e.note);
     return (
       <div className="edge-dialog solved" role="dialog" aria-modal="false" aria-label={strings.board.result.ok} aria-live="polite">
@@ -77,7 +83,7 @@ export function EdgeDialog() {
           </p>
         )}
         {appeared.map((e) => {
-          const [c, d] = e.pair.map((id: NodeId) => pinName(chapter, id));
+          const [c, d] = e.pair.map(now);
           return (
             <p key={pairKey(e.pair)} className="edge-dialog-auto">
               <span>{strings.reveal.changedTitle}:</span>
@@ -88,13 +94,14 @@ export function EdgeDialog() {
           );
         })}
         {task.doc && autoTasksFor(chapter, task.doc).map((t) => {
-          const [c, d] = t.pair.map((id: NodeId) => pinName(chapter, id));
-          const rel = board.find((e) => pairKey(e.pair) === pairKey(t.pair))?.rel ?? t.to;
+          const [c, d] = t.pair.map(now);
+          const edge = board.find((e) => pairKey(e.pair) === pairKey(t.pair));
+          const rel = edge?.rel ?? t.to;
           return (
             <p key={pairKey(t.pair)} className="edge-dialog-auto">
               <span>{strings.reveal.changedTitle}:</span>
               <RelSwatch rel={rel} width={48} />
-              <strong>{c}–{d} {strings.relations[rel]}</strong>
+              <strong>{c}–{d} {edge?.label ?? strings.relations[rel]}</strong>
               <span>{t.explanation}</span>
             </p>
           );
@@ -118,8 +125,9 @@ export function EdgeDialog() {
 
       <div className="edge-dialog-rels">
         {options.map((rel, i) => {
-          // 2장 중국–소련: 종류는 같은 편 그대로, 금만 가는 선택지
+          // 2장 중국–소련: 종류는 같은 편 그대로, 금만 가는 선택지. 5장 '협력', '관계 정상화'처럼 이름표를 덮어쓰는 정답은 그 이름으로
           const frayed = !!task.fray && rel === task.to;
+          const label = task.label && rel === task.to ? task.label : strings.relations[rel];
           return (
             <button
               key={rel}
@@ -130,7 +138,7 @@ export function EdgeDialog() {
             >
               <span className="rel-key">{i + 1}</span>
               <RelSwatch rel={rel} width={64} fray={frayed} />
-              {frayed ? fmt(strings.board.dialog.frayOption, { rel: strings.relations[rel] }) : strings.relations[rel]}
+              {frayed ? fmt(strings.board.dialog.frayOption, { rel: label }) : label}
             </button>
           );
         })}

@@ -137,3 +137,16 @@ describe('4장 보드 이름표 자리', () => {
     expect(problems([...backgroundFor(ch4, allDone), ...endBoard(ch4)], pinsOf(ch4))).toEqual([]);
   });
 });
+
+describe('5장 보드 이름표 자리', () => {
+  const ch5 = chapterById('ch5');
+  const allDone: DocState = { readDocs: ch5.documents.map((d) => d.id), done: Object.fromEntries(ch5.edgeTasks.map((t) => [taskKey(ch5, t), {}])) };
+
+  it('시작 보드(4장 끝 그대로): 겹치지 않는다', () => {
+    expect(problems(startEdges(ch5), pinsOf(ch5, { readDocs: [], done: {} }))).toEqual([]);
+  });
+
+  it("끝 보드(초록 실 다섯, '러시아', '협력 · 직통선', '관계 정상화'): 겹치지 않는다", () => {
+    expect(problems([...backgroundFor(ch5, allDone), ...endBoard(ch5)], pinsOf(ch5, allDone))).toEqual([]);
+  });
+});

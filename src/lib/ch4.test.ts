@@ -40,12 +40,13 @@ describe('4장', () => {
     expect(action()).toEqual({ kind: 'report' });
   });
 
-  it('5장이 아직 없어서 4장을 마치면 끝 화면(차시 끝 화면은 아님)', () => {
+  it('같은 2차시라 4장을 마치면 5장 표지로 바로 간다', () => {
     expect(nextChapterId('ch3')).toBe('ch4');
     expect(endsSession('ch3')).toBe(false);
     expect(endsSession('ch4')).toBe(false);
     useSession.setState({ phase: 'result', name: '사장' });
     goNextChapter();
-    expect(useSession.getState().phase).toBe('end');
+    expect(useSession.getState().phase).toBe('cover');
+    expect(game().chapterId).toBe('ch5');
   });
 });

@@ -69,6 +69,7 @@ export function validateChapter(
   // 장 중간에 바뀌는 것(핀 이름, 내려가는 실, 나타나는 배경 실)이 가리키는 문서가 있는지
   const untilDocs = [
     chapter.nodeLabelsUntil,
+    chapter.renameAfter?.doc,
     ...chapter.startBoard.map((e) => e.untilDoc),
     ...chapter.backgroundEdges.map((e) => e.appearAfterDoc),
   ].filter((id): id is string => !!id);
