@@ -10,11 +10,13 @@ import type { NodeId } from '../../types';
 import { useStageFit } from '../Stage/Stage';
 import './BoardNote.css';
 
-// '지금 할 일' 쪽지(무대 밖, 실제 px). 책상 가운데에 늘 떠 있다(기획서 1.2 '뭘 해야 할지 모름' 대책).
-// 위: 지금 할 일 한 줄 / 아래: 진행 막대(문서와 실 ●●○, 시계 예측 ○). 실이 바뀌면 잠깐 그 실의 한 줄 설명을 보여 준다.
+// '지금 할 일' 쪽지(무대 밖, 실제 px). 책상 왼쪽 아래, 문서 더미 밑에 늘 떠 있다(기획서 1.2 '뭘 해야 할지 모름' 대책).
+// 한 줄: 지금 할 일 | 진행 막대(문서와 실 ●●○, 시계 예측 ○). 칸이 커서 책상을 가린다는 교사 의견(2026-10-25)으로 한 줄로 줄였다.
+// 실이 저절로 바뀌면 잠깐 그 실의 한 줄 설명을 보여 준다(이때만 줄이 바뀔 수 있다).
 const RESULT_MS = 9000;
-const NOTE_CENTER = { x: 745, y: 905 };
-const NOTE_WIDTH = 560;
+const NOTE_LEFT = 40;
+const NOTE_Y = 945;
+const NOTE_RIGHT = 1040; // 보고서철(x 1060) 앞까지
 
 export function BoardNote() {
   const { chapterId, done, event, openDocId, dialogEdge, readDocs, revealed, reveal, reportOpen, aboutClock } = useGame();
@@ -51,15 +53,15 @@ export function BoardNote() {
   } else if (action.kind === 'doc') text = g.readDoc;
   else if (action.kind === 'edge') text = g.pickEdge;
   else if (action.kind === 'report') {
-    text = chapter.reportReady ?? g.reportReady;
+    text = g.reportReady;
     kind = 'ok';
   } else text = g.reportDone;
 
-  const p = stageToScreen(fit, NOTE_CENTER.x, NOTE_CENTER.y);
+  const p = stageToScreen(fit, NOTE_LEFT, NOTE_Y);
   return (
     <div
       className={`board-note ${kind}`}
-      style={{ left: p.x, top: p.y, width: Math.max(360, NOTE_WIDTH * fit.scale) }}
+      style={{ left: p.x, top: p.y, maxWidth: (NOTE_RIGHT - NOTE_LEFT) * fit.scale }}
       aria-live="polite"
     >
       <div className="board-note-text">

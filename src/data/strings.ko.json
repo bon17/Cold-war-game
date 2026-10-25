@@ -52,12 +52,12 @@
     "guide": {
       "title": "지금 할 일",
       "readDoc": "문서 더미를 눌러 새 문서를 읽으세요.",
-      "pickEdge": "반짝이는 실의 이름표를 눌러 실을 바꾸세요.",
-      "reportReady": "실을 모두 바꿨어요. 보고서철을 눌러 시계를 예측하세요.",
-      "reportLocked": "먼저 문서를 읽고 실을 바꿔야 해요. 남은 문서 {n}개.",
+      "pickEdge": "반짝이는 실 이름표를 누르세요.",
+      "reportReady": "보고서철을 눌러 시계를 예측하세요.",
+      "reportLocked": "아직 남은 문서가 {n}개 있어요.",
       "reportDone": "보고를 마쳤어요.",
-      "progressDocs": "문서와 실",
-      "progressClock": "시계 예측"
+      "progressDocs": "문서",
+      "progressClock": "시계"
     },
     "dialog": {
       "title": "{a}–{b}, 이제 어떤 사이가 됐을까?",

@@ -83,7 +83,6 @@ export interface Chapter {
   mission: { lines: string[]; title?: string; room?: string[]; steps?: string[] };
   nodeLabels?: Partial<Record<NodeId, string>>;   // 핀 이름 덮어쓰기(프롤로그: 남한 → '38선 이남')
   nodeSides?: Partial<Record<NodeId, LabelSide>>; // 핀 이름표 방향 덮어쓰기(이름이 길어 실을 가릴 때)
-  reportReady?: string;        // 보고서철이 빛날 때 '지금 할 일' 쪽지 문구(1장: 처음 하는 예측). 없으면 공통 문구
   // 앞 장 끝 보드와 일부러 다르게 시작하는 실(1장: 1948년 남북 정부 수립으로 점령 실이 배경 실이 되고 대립 실이 걸림).
   // 여기 적은 쌍만 달라도 된다(validateData가 나머지는 앞 장 끝과 같은지 본다).
   startChanges?: { note: string; pairs: Pair[] };
