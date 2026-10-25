@@ -16,6 +16,8 @@ export interface LabelRequest {
 
 export const LABEL_GAP = 8;
 // 다른 실을 가리는 것은 겹침보다 가볍게 친다(어쩔 수 없을 때는 허용). 배경 실은 흐려서 더 가볍게.
+// 이름표끼리 겹치는 것은 글을 못 읽게 되므로 가장 무겁게 친다(겹친 넓이 × OVERLAP_WEIGHT, 2026-10-25 1장 끝 보드).
+const OVERLAP_WEIGHT = 10;
 const STRING_POINTS = 24;
 const STRING_COST = 300;
 const BACKGROUND_STRING_COST = 60;
@@ -70,7 +72,7 @@ export function placeLabels(
     for (const t of CANDIDATES) {
       if (req.avoid?.some(([a, b]) => t >= a && t <= b)) continue;
       const box = boxAt(req.curve, t, req.w, req.h);
-      const cost = taken.reduce((sum, o) => sum + overlapArea(box, o, LABEL_GAP), 0)
+      const cost = taken.reduce((sum, o) => sum + overlapArea(box, o, LABEL_GAP), 0) * OVERLAP_WEIGHT
         + outsideArea(box, bounds) * 4
         + strings.filter((s) => s.key !== req.key).reduce(
           (sum, s) => sum + pointsInside(box, s.curve) * (s.background ? BACKGROUND_STRING_COST : STRING_COST), 0);

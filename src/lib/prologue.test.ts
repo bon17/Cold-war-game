@@ -11,7 +11,7 @@ import { segmentsCross } from './stringPath';
 // 프롤로그(2026-10-23 교사 결정): 문서 5개, 실 3개(미국–소련 같은 편, 점령 둘), 보고서 없이 끝에 시계가 처음 걸린다.
 const prologue = chapterById('prologue');
 const game = () => useGame.getState();
-const action = () => nextAction(prologue, game());
+const action = () => nextAction(chapterById(game().chapterId), game());
 const read = (doc: string) => {
   game().openDocument(doc);
   game().closeDocument();
@@ -98,10 +98,10 @@ describe('프롤로그 진행', () => {
   });
 });
 
-describe('실 이력: 사이 장이 아직 없을 때', () => {
-  it('3장 미국–소련: 프롤로그 1945 같은 편 → 3장 시작 대립 → 1972 대화', () => {
+describe('실 이력: 장을 건너 이어진다', () => {
+  it('3장 미국–소련: 프롤로그 1945 같은 편 → 1장 1947 대립 → 1972 대화', () => {
     const steps = edgeHistory(chapters, 'ch3', 'SU-US', { 'SU-US': {} }).map((s) => [s.year, s.rel]);
-    expect(steps).toEqual([[1945, 'ALLY'], [null, 'COLD'], [1972, 'TALK']]);
+    expect(steps).toEqual([[1945, 'ALLY'], [1947, 'COLD'], [1972, 'TALK']]);
   });
 });
 
@@ -137,5 +137,33 @@ describe("'다 읽었어요'로 다음 문서 넘기기(2026-10-23 교사 의견
     game().finishDocument();
     expect(game().openDocId).toBeNull();
     expect(game().dialogEdge).toBe('SU-US');
+  });
+});
+
+describe('1장', () => {
+  const ch1 = chapterById('ch1');
+  beforeEach(() => useGame.setState(initialState('ch1')));
+
+  it('프롤로그 다음 장이고, 시작 보드는 1948년 정부 수립으로 바뀐 실만 다르다', () => {
+    expect(previousChapter(ch1)?.id).toBe('prologue');
+    expect(pinName(ch1, 'KR')).toBe('남한');
+    const start = new Map(ch1.startBoard.map((e) => [pairKey(e.pair), e.rel]));
+    expect(Object.fromEntries(start)).toEqual({ 'SU-US': 'ALLY', 'KR-NK': 'COLD', 'KR-SU': 'COLD' });
+  });
+
+  it('중국군 참전(1-5): 미국–중국을 맞히면 남한–중국도 함께 전쟁이 된다(문서를 열 때가 아니라)', () => {
+    for (const [doc, key, rel] of [['1-1', 'SU-US', 'COLD'], ['1-2'], ['1-3', 'CN-SU', 'ALLY'], ['1-4', 'KR-NK', 'WAR']] as const) {
+      read(doc);
+      if (key) game().submitEdge(key, rel);
+    }
+    game().openDocument('1-5');
+    expect(game().done['CN-KR']).toBeUndefined();
+    game().closeDocument();
+    game().submitEdge('CN-US', 'WAR');
+    expect(game().done['CN-KR']).toEqual({ wrong: 0, auto: true });
+    expect(game().board.find((e) => pairKey(e.pair) === 'CN-KR')?.rel).toBe('WAR');
+    expect(game().event).toMatchObject({ kind: 'ok', key: 'CN-US', allDone: true });
+    read('1-6');
+    expect(action()).toEqual({ kind: 'report' });
   });
 });

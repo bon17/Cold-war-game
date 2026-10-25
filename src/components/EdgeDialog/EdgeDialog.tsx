@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from 'react';
+import { pairKey } from '../../lib/board';
 import { chapterById, pinName, strings } from '../../lib/data';
 import { currentDoc } from '../../lib/docFlow';
 import { fmt } from '../../lib/format';
-import { directTask, docForTask, optionOrder } from '../../lib/validateEdge';
+import { autoTasksFor, directTask, docForTask, optionOrder } from '../../lib/validateEdge';
 import { useGame } from '../../store/gameStore';
 import type { NodeId } from '../../types';
 import { RelSwatch } from '../Board/EdgeStroke';
@@ -12,7 +13,7 @@ import './EdgeDialog.css';
 // 두 나라가 어떤 사이가 됐는지(관계 두 개 중 하나) 고르면(숫자 키 1~2) 바로 판정한다. 틀리면 문서의 핵심 구절을 다시 보여 준다.
 // 맞히면 창에 '맞아요!'와 한 줄 설명, '다음 문서 보기'(다음 문서가 없으면 '확인')가 나온다(2026-10-23 교사 결정).
 export function EdgeDialog() {
-  const { chapterId, dialogEdge, event, done, readDocs, revealed, submitEdge, closeEdgeDialog, openDocument } = useGame();
+  const { chapterId, dialogEdge, event, done, board, readDocs, revealed, submitEdge, closeEdgeDialog, openDocument } = useGame();
   const chapter = chapterById(chapterId);
   const task = dialogEdge ? directTask(chapter, dialogEdge) : undefined;
   const options = useMemo(() => (task ? optionOrder(chapter, task) : []), [chapter, task]);
@@ -43,6 +44,18 @@ export function EdgeDialog() {
       <div className="edge-dialog solved" role="dialog" aria-modal="false" aria-label={strings.board.result.ok} aria-live="polite">
         <div className="edge-dialog-title">{strings.board.result.ok}</div>
         <p className="edge-dialog-explain">{task.explanation}</p>
+        {task.doc && autoTasksFor(chapter, task.doc).map((t) => {
+          const [c, d] = t.pair.map((id: NodeId) => pinName(chapter, id));
+          const rel = board.find((e) => pairKey(e.pair) === pairKey(t.pair))?.rel ?? t.to;
+          return (
+            <p key={pairKey(t.pair)} className="edge-dialog-auto">
+              <span>{strings.reveal.changedTitle}:</span>
+              <RelSwatch rel={rel} width={48} />
+              <strong>{c}–{d} {strings.relations[rel]}</strong>
+              <span>{t.explanation}</span>
+            </p>
+          );
+        })}
         <div className="edge-dialog-foot">
           <span />
           {fresh ? (

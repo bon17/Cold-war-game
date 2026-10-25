@@ -51,7 +51,7 @@ export function BoardNote() {
   } else if (action.kind === 'doc') text = g.readDoc;
   else if (action.kind === 'edge') text = g.pickEdge;
   else if (action.kind === 'report') {
-    text = g.reportReady;
+    text = chapter.reportReady ?? g.reportReady;
     kind = 'ok';
   } else text = g.reportDone;
 

@@ -2,9 +2,9 @@ import type { Chapter, ClockEntry, NodesData } from '../types';
 import { endBoard, pairKey } from './board';
 
 // 장 데이터 검사(기획서 10.3). 문제를 글로 모아 돌려준다. 빈 배열이면 통과.
-// 문서는 장마다 3개 안팎. 프롤로그는 교사와 같이 하는 연습 장이라 5개(기획서 5.0 예외, 2026-10-23).
-const MAX_DOCS = 4;
-const MAX_DOCS_PROLOGUE = 5;
+// 실을 바꾸는 문서는 장마다 3~4개, 실 없이 읽고 넘어가는 문서를 더해 6개까지(기획서 5.0, 2026-10-25).
+const MAX_EDGE_DOCS = 4;
+const MAX_DOCS = 6;
 const BODY_LIMIT = 100;
 
 export function validateChapter(
@@ -17,8 +17,9 @@ export function validateChapter(
   const where = (s: string) => `${chapter.id} ${s}`;
 
   // 문서: 장마다 3개 안팎, 글자 수, 문장 수, 핵심 구절이 본문에 그대로 있는지(기획서 5.1, 2026-10-23 쉬운 흐름)
-  const maxDocs = chapter.id === 'prologue' ? MAX_DOCS_PROLOGUE : MAX_DOCS;
-  if (chapter.documents.length > maxDocs) errors.push(where(`문서 ${chapter.documents.length}개, 상한 ${maxDocs}개`));
+  if (chapter.documents.length > MAX_DOCS) errors.push(where(`문서 ${chapter.documents.length}개, 상한 ${MAX_DOCS}개`));
+  const edgeDocs = new Set(chapter.edgeTasks.filter((t) => t.mode === 'direct').map((t) => t.doc)).size;
+  if (edgeDocs > MAX_EDGE_DOCS) errors.push(where(`실을 바꾸는 문서 ${edgeDocs}개, 상한 ${MAX_EDGE_DOCS}개`));
   for (const doc of chapter.documents) {
     if (doc.body.length > BODY_LIMIT) errors.push(where(`${doc.id}: 본문 ${doc.body.length}자, 상한 ${BODY_LIMIT}자`));
     const sentences = doc.body.split(/(?<=[.?!])\s+/).filter(Boolean).length;
@@ -78,12 +79,17 @@ export function validateChapter(
     }
   }
 
-  // 앞 장의 끝 보드 = 이 장의 시작 보드
+  // 앞 장의 끝 보드 = 이 장의 시작 보드(startChanges에 적은 쌍은 달라도 된다)
   if (previous) {
-    const norm = (board: Chapter['startBoard']) =>
-      board.map((e) => JSON.stringify([pairKey(e.pair), e.rel, !!e.fray, e.mark ?? '', e.label ?? ''])).sort().join('\n');
-    if (norm(endBoard(previous)) !== norm(chapter.startBoard)) {
-      errors.push(where(`startBoard가 ${previous.id}의 끝 보드와 다름`));
+    const allowed = new Set((chapter.startChanges?.pairs ?? []).map(pairKey));
+    const sig = (board: Chapter['startBoard']) =>
+      new Map(board.map((e) => [pairKey(e.pair), JSON.stringify([e.rel, !!e.fray, e.mark ?? '', e.label ?? ''])]));
+    const before = sig(endBoard(previous));
+    const after = sig(chapter.startBoard);
+    for (const key of new Set([...before.keys(), ...after.keys()])) {
+      if (before.get(key) !== after.get(key) && !allowed.has(key)) {
+        errors.push(where(`실 ${key}: 시작 보드가 ${previous.id}의 끝 보드와 다름(startChanges에 없음)`));
+      }
     }
   }
 

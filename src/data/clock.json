@@ -9,6 +9,24 @@
     }
   },
   {
+    "year": 1949,
+    "minutes": 3,
+    "caption": "소련도 원자 폭탄",
+    "bulletin": {
+      "headline": "원자 과학자 회보 발표 · 1949",
+      "reason": "소련도 원자 폭탄을 갖게 되었어요."
+    }
+  },
+  {
+    "year": 1953,
+    "minutes": 2,
+    "caption": "수소 폭탄 실험",
+    "bulletin": {
+      "headline": "원자 과학자 회보 발표 · 1953",
+      "reason": "미국과 소련이 원자 폭탄보다 훨씬 센 수소 폭탄을 잇따라 실험했어요."
+    }
+  },
+  {
     "year": 1968,
     "minutes": 7,
     "caption": "핵무기를 가진 나라가 늘다",

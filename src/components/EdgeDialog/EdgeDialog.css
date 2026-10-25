@@ -99,6 +99,19 @@
   line-height: 1.6;
   word-break: keep-all;
 }
+/* 함께 바뀐 실(1-5 중국군 참전 → 남한–중국) */
+.edge-dialog-auto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 4px 0;
+  padding: 4px 10px;
+  border-left: 4px solid var(--brass);
+  background: rgba(156, 122, 60, 0.12);
+  font-size: 19px;
+  word-break: keep-all;
+}
 .edge-dialog-message.wrong {
   color: #5b2b12;
   font-weight: 700;

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { assetUrl } from '../../lib/assets';
 import { chapterLabel } from '../../lib/chapterLabel';
 import { chapterById, chapters, pinName, storyNeighbor, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { chapterAchievements, chapterStars, grade, hasStars } from '../../lib/scoring';
-import { startWithCode } from '../../lib/session';
+import { goNextChapter, startWithCode } from '../../lib/session';
 import { sfx } from '../../lib/sound';
 import { useGame } from '../../store/gameStore';
 import { useSession, type ArchiveEntry } from '../../store/sessionStore';
@@ -87,22 +87,23 @@ export function MissionCard() {
 }
 
 // 창밖 장면(기획서 5.5): 8초 이내, 캡션을 한 번 보여 준 뒤 넘어갈 수 있다. 'AI 일러스트 · 실제 사진 아님'
-// 다음은 근무 평정표(별이 없는 프롤로그는 바로 끝 화면)
+// 다음은 근무 평정표(별이 없는 프롤로그는 바로 다음 장 표지)
 export function WindowScene() {
   const { phase, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
   const [canSkip, setCanSkip] = useState(false);
-  const next = hasStars(chapter) ? 'result' : 'end';
+  const stars = hasStars(chapter);
+  const next = useCallback(() => (stars ? setPhase('result') : goNextChapter()), [stars, setPhase]);
   useEffect(() => {
     if (phase !== 'window') return;
     setCanSkip(false);
     const skip = window.setTimeout(() => setCanSkip(true), WINDOW_SKIP_AFTER_MS);
-    const done = window.setTimeout(() => setPhase(next), WINDOW_MS);
+    const done = window.setTimeout(next, WINDOW_MS);
     return () => {
       window.clearTimeout(skip);
       window.clearTimeout(done);
     };
-  }, [phase, setPhase, next]);
+  }, [phase, next]);
   if (phase !== 'window') return null;
   return (
     <div className="window-scene">
@@ -110,7 +111,7 @@ export function WindowScene() {
       <p className="window-caption">{chapter.window.caption}</p>
       <div className="window-ai">{strings.notices.aiShort}</div>
       {canSkip && (
-        <button type="button" className="window-skip" onClick={() => setPhase(next)}>
+        <button type="button" className="window-skip" onClick={next}>
           {strings.windowScene.skip}
         </button>
       )}
@@ -120,7 +121,7 @@ export function WindowScene() {
 
 // 근무 평정표(기획서 5.6): 별 도장 연출 뒤 '확인'
 export function ResultCard() {
-  const { phase, name, stars, finishChapter, setPhase } = useSession();
+  const { phase, name, stars, finishChapter } = useSession();
   const game = useGame();
   const chapter = chapterById(game.chapterId);
   const recorded = useRef<string | null>(null);
@@ -164,7 +165,7 @@ export function ResultCard() {
           })}
         </p>
         {g && <p className="result-grade">{fmt(strings.result.gradeLine, { grade: strings.result.grades[g.grade], got: g.got, max: g.max })}</p>}
-        <button type="button" className="reveal-ok" onClick={() => setPhase('end')}>
+        <button type="button" className="reveal-ok" onClick={goNextChapter}>
           {strings.result.ok}
         </button>
       </div>

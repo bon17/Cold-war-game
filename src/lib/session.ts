@@ -1,7 +1,7 @@
 // 시작하기, 이어하기, 막 시작 코드, 자동 저장(기획서 5.9·5.10). 두 상태(게임, 화면 흐름)를 한 기록으로 묶는다.
 import { useGame, initialState } from '../store/gameStore';
 import { useSession, type Phase } from '../store/sessionStore';
-import { chapters } from './data';
+import { chapters, storyNeighbor } from './data';
 import { deleteSlot, findSlot, normalizeName, saveSlot } from './save';
 import type { SaveSlot } from '../types';
 
@@ -43,6 +43,23 @@ export function startWithCode(name: string, chapterId: string) {
     archive: (slot?.archive as never[]) ?? [],
   });
   startChapter(chapterId, slot?.achievements ?? []);
+  useSession.getState().setPhase('cover');
+}
+
+// 이 장을 마친 뒤: 다음 장 데이터가 있으면 그 장 표지로, 없으면 끝 화면(다음 장 준비 중)
+export function nextChapterId(chapterId: string): string | undefined {
+  const id = storyNeighbor(chapterId, 1);
+  return chapters.some((c) => c.id === id) ? id : undefined;
+}
+
+export function goNextChapter() {
+  const next = nextChapterId(useGame.getState().chapterId);
+  if (!next) {
+    useSession.getState().setPhase('end');
+    return;
+  }
+  const keep = [...new Set([...useSession.getState().achievements, ...useGame.getState().achievements])];
+  startChapter(next, keep);
   useSession.getState().setPhase('cover');
 }
 

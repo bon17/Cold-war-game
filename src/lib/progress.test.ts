@@ -68,8 +68,9 @@ describe('별과 등급(기획서 5.6)', () => {
 });
 
 describe('실 이력(장 데이터로 계산)', () => {
-  it('3장 남한–북한: 시작은 대립, 실을 걸면 1972 대화가 붙는다', () => {
-    expect(edgeHistory(chapters, 'ch3', 'KR-NK', {})).toEqual([{ year: null, rel: 'COLD', label: undefined, chapterTitle: '녹는 얼음' }]);
-    expect(edgeHistory(chapters, 'ch3', 'KR-NK', { 'KR-NK': {} }).map((s) => [s.year, s.rel])).toEqual([[null, 'COLD'], [1972, 'TALK']]);
+  it('3장 남한–북한: 1장 시작 대립 → 1950 전쟁 → (2장이 아직 없어) 3장 시작 대립, 실을 걸면 1972 대화', () => {
+    const steps = (done: Record<string, unknown>) => edgeHistory(chapters, 'ch3', 'KR-NK', done).map((s) => [s.year, s.rel]);
+    expect(steps({})).toEqual([[null, 'COLD'], [1950, 'WAR'], [null, 'COLD']]);
+    expect(steps({ 'KR-NK': {} })).toEqual([[null, 'COLD'], [1950, 'WAR'], [null, 'COLD'], [1972, 'TALK']]);
   });
 });

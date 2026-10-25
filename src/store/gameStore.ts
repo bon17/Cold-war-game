@@ -119,10 +119,13 @@ function showToStart(s: Snapshot): GameState['reveal'] {
 export const useGame = create<GameState>((set, get) => ({
   ...initialState(chapters[0].id),
 
+  // 저절로 바뀌는 실: 학생이 바꿀 실이 없는 문서(4-1 속보)면 열 때 바뀐다.
+  // 바꿀 실이 있는 문서(1-5 중국군 참전 → 남한–중국)면 그 실을 맞힌 뒤에 함께 바뀐다(submitEdge).
   openDocument: (docId) => {
     const s = get();
+    const chapter = chapterById(s.chapterId);
     const first = !s.readDocs.includes(docId);
-    const auto = first ? applyAuto(s, autoTasksFor(chapterById(s.chapterId), docId)) : {};
+    const auto = first && !taskForDoc(chapter, docId) ? applyAuto(s, autoTasksFor(chapter, docId)) : {};
     set({ ...auto, openDocId: docId, openDocFresh: first, dialogEdge: null, readDocs: first ? [...s.readDocs, docId] : s.readDocs });
   },
 
@@ -156,11 +159,12 @@ export const useGame = create<GameState>((set, get) => ({
     const task = directTask(chapter, key);
     if (!task || s.done[key]) return;
     if (judge(task, rel)) {
-      const done = { ...s.done, [key]: { wrong: s.wrong[key] ?? 0 } };
+      const solved = { board: setEdge(s.board, task), done: { ...s.done, [key]: { wrong: s.wrong[key] ?? 0 } }, event: s.event };
+      const withAuto = task.doc ? applyAuto(solved, autoTasksFor(chapter, task.doc)) : solved;
       set({
-        board: setEdge(s.board, task),
-        done,
-        event: stamp({ kind: 'ok', key, allDone: allDirectDone(chapter, done) }),
+        board: withAuto.board,
+        done: withAuto.done,
+        event: stamp({ kind: 'ok', key, allDone: allDirectDone(chapter, withAuto.done) }),
       });
       return;
     }

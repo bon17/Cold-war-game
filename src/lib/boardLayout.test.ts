@@ -86,3 +86,17 @@ describe('프롤로그 보드 이름표 자리', () => {
     expect(covered).toEqual([]);
   });
 });
+
+describe('1장 보드 이름표 자리', () => {
+  const ch1 = chapterById('ch1');
+  const background = startEdges(ch1).filter((e) => e.background);
+  const withNkCn = [...background, { pair: ['NK', 'CN'] as BoardEdge['pair'], rel: 'ALLY' as const, background: true }];
+
+  it('시작 보드: 겹치지 않고 차트 종이 안에 있다', () => {
+    expect(problems(startEdges(ch1), pinsOf(ch1))).toEqual([]);
+  });
+
+  it('끝 보드(실 5개가 바뀌고 북한–중국 배경 실이 생긴 뒤)도 겹치지 않는다', () => {
+    expect(problems([...withNkCn, ...endBoard(ch1)], pinsOf(ch1))).toEqual([]);
+  });
+});
