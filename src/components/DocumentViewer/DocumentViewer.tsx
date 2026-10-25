@@ -134,8 +134,10 @@ export function DocumentViewer() {
             )}
             <footer className="doc-foot">
               <span className="doc-source">
-                {doc.source && fmt(strings.docs.source, { source: doc.source })}
-                {doc.outsideTextbook && ` · ${strings.docs.outsideTextbook}`}
+                {/* 출처가 없는 교과서 밖 문서(4-4 등)는 '교과서 밖 내용'만, 앞에 가운뎃점 없이 */}
+                {[doc.source && fmt(strings.docs.source, { source: doc.source }), doc.outsideTextbook && strings.docs.outsideTextbook]
+                  .filter(Boolean)
+                  .join(' · ')}
               </span>
             </footer>
           </article>

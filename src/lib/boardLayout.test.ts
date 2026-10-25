@@ -124,3 +124,16 @@ describe('2장 보드 이름표 자리', () => {
     expect(problems([...backgroundFor(ch2, allDone), ...endBoard(ch2)], pinsOf(ch2), [layout.neutralZone])).toEqual([]);
   });
 });
+
+describe('4장 보드 이름표 자리', () => {
+  const ch4 = chapterById('ch4');
+  const allDone: DocState = { readDocs: ch4.documents.map((d) => d.id), done: Object.fromEntries(ch4.edgeTasks.map((t) => [taskKey(ch4, t), {}])) };
+
+  it('시작 보드(3장 끝 그대로): 겹치지 않는다', () => {
+    expect(problems(startEdges(ch4), pinsOf(ch4))).toEqual([]);
+  });
+
+  it('끝 보드(미국–중국 수교·협력, 미국–소련 대립 · 직통선): 겹치지 않는다', () => {
+    expect(problems([...backgroundFor(ch4, allDone), ...endBoard(ch4)], pinsOf(ch4))).toEqual([]);
+  });
+});
