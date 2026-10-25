@@ -58,12 +58,15 @@
 .report-folder {
   position: absolute;
 }
+/* 보고서철 표지 이름표의 글자. 그림의 이름표가 오른쪽 아래로 8도쯤 기울고 왼쪽으로 비스듬해서 글자도 그렇게 돌리고 비튼다 */
 .report-folder-label {
   position: absolute;
-  display: flex;
-  justify-content: center;
-  font: 700 28px/1.2 'Gowun Batang', serif;
+  transform: translate(-50%, -50%) rotate(8.4deg) skewX(-10deg);
+  font: 700 21px/1 'Nanum Gothic Coding', monospace;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
   color: var(--ink);
+  opacity: 0.85;
   pointer-events: none;
 }
 .report-folder.ready::before {

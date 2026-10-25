@@ -23,7 +23,8 @@ export function ReportFolder() {
       onClick={openReport}
     >
       <img src={assetUrl('shared/report-folder.webp')} alt="" width={w} height={h} />
-      <span className="report-folder-label" style={{ left: w * 0.3, top: h * 0.27, width: w * 0.45 }}>
+      {/* 표지의 빈 이름표 위에 타자로 친 것처럼. 자리는 그림의 이름표 가운데(비율), 기울기는 Desk.css(2026-10-25 교사 의견: 어색함) */}
+      <span className="report-folder-label" style={{ left: w * 0.553, top: h * 0.374 }}>
         {strings.labels.report}
       </span>
       {ready && <TapHint />}
