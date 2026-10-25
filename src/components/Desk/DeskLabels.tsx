@@ -11,6 +11,7 @@ import './DeskLabels.css';
 // 누를 수 있는 물건 옆의 작은 라벨(아트 계획서 4.7). 무대 밖 층에 실제 화면 px로 그린다.
 // 위치는 무대 좌표로 정하고, 글자 크기는 무대 배율과 상관없이 18px이다. 자리는 M1에서 물건을 다 놓은 뒤 다시 맞춘다.
 // 보고서철은 표지에 '보고서'가 적혀 있어 따로 라벨을 달지 않는다(두 번 적혀 어색했다, 2026-10-23 교사 의견).
+// '연도', '시계 설명'은 프롤로그(첫날)에만 단다. 1장부터는 '새 문서' 표시가 붙는 '문서' 라벨만 남긴다(2026-10-25 교사 결정).
 type Align = 'center' | 'left' | 'right';
 
 function ObjectLabel({ sx, sy, text, align = 'center', badge }: { sx: number; sy: number; text: string; align?: Align; badge?: string }) {
@@ -30,10 +31,13 @@ export function DeskLabels() {
   const unread = nextAction(chapter, { readDocs, done, revealed, reveal }).kind === 'doc' ? 1 : 0;
   const { calendar, clock, hotspots } = layout;
   const docs = hotspots.docs;
+  const firstDay = chapter.id === 'prologue';
   return (
     <>
-      <ObjectLabel sx={calendar.x + calendar.w / 2} sy={calendar.y + calendar.h + 20} text={strings.labels.calendar} />
-      {clockHung(chapter, revealed, reveal) && <ObjectLabel sx={clock.cx} sy={clock.cy - clock.r - 16} text={strings.labels.clock} />}
+      {firstDay && <ObjectLabel sx={calendar.x + calendar.w / 2} sy={calendar.y + calendar.h + 20} text={strings.labels.calendar} />}
+      {firstDay && clockHung(chapter, revealed, reveal) && (
+        <ObjectLabel sx={clock.cx} sy={clock.cy - clock.r - 16} text={strings.labels.clock} />
+      )}
       <ObjectLabel
         sx={docs.x + docs.w + 10}
         sy={docs.y + docs.h / 2}

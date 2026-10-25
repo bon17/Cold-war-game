@@ -22,12 +22,12 @@ interface EdgeStrokeProps {
   rel: Rel;
   fray?: boolean;
   hotline?: boolean;
-  background?: boolean;   // 배경 실: 굵기 60%, 투명도 35%(그룹에서), 빛 없음
+  background?: boolean;   // 배경 실: 굵기 80%, 투명도 55%(그룹에서), 빛 없음
   compact?: boolean;      // 범례·이름표 견본: 장식 간격을 좁힌다
 }
 
 export function EdgeStroke({ curve, rel, fray, hotline, background, compact }: EdgeStrokeProps) {
-  const k = background ? 0.6 : 1;
+  const k = background ? 0.8 : 1;
   const w = WIDTH[rel] * k;
   const color = COLOR[rel];
   const d = pathD(curve);

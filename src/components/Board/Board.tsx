@@ -73,7 +73,8 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
   return (
     <>
       <svg className="board-svg" width={stage.w} height={stage.h} viewBox={`0 0 ${stage.w} ${stage.h}`} aria-hidden="true">
-        <g opacity={0.35}>
+        {/* 배경 실은 연하게 그리되 실 종류(같은 편의 파란 이중선)는 알아보게 한다. 너무 흐리면 그냥 선으로 보였다(2026-10-25 교사 의견) */}
+        <g opacity={0.55}>
           {background.map((e) => (
             <EdgeStroke key={pairKey(e.pair)} curve={edgeCurve(e)} rel={e.rel} background />
           ))}
