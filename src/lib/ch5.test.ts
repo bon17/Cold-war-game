@@ -8,7 +8,8 @@ import { nextAction } from './guide';
 import { goNextChapter } from './session';
 
 // 5장 「장벽이 무너지다」(2026-10-25 교사 결정): 문서 7개. 미국–소련은 대화 → 협력으로 두 번 바뀌고,
-// 소련이 무너지는 문서(5-6)를 마치면 소련 핀이 '러시아'가 된다. 한소·한중 수교(5-7)는 1991년 시계 예측 뒤에 온다.
+// 소련이 무너지는 문서(5-6)를 마치면 소련 핀이 '러시아'가 된다. 한소·한중 수교(5-7)는 그다음, 보고서 앞에 온다
+// (2026-10-25 교사 결정: 예측 뒤에 오면 장이 끝난 것 같다가 다시 시작하는 느낌이었다).
 const ch5 = chapterById('ch5');
 const game = () => useGame.getState();
 const edge = (key: string) => game().board.find((e) => pairKey(e.pair) === key);
@@ -17,7 +18,7 @@ const read = (doc: string) => {
   game().openDocument(doc);
   game().closeDocument();
 };
-const playToReport = () => {
+const playTo56 = () => {
   read('5-1');
   game().submitEdge('SU-US', 'TALK');
   read('5-2');
@@ -61,9 +62,14 @@ describe('5장', () => {
     expect(pinName(ch5, 'SU')).toBe('러시아');               // 장 끝(보고서, 근무 평정표)
   });
 
-  it('5-7은 1991년 시계 공개 뒤에 온다. 맞히면 남한–중국도 수교·협력', () => {
-    playToReport();
-    expect(availableDocs(ch5, game().revealed, game().readDocs, game().done).map((d) => d.id)).not.toContain('5-7');
+  it('5-7은 5-6 다음, 보고서 앞에 온다. 맞히면 남한–중국도 수교·협력. 시계 공개가 장의 마지막', () => {
+    playTo56();
+    expect(action()).toEqual({ kind: 'doc', docId: '5-7' });
+    read('5-7');
+    expect(game().dialogEdge).toBe('KR-SU');
+    expect(pinName(ch5, 'SU', game(), '5-7')).toBe('러시아');   // 질문: 남한–러시아
+    game().submitEdge('KR-SU', 'NORMAL');
+    expect(edge('CN-KR')?.rel).toBe('NORMAL');
     expect(action()).toEqual({ kind: 'report' });
     game().openReport();
     game().submitReport({ direction: 'farther' });
@@ -71,12 +77,7 @@ describe('5장', () => {
     game().advanceReveal();
     game().advanceReveal();
     expect(game().clockShown).toEqual({ minutes: 17, year: 1991 });
-    expect(action()).toEqual({ kind: 'doc', docId: '5-7' });
-    read('5-7');
-    expect(game().dialogEdge).toBe('KR-SU');
-    expect(pinName(ch5, 'SU', game(), '5-7')).toBe('러시아');   // 질문: 남한–러시아
-    game().submitEdge('KR-SU', 'NORMAL');
-    expect(edge('CN-KR')?.rel).toBe('NORMAL');
+    expect(availableDocs(ch5, game().revealed, game().readDocs, game().done).every((d) => game().readDocs.includes(d.id))).toBe(true);
     expect(action()).toEqual({ kind: 'done' });
     const rels = Object.fromEntries(game().board.map((e) => [pairKey(e.pair), e.rel]));
     expect(rels).toEqual({ 'SU-US': 'NORMAL', 'CN-US': 'NORMAL', 'CN-SU': 'NORMAL', 'KR-NK': 'TALK', 'KR-SU': 'NORMAL', 'CN-KR': 'NORMAL' });
