@@ -141,6 +141,23 @@
   word-break: keep-all;
   cursor: default;
 }
+/* 목록 줄(2-5 '모인 나라 가운데: 인도 · 인도네시아 …'): 본문과 따로, 글자 수에서 뺀다 */
+.doc-names {
+  margin: 14px 0 0;
+  padding: 6px 12px;
+  border-left: 4px solid rgba(42, 33, 24, 0.35);
+  background: rgba(42, 33, 24, 0.05);
+  font-size: 20px;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+.doc-names-label {
+  margin-right: 10px;
+  font-weight: 700;
+}
+.doc-names-label::after {
+  content: ':';
+}
 .doc-foot {
   display: flex;
   flex-wrap: wrap;

@@ -4,7 +4,7 @@ import { chapterLabel } from '../../lib/chapterLabel';
 import { chapterById, chapters, pinName, storyNeighbor, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { chapterAchievements, chapterStars, grade, hasStars } from '../../lib/scoring';
-import { goNextChapter, startWithCode } from '../../lib/session';
+import { endsSession, goNextChapter, startWithCode } from '../../lib/session';
 import { sfx } from '../../lib/sound';
 import { useGame } from '../../store/gameStore';
 import { useSession, type ArchiveEntry } from '../../store/sessionStore';
@@ -140,7 +140,8 @@ export function ResultCard() {
   if (phase !== 'result') return null;
   const g = grade(stars);
   const rows = s.rows.map((r) => {
-    const [a, b] = r.task.pair.map((id) => pinName(chapter, id));
+    if (r.zone) return [r.firstTry, fmt(r.firstTry ? strings.result.starZoneFirst : strings.result.starZoneAgain, { title: r.zone.title })] as const;
+    const [a, b] = r.task!.pair.map((id) => pinName(chapter, id));
     return [r.firstTry, fmt(r.firstTry ? strings.result.starFirst : strings.result.starAgain, { a, b })] as const;
   });
   return (
@@ -173,19 +174,40 @@ export function ResultCard() {
   );
 }
 
-// 체험판 끝: 마친 장과, 다음 장은 아직 준비 중이라는 안내(장 전환 연출은 M3)
+// 끝 화면. 차시의 마지막 장(2장)이면 다음 시간에 할 장과 막 시작 코드를 알려 주고(기획서 7.4 '1차시 끝 화면'),
+// 아니면 마친 장과 다음 장은 아직 준비 중이라는 안내(체험판). 장 전환 연출은 M5.
 export function EndScreen() {
   const { phase, name, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
   if (phase !== 'end') return null;
   const label = chapterLabel(chapter);
   const nextId = storyNeighbor(chapter.id, 1);
+  const next = endsSession(chapter.id) ? chapterById(nextId!) : undefined;
   return (
     <div className="screen-backdrop">
       <div className="screen-card end">
-        <div className="result-title">{strings.end.title}</div>
-        <p>{fmt(strings.end.body, { name: name ?? '', chapter: label, title: chapter.title })}</p>
-        {nextId && <p>{fmt(strings.end.nextLater, { next: chapterLabel({ id: nextId }) })}</p>}
+        {next ? (
+          <>
+            <div className="result-title">{strings.end.sessionTitle}</div>
+            <p>
+              {fmt(strings.end.sessionBody, {
+                name: name ?? '',
+                chapter: label,
+                title: chapter.title,
+                next: chapterLabel(next),
+                nextTitle: next.title,
+              })}
+            </p>
+            <p className="end-code">{fmt(strings.end.sessionCode, { code: next.code })}</p>
+            <p>{strings.end.sessionResume}</p>
+          </>
+        ) : (
+          <>
+            <div className="result-title">{strings.end.title}</div>
+            <p>{fmt(strings.end.body, { name: name ?? '', chapter: label, title: chapter.title })}</p>
+            {nextId && <p>{fmt(strings.end.nextLater, { next: chapterLabel({ id: nextId }) })}</p>}
+          </>
+        )}
         <div className="start-row">
           <button type="button" className="big-button" onClick={() => name && startWithCode(name, chapter.id)}>
             {fmt(strings.end.again, { chapter: label })}

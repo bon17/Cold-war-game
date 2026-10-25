@@ -15,12 +15,13 @@ const edgeText = (e: BoardEdge) => [strings.relations[e.rel], e.fray && '균열'
 
 const pinsOf = (chapter: Chapter, s?: DocState): PinStyle => ({ text: (id) => pinName(chapter, id, s), side: (id) => pinSide(chapter, id, s) });
 
-function problems(edges: BoardEdge[], pins?: PinStyle): string[] {
-  const { pinTags, legend, labels } = boardLayout(edges, measure, edgeText, pins);
+function problems(edges: BoardEdge[], pins?: PinStyle, obstacles: Box[] = []): string[] {
+  const { pinTags, legend, labels } = boardLayout(edges, measure, edgeText, pins, obstacles);
   const boxes: { name: string; box: Box }[] = [
     ...pinTags.map((p) => ({ name: `핀 ${p.id}`, box: p.box })),
     ...[...labels].map(([key, l]) => ({ name: `실 ${key}`, box: l.box })),
     { name: '범례', box: legend },
+    ...obstacles.map((box) => ({ name: '중립 구역', box })),
   ];
   const out: string[] = [];
   for (let i = 0; i < boxes.length; i++) {
@@ -108,5 +109,18 @@ describe('1장 보드 이름표 자리', () => {
 
   it('끝 보드(배경 실 셋, 바뀐 실 여섯)도 겹치지 않는다', () => {
     expect(problems([...backgroundFor(ch1, allDone), ...endBoard(ch1)], pinsOf(ch1, allDone))).toEqual([]);
+  });
+});
+
+describe('2장 보드 이름표 자리', () => {
+  const ch2 = chapterById('ch2');
+  const allDone: DocState = { readDocs: ch2.documents.map((d) => d.id), done: Object.fromEntries(ch2.edgeTasks.map((t) => [taskKey(ch2, t), {}])) };
+
+  it('시작 보드(1장 끝 그대로): 겹치지 않는다', () => {
+    expect(problems(startEdges(ch2), pinsOf(ch2))).toEqual([]);
+  });
+
+  it("끝 보드: '어느 편도 아닌 나라' 칸이 열려도 이름표가 칸과 겹치지 않는다", () => {
+    expect(problems([...backgroundFor(ch2, allDone), ...endBoard(ch2)], pinsOf(ch2), [layout.neutralZone])).toEqual([]);
   });
 });

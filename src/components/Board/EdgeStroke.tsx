@@ -100,13 +100,13 @@ function HotlineKnot({ curve, color }: { curve: Curve; color: string }) {
   );
 }
 
-// 범례 카드와 이름표 왼쪽의 짧은 견본
-export function RelSwatch({ rel, width = 52 }: { rel: Rel; width?: number }) {
+// 범례 카드와 이름표 왼쪽의 짧은 견본. fray: '같은 편(금이 감)' 선택지(2장 중국–소련)
+export function RelSwatch({ rel, width = 52, fray }: { rel: Rel; width?: number; fray?: boolean }) {
   const h = 24;
   const curve = { p0: { x: 4, y: h / 2 }, c: { x: width / 2, y: h / 2 }, p1: { x: width - 4, y: h / 2 } };
   return (
     <svg className="rel-swatch" width={width} height={h} viewBox={`0 0 ${width} ${h}`} aria-hidden="true">
-      <EdgeStroke curve={curve} rel={rel} compact />
+      <EdgeStroke curve={curve} rel={rel} fray={fray} compact />
     </svg>
   );
 }

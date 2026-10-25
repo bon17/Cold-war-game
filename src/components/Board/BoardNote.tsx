@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { pairKey } from '../../lib/board';
+import { pairKey, ZONE_KEY } from '../../lib/board';
 import { hasPredict, nextPredict } from '../../lib/clockFlow';
 import { chapterById, pinName, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
@@ -51,7 +51,7 @@ export function BoardNote() {
   } else if (event && event.id === resultId && event.kind === 'reportLocked') {
     text = fmt(g.reportLocked, { n: progress.total - progress.done });
   } else if (action.kind === 'doc') text = g.readDoc;
-  else if (action.kind === 'edge') text = g.pickEdge;
+  else if (action.kind === 'edge') text = action.key === ZONE_KEY ? g.pickZone : g.pickEdge;
   else if (action.kind === 'report') {
     text = g.reportReady;
     kind = 'ok';

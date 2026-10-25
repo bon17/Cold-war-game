@@ -53,6 +53,7 @@
       "title": "지금 할 일",
       "readDoc": "문서 더미를 눌러 새 문서를 읽으세요.",
       "pickEdge": "반짝이는 실 이름표를 누르세요.",
+      "pickZone": "반짝이는 빈 칸을 누르세요.",
       "reportReady": "보고서철을 눌러 시계를 예측하세요.",
       "reportLocked": "아직 남은 문서가 {n}개 있어요.",
       "reportDone": "보고를 마쳤어요.",
@@ -62,6 +63,8 @@
     "dialog": {
       "title": "{a}–{b}, 이제 어떤 사이가 됐을까?",
       "hint": "고른 사이가 보드에 실로 걸려요.",
+      "zoneHint": "맞게 고르면 보드에 칸이 열려요.",
+      "frayOption": "{rel}(금이 감)",
       "fromDoc": "방금 읽은 문서: 「{title}」",
       "reread": "문서 다시 보기",
       "wrong": "다시 생각해 볼까요? 문서에 이렇게 적혀 있어요.",
@@ -132,7 +135,7 @@
   "titleScreen": {
     "logoTop": "바늘과 실",
     "logoBottom": "자정의 분석실",
-    "trial": "체험판 · 프롤로그, 1장, 3장",
+    "trial": "체험판 · 프롤로그~3장",
     "soundQuestion": "소리를 켤까요?",
     "soundOn": "소리 켜기",
     "soundOff": "소리 끄기",
@@ -158,6 +161,7 @@
     "needName": "먼저 이름을 적어 주세요.",
     "noRecord": "이 이름의 기록이 없어요. '처음부터'를 누르거나 막 시작 코드를 넣으세요.",
     "resumeAsk": "{name} · {chapter} · 별 {stars}개 — 이어서 할까요?",
+    "resumeNextAsk": "{name} · {chapter}까지 마침 · 별 {stars}개 — {next}부터 할까요?",
     "resumeYes": "이어서 하기",
     "cancel": "취소",
     "freshAsk1": "이 이름의 기록이 있어요. 새로 시작하면 지워집니다.",
@@ -203,14 +207,20 @@
     "othersLine": "다른 장의 별: {list}",
     "othersNone": "– (아직 하지 않음)",
     "starFirst": "{a}–{b} 실을 한 번에 맞혔다",
-    "starAgain": "{a}–{b} 실은 다시 골라서 맞혔다"
+    "starAgain": "{a}–{b} 실은 다시 골라서 맞혔다",
+    "starZoneFirst": "'{title}' 칸을 한 번에 맞혔다",
+    "starZoneAgain": "'{title}' 칸은 다시 골라서 맞혔다"
   },
   "end": {
     "title": "당직을 마쳤어요",
     "body": "{name}, {chapter} 「{title}」의 당직을 마쳤습니다. 수고했어요!",
     "nextLater": "다음 장({next})은 아직 준비 중이에요.",
     "again": "{chapter} 다시 하기",
-    "toTitle": "처음 화면으로"
+    "toTitle": "처음 화면으로",
+    "sessionTitle": "오늘 당직을 마쳤어요",
+    "sessionBody": "{name}, 오늘은 {chapter} 「{title}」까지 당직을 마쳤습니다. 다음 시간에는 {next} 「{nextTitle}」부터 해요.",
+    "sessionCode": "막 시작 코드: {code}",
+    "sessionResume": "같은 컴퓨터라면 이름을 적고 '이어하기'를 눌러도 돼요."
   },
   "boardTable": {
     "open": "표로 보기",

@@ -8,6 +8,7 @@ import { DeskLabels } from './components/Desk/DeskLabels';
 import { DocStack } from './components/Desk/DocStack';
 import { DocumentViewer } from './components/DocumentViewer/DocumentViewer';
 import { EdgeDialog } from './components/EdgeDialog/EdgeDialog';
+import { ZoneDialog } from './components/EdgeDialog/ZoneDialog';
 import { AboutClock } from './components/Report/AboutClock';
 import { ClockReveal } from './components/Report/ClockReveal';
 import { ReportFolder } from './components/Report/ReportFolder';
@@ -16,7 +17,7 @@ import { CoverScreen, EndScreen, MissionCard, NoticeCard, ResultCard, WindowScen
 import { TitleScreen } from './components/Screens/TitleScreen';
 import { Stage } from './components/Stage/Stage';
 import { assetUrl } from './lib/assets';
-import { backgroundFor, pairKey, taskKey } from './lib/board';
+import { backgroundFor, pairKey, taskKey, ZONE_KEY } from './lib/board';
 import { clockHung, hasPredict } from './lib/clockFlow';
 import { chapterById, strings } from './lib/data';
 import { autoOpenDoc } from './lib/docFlow';
@@ -59,7 +60,7 @@ function useSoundEffects() {
 }
 
 export default function App() {
-  const { chapterId, readDocs, board, done, event, revealed, reveal, dialogEdge, openEdgeDialog, openTable } = useGame();
+  const { chapterId, readDocs, board, done, event, revealed, reveal, dialogEdge, openDocId, openEdgeDialog, openTable } = useGame();
   const phase = useSession((s) => s.phase);
   const setPhase = useSession((s) => s.setPhase);
   const chapter = chapterById(chapterId);
@@ -101,16 +102,19 @@ export default function App() {
       ...chapter.startBoard.filter((e) => e.untilDoc).map((e) => pairKey(e.pair)),
     ]);
     const action = nextAction(chapter, { readDocs, done, revealed, reveal });
+    const zoneRead = !!chapter.zone && readDocs.includes(chapter.zone.doc);
     return {
       pending: new Set(pending),
-      hint: action.kind === 'edge' && !dialogEdge && phase === 'desk' ? action.key : undefined,
+      zone: zoneRead ? (done[ZONE_KEY] ? 'done' : 'pending') : undefined,
+      // '여기를 누르세요'는 책상 화면에서, 문서와 실 바꾸기 창을 닫은 뒤에(읽는 동안 문서 위로 비치지 않게)
+      hint: action.kind === 'edge' && !dialogEdge && !openDocId && phase === 'desk' ? action.key : undefined,
       faint: new Set(board.map((e) => pairKey(e.pair)).filter((k) => !changing.has(k))),
       anim,
       onPick: (key) => openEdgeDialog(key),
       onInfo: (key) => openTable(key),
       onTable: () => openTable(),
     };
-  }, [chapter, readDocs, done, revealed, reveal, board, dialogEdge, anim, openEdgeDialog, openTable, phase]);
+  }, [chapter, readDocs, done, revealed, reveal, board, dialogEdge, openDocId, anim, openEdgeDialog, openTable, phase]);
 
   const atDesk = phase === 'desk';
   const hung = clockHung(chapter, revealed, reveal);
@@ -126,6 +130,7 @@ export default function App() {
                 <DeskLabels />
                 <BoardNote />
                 <EdgeDialog />
+                <ZoneDialog />
                 <DocumentViewer />
                 <ReportForm />
                 <ClockReveal />

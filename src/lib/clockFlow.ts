@@ -1,5 +1,5 @@
 // 시계 지점(기획서 5.3·5.4): 언제 열리는지, 보고서를 쓰려면 무엇이 남았는지.
-import { pairKey, taskKey } from './board';
+import { pairKey, taskKey, ZONE_KEY } from './board';
 import { clock } from './data';
 import type { Chapter, ClockCheckpoint, ClockEntry } from '../types';
 
@@ -32,6 +32,7 @@ export function remaining(
   const required = chapter.edgeTasks
     .filter((t) => (listed ? listed.includes(pairKey(t.pair)) : t.mode === 'direct'))
     .map((t) => taskKey(chapter, t));
+  if (!listed && chapter.zone) required.push(ZONE_KEY);   // 2장 '어느 편도 아닌 나라' 칸
   const edges = required.filter((k) => !done[k]);
   return { docs, edges };
 }

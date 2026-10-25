@@ -409,3 +409,14 @@ select.start-input {
 @media (prefers-reduced-motion: reduce) {
   .kenburns, .result-rows li.on .result-star { animation: none; }
 }
+
+/* 1차시 끝 화면의 막 시작 코드: 칠판에 적어 둘 수 있게 크게 */
+.end-code {
+  margin: 14px 0;
+  padding: 10px 14px;
+  border: 2px dashed rgba(42, 33, 24, 0.5);
+  border-radius: 4px;
+  background: rgba(255, 252, 240, 0.7);
+  font: 700 26px/1.3 'Nanum Gothic Coding', monospace;
+  text-align: center;
+}

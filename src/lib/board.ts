@@ -13,10 +13,15 @@ export function taskKey(chapter: Pick<Chapter, 'edgeTasks'>, task: EdgeTask): st
   return first === task ? key : `${key}@${task.doc ?? task.point}`;
 }
 
+// 2장 '어느 편도 아닌 나라' 칸의 키(done, wrong, 실 바꾸기 창이 실의 키 대신 쓴다)
+export const ZONE_KEY = 'zone';
+
 export interface DocState { readDocs: string[]; done: Record<string, unknown> }
 
-// 문서를 마쳤는지: 짝인 실을 바꿨으면, 실이 없는 문서는 읽었으면. 핀 이름, 내려가는 실, 배경 실이 이것을 따른다.
+// 문서를 마쳤는지: 짝인 실을 바꿨으면(중립 구역 문서는 칸을 골랐으면), 실이 없는 문서는 읽었으면.
+// 핀 이름, 내려가는 실, 배경 실이 이것을 따른다.
 export function docFinished(chapter: Chapter, docId: string, s: DocState): boolean {
+  if (chapter.zone?.doc === docId) return !!s.done[ZONE_KEY];
   const task = chapter.edgeTasks.find((t) => t.mode === 'direct' && t.doc === docId);
   return task ? !!s.done[taskKey(chapter, task)] : s.readDocs.includes(docId);
 }

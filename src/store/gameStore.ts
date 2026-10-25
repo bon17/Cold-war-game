@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-import { applyTask, endingAt, pairKey, taskKey } from '../lib/board';
+import { applyTask, endingAt, pairKey, taskKey, ZONE_KEY } from '../lib/board';
 import { isUnlocked, nextCheckpoint, nextPredict, revealPath, minutesOf } from '../lib/clockFlow';
 import { chapterById, chapters } from '../lib/data';
 import { currentDoc } from '../lib/docFlow';
-import { autoTasksFor, directTask, judge, revealTasksFor, taskForDoc } from '../lib/validateEdge';
-import type { BoardEdge, Chapter, EdgeTask, Rel } from '../types';
+import { autoTasksFor, directTask, hasChoice, judge, revealTasksFor, taskForDoc } from '../lib/validateEdge';
+import type { BoardEdge, Chapter, ClockCheckpoint, EdgeTask, Rel } from '../types';
 
 // 게임 진행 상태(기획서 3장, 2026-10-23 쉬운 흐름): 문서 읽기 → 그 문서와 짝인 실 바꾸기(둘 중 하나) → 3번 → 시계 예측.
 
@@ -13,7 +13,7 @@ export type BoardEvent =
   | { kind: 'reportLocked' }
   | { kind: 'ok'; key: string; allDone: boolean }
   | { kind: 'auto'; key: string }
-  | { kind: 'wrong'; key: string; rel: Rel };
+  | { kind: 'wrong'; key: string; rel?: Rel; option?: string };   // option: 중립 구역에서 고른 것
 
 export interface EdgeResult { wrong: number; auto?: boolean }
 
@@ -45,6 +45,7 @@ interface GameState {
   openEdgeDialog: (key: string) => void;
   closeEdgeDialog: () => void;
   submitEdge: (key: string, rel: Rel) => void;
+  submitZone: (option: string) => void;   // 2장 '어느 편도 아닌 나라' 칸
   openReport: () => void;
   closeReport: () => void;
   submitReport: (report: Report) => void;
@@ -86,7 +87,15 @@ function finishDoc(chapter: Chapter, s: Pick<GameState, 'board' | 'done' | 'even
 }
 
 function allDirectDone(chapter: Chapter, done: Record<string, EdgeResult>): boolean {
-  return chapter.edgeTasks.filter((t) => t.mode === 'direct').every((t) => done[taskKey(chapter, t)]);
+  const zoneDone = !chapter.zone || !!done[ZONE_KEY];
+  return zoneDone && chapter.edgeTasks.filter((t) => t.mode === 'direct').every((t) => done[taskKey(chapter, t)]);
+}
+
+// 해설 카드 때 실에 다는 표시(2장 미국–소련 '직통선' 매듭). 실 종류가 바뀌어도 끝까지 남는다.
+function annotate(board: BoardEdge[], point: ClockCheckpoint): BoardEdge[] {
+  const note = point.annotateEdge;
+  if (!note) return board;
+  return board.map((e) => (pairKey(e.pair) === pairKey(note.pair) ? { ...e, mark: note.mark } : e));
 }
 
 export function initialState(chapterId: string) {
@@ -132,7 +141,7 @@ export const useGame = create<GameState>((set, get) => ({
     const s = get();
     const chapter = chapterById(s.chapterId);
     const first = !s.readDocs.includes(docId);
-    const auto = first && !taskForDoc(chapter, docId) ? finishDoc(chapter, s, docId) : {};
+    const auto = first && !hasChoice(chapter, docId) ? finishDoc(chapter, s, docId) : {};
     set({ ...auto, openDocId: docId, openDocFresh: first, dialogEdge: null, readDocs: first ? [...s.readDocs, docId] : s.readDocs });
   },
 
@@ -140,7 +149,8 @@ export const useGame = create<GameState>((set, get) => ({
     const s = get();
     const chapter = chapterById(s.chapterId);
     const task = s.openDocId ? taskForDoc(chapter, s.openDocId) : undefined;
-    const open = task && !s.done[taskKey(chapter, task)] ? pairKey(task.pair) : null;
+    const zone = chapter.zone && chapter.zone.doc === s.openDocId && !s.done[ZONE_KEY] ? ZONE_KEY : null;
+    const open = task && !s.done[taskKey(chapter, task)] ? pairKey(task.pair) : zone;
     set({ openDocId: null, openDocFresh: false, dialogEdge: open, reveal: s.reveal ?? showToStart(s) });
   },
 
@@ -150,7 +160,7 @@ export const useGame = create<GameState>((set, get) => ({
     const s = get();
     const chapter = chapterById(s.chapterId);
     const next = currentDoc(chapter, s.revealed, s.readDocs, s.done);
-    if (s.openDocId && !taskForDoc(chapter, s.openDocId) && next && !s.readDocs.includes(next.id)) {
+    if (s.openDocId && !hasChoice(chapter, s.openDocId) && next && !s.readDocs.includes(next.id)) {
       get().openDocument(next.id);
       return;
     }
@@ -182,6 +192,21 @@ export const useGame = create<GameState>((set, get) => ({
     set({ wrong: { ...s.wrong, [tk]: (s.wrong[tk] ?? 0) + 1 }, event: stamp({ kind: 'wrong', key, rel }) });
   },
 
+  // 고르는 방법은 실 바꾸기와 같다: 맞히면 창에 '맞아요!', 틀리면 핵심 구절을 다시 보여 준다
+  submitZone: (option) => {
+    const s = get();
+    const chapter = chapterById(s.chapterId);
+    const zone = chapter.zone;
+    if (!zone || s.done[ZONE_KEY]) return;
+    if (option === zone.answer) {
+      const solved = { board: s.board, done: { ...s.done, [ZONE_KEY]: { wrong: s.wrong[ZONE_KEY] ?? 0 } }, event: s.event };
+      const after = finishDoc(chapter, solved, zone.doc);
+      set({ board: after.board, done: after.done, event: stamp({ kind: 'ok', key: ZONE_KEY, allDone: allDirectDone(chapter, after.done) }) });
+      return;
+    }
+    set({ wrong: { ...s.wrong, [ZONE_KEY]: (s.wrong[ZONE_KEY] ?? 0) + 1 }, event: stamp({ kind: 'wrong', key: ZONE_KEY, option }) });
+  },
+
   openReport: () => {
     const s = get();
     const chapter = chapterById(s.chapterId);
@@ -210,10 +235,12 @@ export const useGame = create<GameState>((set, get) => ({
     const chapter = chapterById(s.chapterId);
     const point = chapter.clock.find((p) => p.id === s.reveal!.pointId)!;
     if (s.reveal.step === 'needle') {
-      // 바늘이 멈추면 과학자들이 든 이유와 함께 그 지점의 실이 저절로 바뀐다
+      // 바늘이 멈추면 과학자들이 든 이유와 함께 그 지점의 실이 저절로 바뀌고, 실에 표시가 붙는다(직통선)
       const last = revealPath(point).pop()!;
+      const auto = applyAuto(chapter, s, revealTasksFor(chapter, point.id));
       set({
-        ...applyAuto(chapter, s, revealTasksFor(chapter, point.id)),
+        ...auto,
+        board: annotate(auto.board, point),
         clockShown: { minutes: minutesOf(last), year: last.year },
         reveal: { pointId: point.id, step: 'explanation' },
       });

@@ -139,6 +139,19 @@ export function ClockReveal() {
             </div>
           );
         })}
+        {point.annotateEdge && (() => {
+          // 2장 직통선: 실 종류는 그대로, 매듭이 생긴다
+          const e = board.find((x) => pairKey(x.pair) === pairKey(point.annotateEdge!.pair));
+          return e && (
+            <div className="reveal-changed">
+              <span>{strings.reveal.changedTitle}:</span>
+              <RelSwatch rel={e.rel} width={48} />
+              <span>
+                {edgeTitle(chapter, e)} {strings.relations[e.rel]} · {strings.edgeMarks[point.annotateEdge!.mark]}
+              </span>
+            </div>
+          );
+        })()}
         {ok}
       </div>
     );
@@ -147,7 +160,7 @@ export function ClockReveal() {
       year: point.year,
     });
     const list = changedEdges(chapter, board, done)
-      .map((e) => `${edgeTitle(chapter, e)} ${e.label ?? strings.relations[e.rel]}`)
+      .map((e) => `${edgeTitle(chapter, e)} ${e.label ?? strings.relations[e.rel]}${e.fray ? ` · ${strings.edgeMarks.fray}` : ''}`)
       .join(' · ');
     const wrong = report.direction !== point.direction;
     card = (

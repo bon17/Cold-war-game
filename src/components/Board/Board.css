@@ -150,3 +150,77 @@ button.edge-tag {
   outline: 4px solid var(--brass);
   outline-offset: 2px;
 }
+
+/* 2장 '어느 편도 아닌 나라' 칸: 차트 종이 왼쪽 위에 덧댄 천 띠. 바느질 땀처럼 점선 테두리 */
+.neutral-zone {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(45deg, rgba(120, 96, 60, 0.06) 0 2px, transparent 2px 6px),
+    #e8dcc0;
+  outline: 2px dashed rgba(90, 70, 40, 0.55);
+  outline-offset: -7px;
+  box-shadow: 1px 2px 4px rgba(42, 33, 24, 0.35);
+  color: var(--ink);
+  font-family: 'Gowun Batang', serif;
+  transform: rotate(-1.5deg);
+}
+.neutral-zone-title {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  word-break: keep-all;
+}
+.neutral-zone-countries {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.neutral-zone-countries li {
+  padding: 1px 10px;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 3px;
+  background: var(--tag-paper);
+  font-size: 22px;
+  line-height: 1.2;
+  box-shadow: 1px 1px 2px rgba(42, 33, 24, 0.25);
+}
+.neutral-zone-empty {
+  margin-top: 30px;
+  font-size: 64px;
+  font-weight: 700;
+  color: rgba(90, 70, 40, 0.6);
+}
+/* 고를 차례: 실 이름표처럼 빛나고 누를 수 있다 */
+.neutral-zone.pending {
+  cursor: pointer;
+  outline: 3px dashed var(--brass);
+}
+.neutral-zone.pending::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 8px rgba(243, 227, 122, 0.8);
+  animation: armed-pulse 1.2s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.neutral-zone.pending:hover,
+.neutral-zone.pending:focus-visible {
+  outline-style: solid;
+}
+@media (prefers-reduced-motion: reduce) {
+  .neutral-zone.pending::before { animation: none; }
+}

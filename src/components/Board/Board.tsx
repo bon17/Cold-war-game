@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { assetUrl, layout } from '../../lib/assets';
-import { chapterRels, pairKey, type DocState } from '../../lib/board';
+import { chapterRels, pairKey, ZONE_KEY, type DocState } from '../../lib/board';
 import { boardLayout, edgeCurve, nodeAt, pinTagAnchor, SWATCH_W, type Measure, type PinStyle } from '../../lib/boardLayout';
 import { nodes, pinName, pinSide, strings } from '../../lib/data';
 import { pointAt } from '../../lib/stringPath';
-import type { BoardEdge, Chapter, Rel } from '../../types';
+import type { BoardEdge, Chapter, Rel, ZoneTask } from '../../types';
 import { fmt } from '../../lib/format';
 import { TapHint } from '../Desk/TapHint';
 import { EdgeStroke, RelSwatch } from './EdgeStroke';
@@ -28,6 +28,32 @@ export interface BoardPlay {
   onPick: (key: string) => void;       // 바꿀 실 → 실 바꾸기 창
   onInfo: (key: string) => void;       // 그 밖의 실 → 실 이력표(표로 보기)
   onTable: () => void;
+  zone?: 'pending' | 'done';           // 2장 '어느 편도 아닌 나라' 칸: 문서를 읽었으면 빈 칸(누르면 고르기 창), 맞혔으면 나라 이름
+}
+
+// 2장 '어느 편도 아닌 나라' 칸: 차트 종이 왼쪽 위에 덧댄 천 띠(기획서 5.2, 아트 계획서 6.1)
+function NeutralZone({ task, state, hint, onPick }: { task: ZoneTask; state: 'pending' | 'done'; hint: boolean; onPick: () => void }) {
+  const { x, y, w, h } = layout.neutralZone;
+  const style = { left: x, top: y, width: w, height: h };
+  if (state === 'pending') {
+    return (
+      <button type="button" className="neutral-zone pending" style={style} aria-label={task.question} onClick={onPick}>
+        <span className="neutral-zone-title">{task.title}</span>
+        <span className="neutral-zone-empty" aria-hidden="true">?</span>
+        {hint && <TapHint />}
+      </button>
+    );
+  }
+  return (
+    <div className="neutral-zone" style={style}>
+      <span className="neutral-zone-title">{task.title}</span>
+      <ul className="neutral-zone-countries">
+        {task.countries.map((name) => (
+          <li key={name}>{name}</li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 // 이름표 폭은 실제 글꼴로 잰다. 글꼴이 늦게 내려오면 다시 잰다.
@@ -64,7 +90,9 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
     () => ({ text: (id) => pinName(chapter, id, progress), side: (id) => pinSide(chapter, id, progress) }),
     [chapter, progress],
   );
-  const { pinIds, labels } = useMemo(() => boardLayout(edges, measure, edgeName, pins), [edges, pins, fontsVersion]);
+  const zoneState = chapter.zone ? play?.zone : undefined;
+  const obstacles = useMemo(() => (zoneState ? [layout.neutralZone] : []), [zoneState]);
+  const { pinIds, labels } = useMemo(() => boardLayout(edges, measure, edgeName, pins, obstacles), [edges, pins, obstacles, fontsVersion]);
   const animClass = (key: string) => (anim?.key === key ? (anim.kind === 'ok' ? ' settle' : ' shake') : '');
   const background = edges.filter((e) => e.background);
   const puzzle = edges.filter((e) => !e.background);
@@ -158,6 +186,9 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
         );
       })}
 
+      {play && chapter.zone && zoneState && (
+        <NeutralZone task={chapter.zone} state={zoneState} hint={play.hint === ZONE_KEY} onPick={() => play.onPick(ZONE_KEY)} />
+      )}
       {play && (
         <button
           type="button"

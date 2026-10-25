@@ -45,7 +45,7 @@ export function BoardTable() {
               const task = chapter.edgeTasks.filter((t) => pairKey(t.pair) === key && done[taskKey(chapter, t)]).pop();
               const evidence = task?.doc ? chapter.documents.find((d) => d.id === task.doc)?.title : '';
               const history = edgeHistory(chapters, chapterId, key, done)
-                .map((h) => `${h.year ?? strings.boardTable.start} ${h.label ?? strings.relations[h.rel]}`)
+                .map((h) => `${h.year ?? strings.boardTable.start} ${h.label ?? strings.relations[h.rel]}${h.fray ? ` · ${strings.edgeMarks.fray}` : ''}`)
                 .join(' → ');
               const marks = [e.fray && strings.edgeMarks.fray, e.mark === 'hotline' && strings.edgeMarks.hotline].filter(Boolean);
               return (

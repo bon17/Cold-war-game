@@ -3,7 +3,7 @@ import { chapterLabel } from '../../lib/chapterLabel';
 import { chapterById, school, strings } from '../../lib/data';
 import { fmt } from '../../lib/format';
 import { findSlot, playerKey } from '../../lib/save';
-import { chapterForCode, resume, startFresh, startWithCode } from '../../lib/session';
+import { chapterForCode, endsSession, nextChapterId, resume, startFresh, startWithCode } from '../../lib/session';
 import { setSoundEnabled, sfx, unlockAudio } from '../../lib/sound';
 import { useSession } from '../../store/sessionStore';
 import type { SaveSlot } from '../../types';
@@ -112,10 +112,14 @@ function StartForm() {
     let yesLabel = strings.startScreen.freshYes;
     if (ask.kind === 'resume') {
       const ch = chapterById(ask.slot.chapterId);
-      text = fmt(strings.startScreen.resumeAsk, {
+      // 1차시 끝 화면에서 멈춘 기록이면 다음 차시의 첫 장(3장)부터 한다고 알려 준다(resume이 그렇게 한다)
+      const ended = (ask.slot.progress as { phase?: string } | undefined)?.phase === 'end' && endsSession(ch.id);
+      const next = ended ? chapterById(nextChapterId(ch.id)!) : undefined;
+      text = fmt(next ? strings.startScreen.resumeNextAsk : strings.startScreen.resumeAsk, {
         name: ask.slot.name,
         chapter: `${chapterLabel(ch)} ${ch.title}`,
         stars: totalStars(ask.slot),
+        next: next ? `${chapterLabel(next)} ${next.title}` : '',
       });
       yes = () => resume(ask.slot);
       yesLabel = strings.startScreen.resumeYes;

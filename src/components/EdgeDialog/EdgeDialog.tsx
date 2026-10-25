@@ -13,8 +13,29 @@ import './EdgeDialog.css';
 // 두 나라가 어떤 사이가 됐는지(관계 두 개 중 하나) 고르면(숫자 키 1~2) 바로 판정한다. 틀리면 문서의 핵심 구절을 다시 보여 준다.
 // 맞히면 창에 '맞아요!'와 한 줄 설명, '다음 문서 보기'(다음 문서가 없으면 '확인')가 나온다(2026-10-23 교사 결정).
 // 그 문서로 함께 바뀐 것(핀 이름, 새로 나타난 배경 실, 저절로 바뀐 실)도 같은 창에 한 줄씩 보여 준다(1장 1948년 정부 수립).
+// '맞아요!' 창의 아래 단추: 다음 문서가 왔으면 '다음 문서 보기', 아니면 '확인'(중립 구역 창도 같이 쓴다)
+export function SolvedFoot() {
+  const { chapterId, done, readDocs, revealed, closeEdgeDialog, openDocument } = useGame();
+  const next = currentDoc(chapterById(chapterId), revealed, readDocs, done);
+  const fresh = next && !readDocs.includes(next.id) ? next : undefined;
+  return (
+    <div className="edge-dialog-foot">
+      <span />
+      {fresh ? (
+        <button type="button" className="edge-dialog-close" onClick={() => openDocument(fresh.id)} autoFocus>
+          {strings.board.dialog.nextDoc}
+        </button>
+      ) : (
+        <button type="button" className="edge-dialog-close" onClick={closeEdgeDialog} autoFocus>
+          {strings.board.dialog.ok}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function EdgeDialog() {
-  const { chapterId, dialogEdge, event, done, board, readDocs, revealed, submitEdge, closeEdgeDialog, openDocument } = useGame();
+  const { chapterId, dialogEdge, event, done, board, readDocs, submitEdge, closeEdgeDialog, openDocument } = useGame();
   const chapter = chapterById(chapterId);
   const task = dialogEdge ? directTask(chapter, dialogEdge, readDocs) : undefined;
   const options = useMemo(() => (task ? optionOrder(chapter, task) : []), [chapter, task]);
@@ -39,8 +60,6 @@ export function EdgeDialog() {
   const doc = docForTask(chapter, task);
 
   if (solved) {
-    const next = currentDoc(chapter, revealed, readDocs, done);
-    const fresh = next && !readDocs.includes(next.id) ? next : undefined;
     const renamed = task.doc && chapter.nodeLabelsUntil === task.doc
       ? Object.entries(chapter.nodeLabels ?? {})
           .map(([id, from]) => fmt(strings.board.dialog.renamed, { from, to: nodes.nodes[id as NodeId]?.name ?? id }))
@@ -80,18 +99,7 @@ export function EdgeDialog() {
             </p>
           );
         })}
-        <div className="edge-dialog-foot">
-          <span />
-          {fresh ? (
-            <button type="button" className="edge-dialog-close" onClick={() => openDocument(fresh.id)} autoFocus>
-              {strings.board.dialog.nextDoc}
-            </button>
-          ) : (
-            <button type="button" className="edge-dialog-close" onClick={closeEdgeDialog} autoFocus>
-              {strings.board.dialog.ok}
-            </button>
-          )}
-        </div>
+        <SolvedFoot />
       </div>
     );
   }
@@ -109,19 +117,23 @@ export function EdgeDialog() {
       )}
 
       <div className="edge-dialog-rels">
-        {options.map((rel, i) => (
-          <button
-            key={rel}
-            type="button"
-            className={wrong?.rel === rel ? 'tried' : undefined}
-            disabled={wrong?.rel === rel}
-            onClick={() => submitEdge(dialogEdge, rel)}
-          >
-            <span className="rel-key">{i + 1}</span>
-            <RelSwatch rel={rel} width={64} />
-            {strings.relations[rel]}
-          </button>
-        ))}
+        {options.map((rel, i) => {
+          // 2장 중국–소련: 종류는 같은 편 그대로, 금만 가는 선택지
+          const frayed = !!task.fray && rel === task.to;
+          return (
+            <button
+              key={rel}
+              type="button"
+              className={wrong?.rel === rel ? 'tried' : undefined}
+              disabled={wrong?.rel === rel}
+              onClick={() => submitEdge(dialogEdge, rel)}
+            >
+              <span className="rel-key">{i + 1}</span>
+              <RelSwatch rel={rel} width={64} fray={frayed} />
+              {frayed ? fmt(strings.board.dialog.frayOption, { rel: strings.relations[rel] }) : strings.relations[rel]}
+            </button>
+          );
+        })}
       </div>
 
       <div className="edge-dialog-foot">

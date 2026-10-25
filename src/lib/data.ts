@@ -1,5 +1,6 @@
 // 데이터 파일을 형식과 함께 불러온다. 화면의 한국어 글은 모두 여기서 온다(기획서 0장).
 import ch1Data from '../data/chapters/ch1.json';
+import ch2Data from '../data/chapters/ch2.json';
 import ch3Data from '../data/chapters/ch3.json';
 import prologueData from '../data/chapters/prologue.json';
 import clockData from '../data/clock.json';
@@ -10,10 +11,15 @@ import stringsData from '../data/strings.ko.json';
 import { docFinished, type DocState } from './board';
 import type { Chapter, ClockEntry, LabelSide, NodeId, NodesData, Rel } from '../types';
 
-// 이야기 순서. 아직 없는 장(2·4·5장, 에필로그)은 M3에서 채운다.
+// 이야기 순서. 아직 없는 장(4·5장, 에필로그)은 M3에서 채운다.
 // 빈 배열(startBoard)과 null(실의 처음 상태)이 있으면 JSON 형식을 바로 Chapter로 바꿀 수 없어 unknown을 거친다.
 // 형식이 맞는지는 data.test.ts의 validateData 검사가 본다.
-export const chapters: Chapter[] = [prologueData as unknown as Chapter, ch1Data as unknown as Chapter, ch3Data as Chapter];
+export const chapters: Chapter[] = [
+  prologueData as unknown as Chapter,
+  ch1Data as unknown as Chapter,
+  ch2Data as unknown as Chapter,
+  ch3Data as Chapter,
+];
 export const clock = clockData as ClockEntry[];
 export const glossary = glossaryData as Record<string, string>;
 export const nodes = nodesData as NodesData;

@@ -42,7 +42,10 @@ export function ReportForm() {
                 <span key={pairKey(e.pair)} className="report-edge">
                   <RelSwatch rel={e.rel} width={40} />
                   <span>{edgeTitle(chapter, e)}</span>
-                  <span className="report-edge-rel">{e.label ?? strings.relations[e.rel]}</span>
+                  <span className="report-edge-rel">
+                    {e.label ?? strings.relations[e.rel]}
+                    {e.fray && ` · ${strings.edgeMarks.fray}`}
+                  </span>
                 </span>
               ))}
             </div>

@@ -71,7 +71,14 @@ function avoidRanges(edge: BoardEdge): [number, number][] {
   return ranges;
 }
 
-export function boardLayout(edges: BoardEdge[], measure: Measure, edgeText: (e: BoardEdge) => string, pins: PinStyle = DEFAULT_PINS) {
+// obstacles: 실 이름표가 피해야 할 다른 상자(2장 '어느 편도 아닌 나라' 칸)
+export function boardLayout(
+  edges: BoardEdge[],
+  measure: Measure,
+  edgeText: (e: BoardEdge) => string,
+  pins: PinStyle = DEFAULT_PINS,
+  obstacles: Box[] = [],
+) {
   const pinIds = [...new Set(edges.flatMap((e) => e.pair))];
   const half = nodes.pinSize / 2;
   const pinBoxes = pinIds.map((id) => {
@@ -94,7 +101,7 @@ export function boardLayout(edges: BoardEdge[], measure: Measure, edgeText: (e: 
         avoid: avoidRanges(e),
       };
     }),
-    [...pinBoxes, ...pinTags.map((p) => p.box), legend],
+    [...pinBoxes, ...pinTags.map((p) => p.box), legend, ...obstacles],
     layout.board.paper,
     edges.map((e) => ({ key: pairKey(e.pair), curve: edgeCurve(e), background: e.background })),
   );

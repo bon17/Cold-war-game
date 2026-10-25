@@ -4,7 +4,7 @@
 import { pairKey, taskKey } from './board';
 import type { Chapter, Rel } from '../types';
 
-export interface HistoryStep { year: number | null; rel: Rel; label?: string; chapterTitle?: string }
+export interface HistoryStep { year: number | null; rel: Rel; label?: string; fray?: boolean; chapterTitle?: string }
 
 export function edgeHistory(chapters: Chapter[], currentId: string, key: string, done: Record<string, unknown>): HistoryStep[] {
   const steps: HistoryStep[] = [];
@@ -12,12 +12,12 @@ export function edgeHistory(chapters: Chapter[], currentId: string, key: string,
     const current = ch.id === currentId;
     const start = ch.startBoard.find((e) => pairKey(e.pair) === key);
     const last = steps[steps.length - 1];
-    if (start && (!last || last.rel !== start.rel || last.label !== start.label)) {
-      steps.push({ year: null, rel: start.rel, label: start.label, chapterTitle: ch.title });
+    if (start && (!last || last.rel !== start.rel || last.label !== start.label || !!last.fray !== !!start.fray)) {
+      steps.push({ year: null, rel: start.rel, label: start.label, fray: start.fray, chapterTitle: ch.title });
     }
     for (const t of ch.edgeTasks) {
       if (pairKey(t.pair) !== key) continue;
-      if (!current || done[taskKey(ch, t)]) steps.push({ year: t.year, rel: t.to, label: t.label });
+      if (!current || done[taskKey(ch, t)]) steps.push({ year: t.year, rel: t.to, label: t.label, fray: t.fray });
     }
     if (current) break;
   }

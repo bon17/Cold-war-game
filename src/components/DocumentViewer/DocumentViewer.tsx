@@ -5,7 +5,7 @@ import { chapterById, glossary, strings } from '../../lib/data';
 import { glossaryByDoc, splitBody, type Chunk } from '../../lib/docText';
 import { fmt } from '../../lib/format';
 import { availableDocs } from '../../lib/docFlow';
-import { taskForDoc } from '../../lib/validateEdge';
+import { hasChoice } from '../../lib/validateEdge';
 import { useGame } from '../../store/gameStore';
 import type { Doc } from '../../types';
 import './DocumentViewer.css';
@@ -126,6 +126,12 @@ export function DocumentViewer() {
             </header>
             <h2 className="doc-title">{doc.title}</h2>
             <p className="doc-body">{splitBody(doc.body, doc.keyPhrase, wordsByDoc.get(doc.id) ?? []).map(renderChunk)}</p>
+            {doc.listLine && (
+              <p className="doc-names">
+                {doc.listLabel && <span className="doc-names-label">{doc.listLabel}</span>}
+                {doc.listLine.join(' · ')}
+              </p>
+            )}
             <footer className="doc-foot">
               <span className="doc-source">
                 {doc.source && fmt(strings.docs.source, { source: doc.source })}
@@ -135,7 +141,7 @@ export function DocumentViewer() {
           </article>
 
           <div className="viewer-buttons">
-            {(taskForDoc(chapter, doc.id) ? isDone(doc) : !openDocFresh) ? (
+            {(hasChoice(chapter, doc.id) ? isDone(doc) : !openDocFresh) ? (
               <button type="button" className="viewer-close" onClick={closeDocument}>
                 {strings.docs.close}
               </button>

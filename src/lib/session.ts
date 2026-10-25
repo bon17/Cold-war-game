@@ -1,7 +1,7 @@
 // 시작하기, 이어하기, 막 시작 코드, 자동 저장(기획서 5.9·5.10). 두 상태(게임, 화면 흐름)를 한 기록으로 묶는다.
 import { useGame, initialState } from '../store/gameStore';
 import { useSession, type Phase } from '../store/sessionStore';
-import { chapters, storyNeighbor } from './data';
+import { chapterById, chapters, storyNeighbor } from './data';
 import { deleteSlot, findSlot, normalizeName, saveSlot } from './save';
 import type { SaveSlot } from '../types';
 
@@ -52,22 +52,38 @@ export function nextChapterId(chapterId: string): string | undefined {
   return chapters.some((c) => c.id === id) ? id : undefined;
 }
 
-export function goNextChapter() {
-  const next = nextChapterId(useGame.getState().chapterId);
-  if (!next) {
-    useSession.getState().setPhase('end');
-    return;
-  }
+// 다음 장이 다음 차시면(2장 → 3장) 이 장이 그 차시의 마지막 장이다. 끝 화면에서 다음 시간 코드를 알려 준다.
+export function endsSession(chapterId: string): boolean {
+  const next = nextChapterId(chapterId);
+  return !!next && chapterById(next).session !== chapterById(chapterId).session;
+}
+
+function startNext(next: string) {
   const keep = [...new Set([...useSession.getState().achievements, ...useGame.getState().achievements])];
   startChapter(next, keep);
   useSession.getState().setPhase('cover');
 }
 
-// 이어하기: 마지막 저장 지점부터
+export function goNextChapter() {
+  const { chapterId } = useGame.getState();
+  const next = nextChapterId(chapterId);
+  if (!next || endsSession(chapterId)) {
+    useSession.getState().setPhase('end');
+    return;
+  }
+  startNext(next);
+}
+
+// 이어하기: 마지막 저장 지점부터. 차시의 끝 화면에서 멈췄으면(1차시를 마침) 다음 차시의 첫 장(3장) 표지부터
 export function resume(slot: SaveSlot) {
   const p = (slot.progress ?? {}) as Progress;
   useSession.getState().setPlayer({ name: slot.name, stars: slot.stars, achievements: slot.achievements, archive: (slot.archive as never[]) ?? [] });
   useGame.setState({ ...initialState(slot.chapterId), ...(p.game ?? {}) });   // 공개 도중이었으면 그 단계부터
+  const next = nextChapterId(slot.chapterId);
+  if (p.phase === 'end' && next && endsSession(slot.chapterId)) {
+    startNext(next);
+    return;
+  }
   const phase: Phase = !p.phase || p.phase === 'title' || p.phase === 'start' || p.phase === 'notice' ? 'cover' : p.phase;
   useSession.getState().setPhase(phase);
 }

@@ -16,6 +16,7 @@ export interface Doc {
   body: string;                // 2~3문장, 100자 이하, 쉬운 말(해요체). 목록 줄은 제외
   keyPhrase: string;           // body 안에 그대로 있는 핵심 구절. 형광펜으로 보이고, 틀렸을 때 힌트로 다시 보여 준다
   listLine?: string[];         // 중립 구역 나라처럼 따로 보여 주는 목록 줄
+  listLabel?: string;          // 목록 줄 앞의 말(2-5 '모인 나라 가운데')
   autoOpen?: boolean;          // 장 시작에 자동으로 열림(4-1)
   revealAfter?: string;        // 이 시계 지점 뒤에 도착(5-8)
   source?: string;             // 예: '교과서 222쪽 자료 1'
@@ -35,6 +36,18 @@ export interface EdgeTask {
   label?: string;              // 이름표 덮어쓰기(예: 미국–소련 '협력', 중국–소련 '관계 정상화')
   explanation: string;         // 성공(또는 자동 적용) 시 한 줄 설명
   fray?: boolean;              // 색은 유지하고 균열 표시만(종류가 바뀌면 균열은 사라짐)
+}
+
+// 2장 '어느 편도 아닌 나라' 칸(중립 구역, 기획서 5.2. 2026-10-25 쉬운 흐름으로 다시 정함).
+// 짝인 문서를 읽고 실처럼 둘 중 하나를 고른다. 맞히면 보드 왼쪽 위(layout.neutralZone)에 칸이 열리고 나라 이름이 들어간다.
+export interface ZoneTask {
+  doc: string;
+  title: string;               // 칸 이름
+  countries: string[];
+  question: string;
+  options: string[];           // 2개(정답 포함)
+  answer: string;
+  explanation: string;         // 맞혔을 때 한 줄 설명
 }
 
 // clock.json: 시계 데이터는 여기에만 둔다
@@ -93,6 +106,7 @@ export interface Chapter {
   backgroundEdges: { pair: Pair; rel: Rel; weakened?: boolean; appearAfterDoc?: string; note?: string }[];
   documents: Doc[];            // 배열 순서 = 도착 순서. 앞 문서의 실을 바꿔야 다음 문서가 온다(3개)
   edgeTasks: EdgeTask[];
+  zone?: ZoneTask;
   clock: ClockCheckpoint[];    // 시계는 장마다 한 번
   endEvents?: ('renameSU' | 'weakenNKSU' | 'greenCascade')[];  // 5장 끝. greenCascade는 이미 녹색인 실을 다시 울리는 확인 연출
   epilogueBoard?: { pair: Pair; style: 'undyed'; label: string; caption: string };  // 에필로그 남북 실

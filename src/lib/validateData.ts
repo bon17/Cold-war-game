@@ -19,7 +19,7 @@ export function validateChapter(
 
   // 문서: 장마다 3개 안팎, 글자 수, 문장 수, 핵심 구절이 본문에 그대로 있는지(기획서 5.1, 2026-10-23 쉬운 흐름)
   if (chapter.documents.length > MAX_DOCS) errors.push(where(`문서 ${chapter.documents.length}개, 상한 ${MAX_DOCS}개`));
-  const edgeDocs = new Set(chapter.edgeTasks.filter((t) => t.mode === 'direct').map((t) => t.doc)).size;
+  const edgeDocs = new Set([...chapter.edgeTasks.filter((t) => t.mode === 'direct').map((t) => t.doc), chapter.zone?.doc].filter(Boolean)).size;
   if (edgeDocs > MAX_EDGE_DOCS) errors.push(where(`실을 바꾸는 문서 ${edgeDocs}개, 상한 ${MAX_EDGE_DOCS}개`));
   for (const doc of chapter.documents) {
     if (doc.body.length > BODY_LIMIT) errors.push(where(`${doc.id}: 본문 ${doc.body.length}자, 상한 ${BODY_LIMIT}자`));
@@ -56,6 +56,14 @@ export function validateChapter(
       if (!task.options || task.options.length !== 2) errors.push(where(`실 ${key}: 선택지는 2개여야 함`));
       else if (!task.options.includes(task.to)) errors.push(where(`실 ${key}: 선택지에 정답 ${task.to}가 없음`));
     }
+  }
+
+  // 2장 '어느 편도 아닌 나라' 칸: 짝인 문서가 있고, 그 문서에 직접 실이 없고, 선택지 2개에 정답 포함
+  if (chapter.zone) {
+    const z = chapter.zone;
+    if (!docIds.has(z.doc)) errors.push(where(`중립 구역: 문서 '${z.doc}'가 없음`));
+    if (docsWithTask.has(z.doc)) errors.push(where(`중립 구역: 문서 ${z.doc}에 직접 실도 있음`));
+    if (z.options.length !== 2 || !z.options.includes(z.answer)) errors.push(where('중립 구역: 선택지는 2개이고 정답을 포함해야 함'));
   }
 
   // 장 중간에 바뀌는 것(핀 이름, 내려가는 실, 나타나는 배경 실)이 가리키는 문서가 있는지

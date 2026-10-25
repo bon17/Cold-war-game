@@ -17,6 +17,11 @@ export function taskForDoc(chapter: Chapter, docId: string): EdgeTask | undefine
   return chapter.edgeTasks.find((t) => t.mode === 'direct' && t.doc === docId);
 }
 
+// 이 문서를 읽고 학생이 고를 것이 있는지(실 바꾸기, 또는 2장 '어느 편도 아닌 나라' 칸)
+export function hasChoice(chapter: Chapter, docId: string): boolean {
+  return !!taskForDoc(chapter, docId) || chapter.zone?.doc === docId;
+}
+
 // 이 문서를 열면 저절로 바뀌는 실(기획서 5.2 '자동', 4-1 속보)
 export function autoTasksFor(chapter: Chapter, docId: string): EdgeTask[] {
   return chapter.edgeTasks.filter((t) => t.mode === 'auto' && t.doc === docId);
