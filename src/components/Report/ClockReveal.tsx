@@ -15,13 +15,15 @@ import { edgeTitle } from './ReportForm';
 import { StoryCard } from './StoryCard';
 import './Report.css';
 
-// 시계 공개(기획서 5.4, 8.3): 바늘 → 해설 카드 → 본샘일보 1면(예측만). 카드는 '확인'을 눌러야 넘어가고 건너뛸 수 없다.
+// 시계 공개(기획서 5.4, 8.3): (예측이면 도장) → 바늘 → 해설 카드 → 본샘일보 1면(예측만). 카드는 '확인'을 눌러야 넘어가고 건너뛸 수 없다.
 // 바늘은 한 칸씩 끊어 움직이고, 거쳐 가는 해마다 캡션과 함께 약 2.5초 머문다.
 const STEP_MS = 130;
 const HOLD_MS = 2500;
 const PRINT_MS = 2000;
-// 예측이었으면 바늘이 멈춘 뒤 시계 위에 '예측 적중 / 예측 빗나감' 도장이 찍히고 이만큼 머문다(2026-10-25 교사 의견: 틀려도 반응이 없다)
-const VERDICT_MS = 2000;
+// 예측이었으면 보고서를 내자마자 시계 위에 '예측 적중 / 예측 빗나감' 도장이 찍히고 이만큼 머문 뒤 바늘이 움직인다
+// (2026-10-25 교사 의견: 틀려도 반응이 없다 → 도장을 넣음, 이어서 '누르면 바로 도장, 그다음 시계'로 순서를 바꿈)
+const VERDICT_DELAY_MS = 300;   // 보고서 도장 소리와 겹치지 않게
+const VERDICT_MS = 1700;
 
 // 이 지점 공개 전에 시계가 가리키던 분(앞 지점의 마지막 값, 첫 지점이면 장 시작 값)
 function minutesBefore(chapter: Chapter, point: ClockCheckpoint): number {
@@ -47,6 +49,18 @@ export function ClockReveal() {
     const at = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
     let t = 0;
     setVerdict(null);
+    const report = useGame.getState().reports[point.id];
+    if (point.mode === 'predict' && report) {
+      const right = report.direction === point.direction;
+      t += VERDICT_DELAY_MS;
+      at(t, () => {
+        setVerdict(right ? 'right' : 'wrong');
+        if (right) sfx.chime();
+        else sfx.wrong();
+      });
+      t += VERDICT_MS;
+      at(t, () => setVerdict(null));
+    }
     // 처음 걸리는 시계(프롤로그)는 바늘을 돌리지 않고 그 값으로 건다
     let cur = isFirstHang(chapter, point) ? minutesOf(revealPath(point)[0]) : useGame.getState().clockShown.minutes;
     for (const entry of revealPath(point)) {
@@ -71,18 +85,6 @@ export function ClockReveal() {
         setCaption(entry);
       });
       t += 150 + HOLD_MS;
-    }
-    const report = useGame.getState().reports[point.id];
-    if (point.mode === 'predict' && report) {
-      const right = report.direction === point.direction;
-      at(t, () => {
-        setCaption(null);
-        setVerdict(right ? 'right' : 'wrong');
-        sfx.stamp();
-        if (right) sfx.chime();
-        else sfx.wrong();
-      });
-      t += VERDICT_MS;
     }
     at(t, () => {
       setCaption(null);
