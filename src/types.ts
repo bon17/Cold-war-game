@@ -21,6 +21,16 @@ export interface Doc {
   revealAfter?: string;        // 이 시계 지점 뒤에 도착(5-8)
   source?: string;             // 예: '교과서 222쪽 자료 1'
   outsideTextbook?: boolean;
+  map?: DocMap;                // 문서 옆 지도(2-6 쿠바 미사일 위기, 2026-10-26 교사 의견)
+}
+
+// 문서 옆 지도: 해안선은 src/data/maps/<id>.json(Natural Earth로 만든 코드 SVG), 글은 여기(한국어)
+export interface DocMap {
+  id: 'cuba';
+  title: string;
+  labels: Record<'us' | 'mexico' | 'cuba' | 'florida' | 'washington' | 'base' | 'near' | 'far' | 'range', string>;
+  caption: string;
+  source: string;
 }
 
 export interface EdgeTask {
@@ -74,7 +84,7 @@ export interface ClockCheckpoint {
   explanation: string;         // 해설 카드(건너뛸 수 없음)
   wrongNote?: string;          // 정정 보도 문구
   achievement?: string;
-  annotateEdge?: { pair: Pair; mark: 'hotline' };  // 2장 직통선 매듭(끝까지 남음)
+  annotateEdge?: { pair: Pair; mark: 'hotline'; note?: string };  // 2장 직통선 매듭(끝까지 남음). note: 매듭이 생길 때 보드에 띄우는 한 줄
   question?: string;           // 보고서 질문 덮어쓰기(에필로그: '1991년 이후 지금까지, …')
   hint?: string;               // 보고서 질문 아래 도움말(4장: 미국–중국은 가까워졌지만 시계는 미국·소련을 본다는 단서)
   // 나눠 읽는 시계 카드(2026-10-23 교사 결정, 프롤로그): 발표 이유(bulletin.reason)와 explanation을 줄('\n')마다 한 장씩

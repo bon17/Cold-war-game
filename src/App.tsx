@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Board, type BoardPlay } from './components/Board/Board';
 import { BoardNote } from './components/Board/BoardNote';
 import { BoardTable } from './components/Board/BoardTable';
+import { ChangeSpotlight } from './components/Board/ChangeSpotlight';
 import { CalendarYear, Clock } from './components/Clock/Clock';
 import { Desk } from './components/Desk/Desk';
 import { DeskLabels } from './components/Desk/DeskLabels';
@@ -66,7 +67,7 @@ function useSoundEffects() {
 }
 
 export default function App() {
-  const { chapterId, readDocs, board, done, event, flash, flashShown, revealed, reveal, dialogEdge, openDocId, openEdgeDialog, openTable, missEdge, flashDone } = useGame();
+  const { chapterId, readDocs, board, done, event, flash, flashShown, revealed, reveal, dialogEdge, openDocId, openEdgeDialog, openTable, missEdge } = useGame();
   const phase = useSession((s) => s.phase);
   const setPhase = useSession((s) => s.setPhase);
   const chapter = chapterById(chapterId);
@@ -144,10 +145,6 @@ export default function App() {
       // 실 찾기에서는 오래 못 찾을 때만
       hint: action.kind === 'edge' && !dialogEdge && !openDocId && phase === 'desk' && (!seek || seek.hint) ? action.key : undefined,
       seek,
-      flash,
-      // 문서, 실 바꾸기 창, 시계 카드가 보드를 가리는 동안에는 함께 바뀐 실 효과를 미룬다
-      paused: !!openDocId || !!dialogEdge || !!reveal || phase !== 'desk',
-      onFlashDone: flashDone,
       // 에필로그는 남북 흰 실만 밝고 나머지는 1992년의 빛바랜 기록으로 흐리게(2026-10-26 교사 의견)
       faint: new Set(
         chapter.epilogueBoard
@@ -161,7 +158,7 @@ export default function App() {
       onPins: (a, b) => (seek && pairKey([a, b]) === seek.key ? openEdgeDialog(seek.key) : missEdge()),
       onTable: () => openTable(),
     };
-  }, [chapter, readDocs, done, board, dialogEdge, openDocId, anim, openEdgeDialog, openTable, missEdge, phase, action, seek, flash, reveal, flashDone]);
+  }, [chapter, readDocs, done, board, dialogEdge, openDocId, anim, openEdgeDialog, openTable, missEdge, phase, action, seek]);
 
   const atDesk = phase === 'desk';
   const hung = clockHung(chapter, revealed, reveal);
@@ -183,6 +180,8 @@ export default function App() {
                 <ClockReveal />
                 <AboutClock />
                 <BoardTable />
+                {/* 고른 실과 함께 바뀐 실을 차례로 비춘다. 문서나 시계 카드가 가리는 동안에는 기다린다 */}
+                <ChangeSpotlight paused={!!openDocId || !!reveal} />
               </>
             )}
             <MissionCard />

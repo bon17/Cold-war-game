@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { assetUrl } from '../../lib/assets';
+import { DocMap } from './DocMap';
 import { docFinished, taskKey, ZONE_KEY } from '../../lib/board';
 import { chapterById, glossary, strings } from '../../lib/data';
 import { glossaryByDoc, splitBody, type Chunk } from '../../lib/docText';
@@ -91,7 +92,7 @@ export function DocumentViewer() {
 
   return (
     <div className="viewer-backdrop" onClick={(e) => e.target === e.currentTarget && closeDocument()}>
-      <div className="viewer" role="dialog" aria-modal="true" aria-label={doc.title} onClick={onViewerClick}>
+      <div className={`viewer${doc.map ? ' wide' : ''}`} role="dialog" aria-modal="true" aria-label={doc.title} onClick={onViewerClick}>
         <nav className="doc-list">
           <div className="doc-list-heading">{strings.docs.listTitle}</div>
           <ol>
@@ -124,9 +125,10 @@ export function DocumentViewer() {
           <article
             ref={paperRef}
             tabIndex={-1}
-            className={`doc-paper doc-${doc.type}`}
+            className={`doc-paper doc-${doc.type}${doc.map ? ' has-map' : ''}`}
             style={{ ['--paper-grain' as string]: `url(${assetUrl('tex/paper-grain.webp')})` }}
           >
+            <div className="doc-text">
             <header className="doc-head">
               {strings.docs.types[doc.type]} · {docDate(doc)}
             </header>
@@ -146,6 +148,8 @@ export function DocumentViewer() {
                   .join(' · ')}
               </span>
             </footer>
+            </div>
+            {doc.map && <DocMap map={doc.map} />}
           </article>
 
           <div className="viewer-buttons">

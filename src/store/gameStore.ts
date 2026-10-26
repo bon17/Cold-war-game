@@ -4,7 +4,7 @@ import { isUnlocked, nextCheckpoint, nextPredict, revealPath, minutesOf } from '
 import { chapterById, chapters } from '../lib/data';
 import { currentDoc } from '../lib/docFlow';
 import { autoTasksFor, directTask, hasChoice, judge, revealTasksFor, taskForDoc } from '../lib/validateEdge';
-import type { BoardEdge, Chapter, ClockCheckpoint, EdgeTask, Rel } from '../types';
+import type { BoardEdge, Chapter, ClockCheckpoint, EdgeTask, Pair, Rel } from '../types';
 
 // 게임 진행 상태(기획서 3장, 2026-10-23 쉬운 흐름): 문서 읽기 → 그 문서와 짝인 실 바꾸기(둘 중 하나) → 3번 → 시계 예측.
 
@@ -19,9 +19,11 @@ export type BoardEvent =
 export interface EdgeResult { wrong: number; auto?: boolean }
 
 // 함께 바뀐 실(2026-10-26 교사 의견: 한꺼번에 바뀌면 그냥 바뀌어 놓친다 → 나중에 '이거 왜 생겼지?').
-// 저절로 바뀐 실, 내려간 실, 새로 나타난 배경 실, 해설 카드 때 붙은 매듭. 보드가 보일 때(문서·시계 카드가 닫혀 있을 때)
-// 바뀌기 전 모습을 잠깐 깜빡여 보여 준 뒤 새 실로 바뀌며 빛난다(Board). before: 바뀌기 전 퍼즐 실(없던 실은 null)
-export interface AutoFlash { id: number; keys: string[]; before: Record<string, BoardEdge | null>; backgrounds: string[] }
+// 학생이 실을 고르면 그 실이 바뀌고(main), 바로 이어서 함께 바뀐 실(저절로 바뀐 실, 내려간 실, 새로 나타난 배경 실,
+// 해설 카드 때 붙은 매듭)이 하나씩 조명을 받으며 바뀐다(ChangeSpotlight). 다 보여 준 뒤 '맞아요!' 창이 나온다.
+// before/after: 바뀌기 전과 뒤의 실(없으면 null, after가 배경 실이면 background), text: 그 실의 한 줄 설명
+export interface FlashItem { key: string; pair: Pair; before: BoardEdge | null; after: BoardEdge | null; main?: boolean; text: string }
+export interface AutoFlash { id: number; items: FlashItem[] }
 
 // 시계 공개 순서(기획서 8.1): 바늘 → 해설(발표 이유, 저절로 바뀐 실) → 본샘일보 1면(예측만)
 export type RevealStep = 'needle' | 'explanation' | 'newspaper';
@@ -37,8 +39,7 @@ interface GameState {
   done: Record<string, EdgeResult>;// 끝난 실 과제(별, 도전 과제 perfect-board에 쓴다)
   event: (BoardEvent & { id: number }) | null;
   flash: AutoFlash | null;
-  flashShown: number;              // 보드에서 다 보여 준 함께 바뀐 실 효과의 id
-  pendingDoc: string | null;       // 함께 바뀐 실을 보드에서 먼저 보여 준 뒤 열 다음 문서
+  flashShown: number;              // 다 보여 준 함께 바뀐 실 효과의 id
   dialogEdge: string | null;       // 실 바꾸기 창이 열린 실(맞힌 뒤에도 '맞아요!'와 '다음 문서 보기'를 보여 주려고 열어 둔다)
   foundEdge: string | null;        // 학생이 찾아 누른 실. 창에서 '문서 다시 보기'를 했다가 닫으면 그 창을 다시 연다
   clockShown: { minutes: number; year: number };   // 벽시계와 일력에 보이는 값
@@ -55,8 +56,7 @@ interface GameState {
   openEdgeDialog: (key: string) => void;
   closeEdgeDialog: () => void;
   missEdge: (key?: string) => void;   // 찾는 실이 아닌 것을 누름
-  queueDoc: (docId: string) => void;  // '다음 문서 보기': 창을 닫고 함께 바뀐 실을 보드에서 보여 준 뒤 그 문서를 연다
-  flashDone: (id: number) => void;    // 보드가 함께 바뀐 실 효과를 다 보여 줌
+  flashDone: (id: number) => void;    // 함께 바뀐 실 효과를 다 보여 줌
   submitEdge: (key: string, rel: Rel) => void;
   submitZone: (option: string) => void;   // 2장 '어느 편도 아닌 나라' 칸
   openReport: () => void;
@@ -72,20 +72,35 @@ interface GameState {
 let eventId = 0;
 const stamp = (e: BoardEvent) => ({ ...e, id: ++eventId });
 
-// 두 보드 사이에 바뀐 것(skip: 학생이 직접 바꾼 실은 따로 출렁인다)
-function flashOf(chapter: Chapter, prev: DocState & { board: BoardEdge[] }, next: DocState & { board: BoardEdge[] }, skip?: string): AutoFlash | null {
+type Snap = DocState & { board: BoardEdge[] };
+
+// 두 보드 사이에 함께 바뀐 것. 함께 바뀐 것이 없으면 null(학생이 바꾼 실만 출렁인다).
+// main: 학생이 고른 실(맨 앞에 넣는다), note: 해설 카드 때 붙은 매듭의 설명
+function flashOf(chapter: Chapter, prev: Snap, next: Snap, main?: { key: string; text: string }, note?: string): AutoFlash | null {
   const sig = (e?: BoardEdge) => (e ? JSON.stringify([e.rel, e.label ?? '', e.fray ?? false, e.mark ?? '']) : '');
   const prevMap = new Map(prev.board.map((e) => [pairKey(e.pair), e]));
   const nextMap = new Map(next.board.map((e) => [pairKey(e.pair), e]));
-  const before: Record<string, BoardEdge | null> = {};
-  for (const key of new Set([...prevMap.keys(), ...nextMap.keys()])) {
-    if (key === skip || sig(prevMap.get(key)) === sig(nextMap.get(key))) continue;
-    before[key] = prevMap.get(key) ?? null;
-  }
   const had = new Set(backgroundFor(chapter, prev).map((e) => pairKey(e.pair)));
-  const backgrounds = backgroundFor(chapter, next).map((e) => pairKey(e.pair)).filter((k) => !had.has(k));
-  const keys = Object.keys(before);
-  return keys.length || backgrounds.length ? { id: ++eventId, keys, before, backgrounds } : null;
+  const appeared = new Map(backgroundFor(chapter, next).filter((e) => !had.has(pairKey(e.pair))).map((e) => [pairKey(e.pair), e]));
+  const items: FlashItem[] = [];
+  for (const key of new Set([...prevMap.keys(), ...nextMap.keys(), ...appeared.keys()])) {
+    if (key === main?.key) continue;
+    const before = prevMap.get(key) ?? null;
+    const after = nextMap.get(key) ?? appeared.get(key) ?? null;
+    if (sig(before ?? undefined) === sig(after ?? undefined) && !appeared.has(key)) continue;
+    // 설명: 저절로 바뀐 실의 설명, 새 배경 실의 한 줄, 매듭이면 그 설명
+    const task = chapter.edgeTasks.find(
+      (t) => t.mode !== 'direct' && pairKey(t.pair) === key && next.done[taskKey(chapter, t)] && !prev.done[taskKey(chapter, t)],
+    );
+    const bg = chapter.backgroundEdges.find((b) => pairKey(b.pair) === key && appeared.has(key));
+    const text = task?.explanation ?? bg?.note ?? (after?.mark && !before?.mark ? note : undefined) ?? '';
+    items.push({ key, pair: (after ?? before)!.pair, before, after, text });
+  }
+  if (!items.length) return null;
+  if (main) {
+    items.unshift({ key: main.key, pair: (nextMap.get(main.key) ?? prevMap.get(main.key))!.pair, before: prevMap.get(main.key) ?? null, after: nextMap.get(main.key) ?? null, main: true, text: main.text });
+  }
+  return { id: ++eventId, items };
 }
 
 function setEdge(board: BoardEdge[], task: EdgeTask): BoardEdge[] {
@@ -140,7 +155,6 @@ export function initialState(chapterId: string) {
     event: null,
     flash: null,
     flashShown: 0,
-    pendingDoc: null,
     dialogEdge: null,
     foundEdge: null,
     clockShown: { minutes: minutesOf(chapter.startClock ?? {}), year: chapter.calendarYear ?? Number(chapter.period.slice(0, 4)) },
@@ -211,13 +225,7 @@ export const useGame = create<GameState>((set, get) => ({
 
   missEdge: (key) => set({ event: stamp({ kind: 'miss', key }) }),
 
-  queueDoc: (docId) => set({ dialogEdge: null, pendingDoc: docId }),
-
-  flashDone: (id) => {
-    const next = get().pendingDoc;
-    set({ flashShown: id, pendingDoc: null });
-    if (next) get().openDocument(next);
-  },
+  flashDone: (id) => set({ flashShown: id }),
 
   submitEdge: (key, rel) => {
     const s = get();
@@ -229,7 +237,7 @@ export const useGame = create<GameState>((set, get) => ({
     if (judge(task, rel)) {
       const solved = { board: setEdge(s.board, task), done: { ...s.done, [tk]: { wrong: s.wrong[tk] ?? 0 } }, event: s.event };
       const withAuto = task.doc ? finishDoc(chapter, solved, task.doc) : solved;
-      const flash = flashOf(chapter, { ...s, board: solved.board }, { board: withAuto.board, readDocs: s.readDocs, done: withAuto.done }, key);
+      const flash = flashOf(chapter, s, { board: withAuto.board, readDocs: s.readDocs, done: withAuto.done }, { key, text: task.explanation });
       set({
         board: withAuto.board,
         done: withAuto.done,
@@ -290,7 +298,7 @@ export const useGame = create<GameState>((set, get) => ({
       const last = revealPath(point).pop()!;
       const auto = applyAuto(chapter, s, revealTasksFor(chapter, point.id));
       const board = annotate(auto.board, point);
-      const flash = flashOf(chapter, s, { board, readDocs: s.readDocs, done: auto.done });
+      const flash = flashOf(chapter, s, { board, readDocs: s.readDocs, done: auto.done }, undefined, point.annotateEdge?.note);
       set({
         ...auto,
         ...(flash ? { flash } : {}),

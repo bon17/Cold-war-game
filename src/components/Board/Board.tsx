@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { AutoFlash } from '../../store/gameStore';
-import { sfx } from '../../lib/sound';
 import { assetUrl, layout } from '../../lib/assets';
 import { chapterRels, pairKey, ZONE_KEY, type DocState } from '../../lib/board';
 import { boardLayout, edgeCurve, nodeAt, pinTagAnchor, SWATCH_W, type Measure, type PinStyle } from '../../lib/boardLayout';
@@ -33,9 +31,6 @@ export interface BoardPlay {
   // 보드에 아직 없는 새 실(newThread)은 두 나라 핀을 차례로 눌러 잇는다(onPins)
   seek?: { key: string; pair: Pair; hint: boolean; newThread: boolean };
   onPins: (a: NodeId, b: NodeId) => void;
-  flash?: AutoFlash | null;   // 함께 바뀐 실(저절로 바뀐 실, 내려간 실, 새 배경 실, 매듭)
-  paused?: boolean;           // 문서·창·시계 카드가 보드를 가리는 동안에는 함께 바뀐 실 효과를 미룬다
-  onFlashDone?: (id: number) => void;   // 바뀐 모습을 다 보여 줌(다음 문서를 열거나 창밖으로 넘어가도 된다)
   onTable: () => void;
   zone?: 'pending' | 'done';           // 2장 '어느 편도 아닌 나라' 칸: 문서를 읽었으면 빈 칸(누르면 고르기 창), 맞혔으면 나라 이름
 }
@@ -88,36 +83,6 @@ function useFreshRename(chapter: Chapter, progress?: DocState): Set<NodeId> {
   return useMemo(() => new Set(fresh ? (fresh.split(',') as NodeId[]) : []), [fresh]);
 }
 
-// 함께 바뀐 실(2026-10-26 교사 의견: 한꺼번에 바뀌면 그냥 바뀌어 놓친다). 보드가 보일 때 바뀌기 전 모습을 잠깐 깜빡여
-// 보여 준 뒤(before) 새 실로 바뀌며 빛나고 이름표에 '함께 바뀜'이 붙는다(after). 문서나 시계 카드가 가리면 닫힌 뒤에 한다.
-const FLASH_BEFORE_MS = 1300;
-const FLASH_HOLD_MS = 1900;    // 새 실을 보여 준 뒤 다음 문서를 열기까지
-const FLASH_AFTER_MS = 4800;   // 새 실이 빛나는 시간(다음 문서 뒤에서도 이어진다)
-
-function useAutoFlash(flash: AutoFlash | null | undefined, paused: boolean, onDone?: (id: number) => void) {
-  const done = useRef(onDone);
-  done.current = onDone;
-  const [state, setState] = useState<{ id: number; stage: 'before' | 'after' } | null>(null);
-  const started = useRef(0);
-  const timers = useRef<number[]>([]);
-  useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
-  useEffect(() => {
-    if (!flash || paused || started.current === flash.id) return;
-    started.current = flash.id;
-    timers.current.forEach(window.clearTimeout);
-    setState({ id: flash.id, stage: 'before' });
-    timers.current = [
-      window.setTimeout(() => {
-        setState({ id: flash.id, stage: 'after' });
-        sfx.ting('TALK');
-      }, FLASH_BEFORE_MS),
-      window.setTimeout(() => done.current?.(flash.id), FLASH_BEFORE_MS + FLASH_HOLD_MS),
-      window.setTimeout(() => setState(null), FLASH_BEFORE_MS + FLASH_AFTER_MS),
-    ];
-  }, [flash, paused]);
-  return flash && state && state.id === flash.id ? { flash, stage: state.stage } : null;
-}
-
 // 이름표 폭은 실제 글꼴로 잰다. 글꼴이 늦게 내려오면 다시 잰다.
 const ctx = document.createElement('canvas').getContext('2d');
 const measure: Measure = (text, px, bold) => {
@@ -142,28 +107,12 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
   const { stage } = layout;
   const fontsVersion = useFontsVersion();
   const anim = play?.anim;
-  const flashing = useAutoFlash(play?.flash, !!play?.paused, play?.onFlashDone);
-  const edges = useMemo(() => {
-    let list = anim?.kind === 'wrong' && anim.rel
+  const edges = useMemo(
+    () => (anim?.kind === 'wrong' && anim.rel
       ? shown.map((e) => (pairKey(e.pair) === anim.key ? { ...e, rel: anim.rel!, fray: false } : e))
-      : shown;
-    // 함께 바뀐 실의 '바뀌기 전' 모습: 바뀐 실은 예전 모습으로, 새로 생긴 실(배경 실 포함)은 아직 감춘다
-    if (flashing?.stage === 'before') {
-      const keys = new Set(flashing.flash.keys);
-      const bg = new Set(flashing.flash.backgrounds);
-      list = list.filter((e) => (e.background ? !bg.has(pairKey(e.pair)) : !keys.has(pairKey(e.pair))));
-      for (const key of flashing.flash.keys) {
-        const old = flashing.flash.before[key];
-        if (old) list = [...list, { ...old }];
-      }
-    }
-    return list;
-  }, [shown, anim, flashing]);
-  const flashClass = (key: string, background = false) => {
-    if (!flashing) return '';
-    const hit = background ? flashing.flash.backgrounds.includes(key) : flashing.flash.keys.includes(key);
-    return hit ? (flashing.stage === 'before' ? ' flash-old' : ' flash-new') : '';
-  };
+      : shown),
+    [shown, anim],
+  );
   const pins: PinStyle = useMemo(
     () => ({ text: (id) => pinName(chapter, id, progress), side: (id) => pinSide(chapter, id, progress) }),
     [chapter, progress],
@@ -203,9 +152,7 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
         {/* 배경 실은 연하게 그리되 실 종류(같은 편의 파란 이중선)는 알아보게 한다. 너무 흐리면 그냥 선으로 보였다(2026-10-25 교사 의견) */}
         <g opacity={0.55}>
           {background.map((e) => (
-            <g key={pairKey(e.pair)} className={flashClass(pairKey(e.pair), true) || undefined}>
-              <EdgeStroke curve={edgeCurve(e)} rel={e.rel} background />
-            </g>
+            <EdgeStroke key={pairKey(e.pair)} curve={edgeCurve(e)} rel={e.rel} background />
           ))}
         </g>
         {puzzle.map((e) => {
@@ -213,7 +160,7 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
           return (
             <g
               key={`${key}:${anim?.key === key ? anim.id : 0}`}
-              className={`edge-g${animClass(key)}${e.undyed ? ' edge-undyed' : ''}${flashClass(key)}`}
+              className={`edge-g${animClass(key)}${e.undyed ? ' edge-undyed' : ''}`}
               opacity={play?.faint.has(key) ? 0.4 : undefined}
             >
               <EdgeStroke curve={edgeCurve(e)} rel={e.rel} fray={e.fray} hotline={e.mark === 'hotline'} undyed={e.undyed} />
@@ -238,12 +185,10 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
       {puzzle.map((e) => {
         const key = pairKey(e.pair);
         const p = pointAt(edgeCurve(e), labels.get(key)?.t ?? 0.5);
-        const flashed = flashClass(key);
         const content = (
           <>
             <RelSwatch rel={e.rel} width={SWATCH_W} undyed={e.undyed} />
             <span>{edgeName(e)}</span>
-            {flashed === ' flash-new' && <span className="flash-badge">{strings.board.flashBadge}</span>}
           </>
         );
         const faint = play?.faint.has(key) ? ' faint' : '';
@@ -270,7 +215,7 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
             <button
               key={`${key}:${anim?.key === key ? anim.id : 0}`}
               type="button"
-              className={`edge-tag${faint}${animClass(key)}${flashed}`}
+              className={`edge-tag${faint}${animClass(key)}`}
               style={style}
               onClick={() => play.onInfo(key)}
             >
@@ -279,7 +224,7 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
           );
         }
         return (
-          <div key={`${key}:${anim?.key === key ? anim.id : 0}`} className={`edge-tag${animClass(key)}${flashed}`} style={style}>
+          <div key={`${key}:${anim?.key === key ? anim.id : 0}`} className={`edge-tag${animClass(key)}`} style={style}>
             {content}
           </div>
         );

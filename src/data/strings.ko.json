@@ -53,7 +53,13 @@
     "waiting": "다음 문서는 실을 바꾸면 와요."
   },
   "board": {
-    "flashBadge": "함께 바뀜",
+    "spot": {
+      "main": "바뀐 실",
+      "together": "함께 바뀐 실",
+      "removed": "{a}–{b} 실이 내려갔어요",
+      "count": "{n}/{total}",
+      "tap": "누르면 다음"
+    },
     "guide": {
       "title": "지금 할 일",
       "readDoc": "문서 더미를 눌러 새 문서를 읽으세요.",

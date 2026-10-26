@@ -174,9 +174,12 @@ describe('1장', () => {
     expect(rels()).toEqual({ 'SU-US': 'COLD', 'KR-NK': 'COLD', 'KR-SU': 'COLD' });
     expect(background()).toEqual(['KR-US', 'NK-SU']);
     expect(game().done['KR-SU']).toEqual({ wrong: 0, auto: true });
-    // 함께 바뀐 실(2026-10-26): 남한–소련 대립(새 실), 내려간 점령 실 둘, 새로 나타난 배경 실 둘. 학생이 바꾼 남한–북한은 빼고
-    expect(game().flash).toMatchObject({ before: { 'KR-SU': null, 'KR-US': { rel: 'OCCUPY' }, 'NK-SU': { rel: 'OCCUPY' } }, backgrounds: ['KR-US', 'NK-SU'] });
-    expect(game().flash?.keys).not.toContain('KR-NK');
+    // 함께 바뀐 실(2026-10-26): 학생이 고른 남한–북한이 먼저, 이어서 점령 실 둘이 배경 '같은 편'으로, 남한–소련 대립(새 실)
+    const items = game().flash!.items;
+    expect(items[0]).toMatchObject({ key: 'KR-NK', main: true, before: null, after: { rel: 'COLD' } });
+    const rest = Object.fromEntries(items.slice(1).map((i) => [i.key, [i.before?.rel ?? null, i.after?.rel ?? null, i.after?.background ?? false]]));
+    expect(rest).toEqual({ 'KR-US': ['OCCUPY', 'ALLY', true], 'NK-SU': ['OCCUPY', 'ALLY', true], 'KR-SU': [null, 'COLD', false] });
+    expect(items.every((i) => i.text)).toBe(true);   // 모두 한 줄 설명이 있다
   });
 
   it('남한–북한은 두 번 바뀐다: 1948 대립(1-2), 1950 전쟁(1-5). 과제마다 따로 센다', () => {

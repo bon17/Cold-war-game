@@ -330,3 +330,76 @@
   color: var(--tag-paper);
   font-size: 22px;
 }
+
+/* 지도가 있는 문서(2-6 쿠바 미사일 위기, 2026-10-26): 창을 넓혀 글 왼쪽, 지도 오른쪽. 좁은 화면에서는 지도가 아래로 */
+.viewer.wide {
+  width: min(1320px, 98vw);
+}
+.doc-paper.has-map {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+}
+.doc-paper.has-map .doc-text {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.doc-figure {
+  flex: 1.1 1 0;
+  min-width: 0;
+  margin: 0;
+}
+.doc-figure-title {
+  font-weight: 700;
+  font-size: 19px;
+  margin-bottom: 4px;
+}
+.doc-map {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  border: 1.5px solid var(--string-outline);
+  border-radius: 2px;
+  font-family: 'Gowun Batang', serif;
+}
+.map-sea { fill: #cfdbe0; }
+.map-land { fill: #ece4d0; stroke: #6b5a44; stroke-width: 1; stroke-linejoin: round; }
+.map-land.us { fill: #f4ecd8; }
+.map-land.cuba { fill: #e6b8a6; stroke: #7a3a2c; stroke-width: 1.5; }
+.map-range { fill: rgba(168, 50, 42, 0.12); stroke: #a8322a; stroke-width: 2.5; stroke-dasharray: 10 7; }
+.map-line { stroke-width: 3.5; stroke-linecap: round; }
+.map-line.far { stroke: #a8322a; }
+.map-line.near { stroke: #2a2118; }
+.map-dc { fill: #2a2118; stroke: #fff8ec; stroke-width: 2; }
+.map-base { fill: #a8322a; stroke: #fff8ec; stroke-width: 2; }
+.map-label {
+  font-size: 24px;
+  fill: #2a2118;
+  paint-order: stroke;
+  stroke: rgba(255, 252, 244, 0.9);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+.map-label.country { font-size: 30px; font-weight: 700; fill: #5a4a36; }
+.map-label.country.cuba { fill: #7a3a2c; }
+.map-label.small { font-size: 23px; }
+.map-label.distance { font-weight: 700; fill: #a8322a; }
+.map-label.distance.near { fill: #2a2118; }
+.map-label.base { font-size: 22px; font-weight: 700; fill: #a8322a; text-anchor: end; }
+.map-label.range { font-size: 21px; fill: #a8322a; }
+.doc-figure-caption {
+  margin: 6px 0 0;
+  font-size: 18px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.doc-figure-source {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: #6b5a44;
+}
+@media (max-width: 1100px) {
+  .doc-paper.has-map { display: block; }
+  .doc-figure { margin-top: 12px; }
+}
