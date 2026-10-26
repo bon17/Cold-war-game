@@ -2,7 +2,9 @@ import type { Rel } from '../../types';
 import { evenSpots, pathD, pointAt, angleAt, type Curve } from '../../lib/stringPath';
 
 // 실 한 가닥. 색 + 무늬 + 잉크 외곽선(아트 계획서 3.7). 모든 숫자는 무대 px.
-// 같은 편 = 이중선, 대립 = 홑실선, 전쟁 = 가시선, 대화 = 긴 파선, 수교·협력 = 매듭선, 점령 = 짧은 점선.
+// 같은 편 = 이중선, 대립 = 긴 파선, 전쟁 = 가시선, 대화 = 홑실선, 수교·협력 = 매듭선, 점령 = 둥근 점선.
+// 2026-10-26 교사 의견("대화는 실이 끊겨 있고 대립이 오히려 연결된 느낌")으로 대화와 대립의 무늬를 서로 바꿨다.
+// 같은 회색인 대립(긴 파선)과 점령이 1장에서 함께 나오므로 점령은 둥근 점으로 더 갈랐다.
 
 const COLOR: Record<Rel, string> = {
   ALLY: 'var(--string-ally)',
@@ -13,7 +15,7 @@ const COLOR: Record<Rel, string> = {
   OCCUPY: 'var(--string-cold)',
 };
 const WIDTH: Record<Rel, number> = { ALLY: 7.5, COLD: 5, WAR: 6, TALK: 5, NORMAL: 5, OCCUPY: 4 };
-const DASH: Partial<Record<Rel, string>> = { TALK: '18 10', OCCUPY: '4 8' };
+const DASH: Partial<Record<Rel, string>> = { COLD: '18 10', OCCUPY: '0.1 10' };
 const OUTLINE = 1.5;
 const INK = 'var(--string-outline)';
 
@@ -45,7 +47,7 @@ export function EdgeStroke({ curve, rel, fray, hotline, undyed, background, comp
   const color = COLOR[rel];
   const d = pathD(curve);
   const dash = DASH[rel];
-  const cap = dash ? 'butt' : 'round';
+  const cap = dash && rel !== 'OCCUPY' ? 'butt' : 'round';
   const margin = compact ? 6 : 26;   // 핀 근처는 장식을 비운다
 
   return (
