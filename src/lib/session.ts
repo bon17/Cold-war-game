@@ -64,10 +64,12 @@ function startNext(next: string) {
   useSession.getState().setPhase('cover');
 }
 
+// 다음 장이 있으면 그 장 표지로. 2장 → 3장(차시가 바뀌는 곳)도 바로 넘어간다(2026-10-26 교사 결정: 막 시작 코드를 넣어야
+// 넘어가는 것이 불편하다). 다음 시간에는 이름 → '이어하기'나 코드 '핑퐁외교'로 3장부터 할 수 있다.
 export function goNextChapter() {
   const { chapterId } = useGame.getState();
   const next = nextChapterId(chapterId);
-  if (!next || endsSession(chapterId)) {
+  if (!next) {
     useSession.getState().setPhase('end');
     return;
   }

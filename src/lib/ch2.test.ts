@@ -119,13 +119,13 @@ describe('1차시 끝', () => {
     useSession.setState({ phase: 'result', name: '일장' });
   });
 
-  it('2장을 마치면 3장으로 바로 가지 않고 끝 화면', () => {
+  it('2장을 마치면 3장 표지로 바로 간다(2026-10-26 교사 결정)', () => {
     goNextChapter();
-    expect(useSession.getState().phase).toBe('end');
-    expect(game().chapterId).toBe('ch2');
+    expect(useSession.getState().phase).toBe('cover');
+    expect(game().chapterId).toBe('ch3');
   });
 
-  it('끝 화면에서 저장된 기록으로 이어하면 3장 표지부터', () => {
+  it('예전 1차시 끝 화면에서 멈춘 기록으로 이어하면 3장 표지부터', () => {
     resume({ name: '일장', updatedAt: 0, chapterId: 'ch2', progress: { phase: 'end', game: {} }, stars: {}, achievements: [], archive: [] });
     expect(game().chapterId).toBe('ch3');
     expect(useSession.getState().phase).toBe('cover');

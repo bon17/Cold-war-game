@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { applyTask, endingAt, pairKey, taskKey, ZONE_KEY } from '../lib/board';
+import { applyTask, backgroundFor, endingAt, pairKey, taskKey, ZONE_KEY, type DocState } from '../lib/board';
 import { isUnlocked, nextCheckpoint, nextPredict, revealPath, minutesOf } from '../lib/clockFlow';
 import { chapterById, chapters } from '../lib/data';
 import { currentDoc } from '../lib/docFlow';
@@ -18,6 +18,11 @@ export type BoardEvent =
 
 export interface EdgeResult { wrong: number; auto?: boolean }
 
+// 함께 바뀐 실(2026-10-26 교사 의견: 한꺼번에 바뀌면 그냥 바뀌어 놓친다 → 나중에 '이거 왜 생겼지?').
+// 저절로 바뀐 실, 내려간 실, 새로 나타난 배경 실, 해설 카드 때 붙은 매듭. 보드가 보일 때(문서·시계 카드가 닫혀 있을 때)
+// 바뀌기 전 모습을 잠깐 깜빡여 보여 준 뒤 새 실로 바뀌며 빛난다(Board). before: 바뀌기 전 퍼즐 실(없던 실은 null)
+export interface AutoFlash { id: number; keys: string[]; before: Record<string, BoardEdge | null>; backgrounds: string[] }
+
 // 시계 공개 순서(기획서 8.1): 바늘 → 해설(발표 이유, 저절로 바뀐 실) → 본샘일보 1면(예측만)
 export type RevealStep = 'needle' | 'explanation' | 'newspaper';
 export interface Report { direction: 'closer' | 'farther' }
@@ -31,6 +36,7 @@ interface GameState {
   wrong: Record<string, number>;   // 실마다 틀린 횟수
   done: Record<string, EdgeResult>;// 끝난 실 과제(별, 도전 과제 perfect-board에 쓴다)
   event: (BoardEvent & { id: number }) | null;
+  flash: AutoFlash | null;
   dialogEdge: string | null;       // 실 바꾸기 창이 열린 실(맞힌 뒤에도 '맞아요!'와 '다음 문서 보기'를 보여 주려고 열어 둔다)
   foundEdge: string | null;        // 학생이 찾아 누른 실. 창에서 '문서 다시 보기'를 했다가 닫으면 그 창을 다시 연다
   clockShown: { minutes: number; year: number };   // 벽시계와 일력에 보이는 값
@@ -61,6 +67,22 @@ interface GameState {
 
 let eventId = 0;
 const stamp = (e: BoardEvent) => ({ ...e, id: ++eventId });
+
+// 두 보드 사이에 바뀐 것(skip: 학생이 직접 바꾼 실은 따로 출렁인다)
+function flashOf(chapter: Chapter, prev: DocState & { board: BoardEdge[] }, next: DocState & { board: BoardEdge[] }, skip?: string): AutoFlash | null {
+  const sig = (e?: BoardEdge) => (e ? JSON.stringify([e.rel, e.label ?? '', e.fray ?? false, e.mark ?? '']) : '');
+  const prevMap = new Map(prev.board.map((e) => [pairKey(e.pair), e]));
+  const nextMap = new Map(next.board.map((e) => [pairKey(e.pair), e]));
+  const before: Record<string, BoardEdge | null> = {};
+  for (const key of new Set([...prevMap.keys(), ...nextMap.keys()])) {
+    if (key === skip || sig(prevMap.get(key)) === sig(nextMap.get(key))) continue;
+    before[key] = prevMap.get(key) ?? null;
+  }
+  const had = new Set(backgroundFor(chapter, prev).map((e) => pairKey(e.pair)));
+  const backgrounds = backgroundFor(chapter, next).map((e) => pairKey(e.pair)).filter((k) => !had.has(k));
+  const keys = Object.keys(before);
+  return keys.length || backgrounds.length ? { id: ++eventId, keys, before, backgrounds } : null;
+}
 
 function setEdge(board: BoardEdge[], task: EdgeTask): BoardEdge[] {
   const key = pairKey(task.pair);
@@ -112,6 +134,7 @@ export function initialState(chapterId: string) {
     wrong: {},
     done: {},
     event: null,
+    flash: null,
     dialogEdge: null,
     foundEdge: null,
     clockShown: { minutes: minutesOf(chapter.startClock ?? {}), year: chapter.calendarYear ?? Number(chapter.period.slice(0, 4)) },
@@ -145,8 +168,10 @@ export const useGame = create<GameState>((set, get) => ({
     const s = get();
     const chapter = chapterById(s.chapterId);
     const first = !s.readDocs.includes(docId);
-    const auto = first && !hasChoice(chapter, docId) ? finishDoc(chapter, s, docId) : {};
-    set({ ...auto, openDocId: docId, openDocFresh: first, dialogEdge: null, readDocs: first ? [...s.readDocs, docId] : s.readDocs });
+    const auto = first && !hasChoice(chapter, docId) ? finishDoc(chapter, s, docId) : undefined;
+    const readDocs = first ? [...s.readDocs, docId] : s.readDocs;
+    const flash = auto ? flashOf(chapter, s, { board: auto.board, readDocs, done: auto.done }) : null;
+    set({ ...(auto ?? {}), ...(flash ? { flash } : {}), openDocId: docId, openDocFresh: first, dialogEdge: null, readDocs });
   },
 
   closeDocument: () => {
@@ -190,9 +215,11 @@ export const useGame = create<GameState>((set, get) => ({
     if (judge(task, rel)) {
       const solved = { board: setEdge(s.board, task), done: { ...s.done, [tk]: { wrong: s.wrong[tk] ?? 0 } }, event: s.event };
       const withAuto = task.doc ? finishDoc(chapter, solved, task.doc) : solved;
+      const flash = flashOf(chapter, { ...s, board: solved.board }, { board: withAuto.board, readDocs: s.readDocs, done: withAuto.done }, key);
       set({
         board: withAuto.board,
         done: withAuto.done,
+        ...(flash ? { flash } : {}),
         event: stamp({ kind: 'ok', key, allDone: allDirectDone(chapter, withAuto.done) }),
       });
       return;
@@ -210,7 +237,8 @@ export const useGame = create<GameState>((set, get) => ({
     if (option === zone.answer) {
       const solved = { board: s.board, done: { ...s.done, [ZONE_KEY]: { wrong: s.wrong[ZONE_KEY] ?? 0 } }, event: s.event };
       const after = finishDoc(chapter, solved, zone.doc);
-      set({ board: after.board, done: after.done, event: stamp({ kind: 'ok', key: ZONE_KEY, allDone: allDirectDone(chapter, after.done) }) });
+      const flash = flashOf(chapter, s, { board: after.board, readDocs: s.readDocs, done: after.done });
+      set({ board: after.board, done: after.done, ...(flash ? { flash } : {}), event: stamp({ kind: 'ok', key: ZONE_KEY, allDone: allDirectDone(chapter, after.done) }) });
       return;
     }
     set({ wrong: { ...s.wrong, [ZONE_KEY]: (s.wrong[ZONE_KEY] ?? 0) + 1 }, event: stamp({ kind: 'wrong', key: ZONE_KEY, option }) });
@@ -247,9 +275,12 @@ export const useGame = create<GameState>((set, get) => ({
       // 바늘이 멈추면 과학자들이 든 이유와 함께 그 지점의 실이 저절로 바뀌고, 실에 표시가 붙는다(직통선)
       const last = revealPath(point).pop()!;
       const auto = applyAuto(chapter, s, revealTasksFor(chapter, point.id));
+      const board = annotate(auto.board, point);
+      const flash = flashOf(chapter, s, { board, readDocs: s.readDocs, done: auto.done });
       set({
         ...auto,
-        board: annotate(auto.board, point),
+        ...(flash ? { flash } : {}),
+        board,
         clockShown: { minutes: minutesOf(last), year: last.year },
         reveal: { pointId: point.id, step: 'explanation' },
       });

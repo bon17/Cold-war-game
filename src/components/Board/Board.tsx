@@ -41,7 +41,7 @@ function NeutralZone({ task, state, hint, onPick }: { task: ZoneTask; state: 'pe
   const style = { left: x, top: y, width: w, height: h };
   if (state === 'pending') {
     return (
-      <button type="button" className="neutral-zone pending" style={style} aria-label={task.question} onClick={onPick}>
+      <button type="button" className={`neutral-zone pending${hint ? ' hinted' : ''}`} style={style} aria-label={task.question} onClick={onPick}>
         <span className="neutral-zone-title">{task.title}</span>
         <span className="neutral-zone-empty" aria-hidden="true">?</span>
         {hint && <TapHint />}
@@ -200,7 +200,7 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
               key={key}
               type="button"
               data-edge-key={key}
-              className={`edge-tag${seek && !seek.hint ? '' : ' pending'}${animClass(key)}`}
+              className={`edge-tag${seek && !seek.hint ? '' : ' pending'}${play.hint === key ? ' hinted' : ''}${animClass(key)}`}
               style={style}
               aria-label={fmt(strings.board.dialog.title, { a, b })}
               onClick={() => play.onPick(key)}
@@ -239,7 +239,7 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
             <button
               key={id}
               type="button"
-              className={`pin-tag pin-pick${firstPin === id ? ' picked' : ''}${tieHint.has(id) ? ' pending' : ''}`}
+              className={`pin-tag pin-pick${firstPin === id ? ' picked' : ''}${tieHint.has(id) ? ' pending' : ''}${tieHint.has(id) && id === seek.pair[0] ? ' hinted' : ''}`}
               style={style}
               aria-pressed={firstPin === id}
               onClick={() => pickPin(id)}
