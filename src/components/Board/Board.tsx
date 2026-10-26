@@ -4,7 +4,7 @@ import { chapterRels, pairKey, ZONE_KEY, type DocState } from '../../lib/board';
 import { boardLayout, edgeCurve, nodeAt, pinTagAnchor, SWATCH_W, type Measure, type PinStyle } from '../../lib/boardLayout';
 import { nodes, oldPinName, pinName, pinSide, strings } from '../../lib/data';
 import { pointAt } from '../../lib/stringPath';
-import type { BoardEdge, Chapter, NodeId, Rel, ZoneTask } from '../../types';
+import type { BoardEdge, Chapter, NodeId, Pair, Rel, ZoneTask } from '../../types';
 import { fmt } from '../../lib/format';
 import { TapHint } from '../Desk/TapHint';
 import { EdgeStroke, RelSwatch } from './EdgeStroke';
@@ -26,7 +26,11 @@ export interface BoardPlay {
   faint: Set<string>;       // 이번 장에서 바뀌지 않는 실: 흐리게 그린다
   anim?: { key: string; kind: 'ok' | 'wrong'; rel?: Rel; id: number };   // 맞으면 출렁, 틀리면 고른 종류로 잠깐 보였다가 흔들리며 돌아감
   onPick: (key: string) => void;       // 바꿀 실 → 실 바꾸기 창
-  onInfo: (key: string) => void;       // 그 밖의 실 → 실 이력표(표로 보기)
+  onInfo: (key: string) => void;       // 그 밖의 실 → 실 이력표(표로 보기). 실을 찾는 중이면 '두 나라를 찾아보세요'
+  // 실 찾기(1장부터, 2026-10-26): 바꿀 실도 반짝이지 않고 다른 실과 똑같이 보인다. 오래 못 찾으면(hint) 반짝인다.
+  // 보드에 아직 없는 새 실(newThread)은 두 나라 핀을 차례로 눌러 잇는다(onPins)
+  seek?: { key: string; pair: Pair; hint: boolean; newThread: boolean };
+  onPins: (a: NodeId, b: NodeId) => void;
   onTable: () => void;
   zone?: 'pending' | 'done';           // 2장 '어느 편도 아닌 나라' 칸: 문서를 읽었으면 빈 칸(누르면 고르기 창), 맞혔으면 나라 이름
 }
@@ -114,9 +118,24 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
     [chapter, progress],
   );
   const fresh = useFreshRename(chapter, progress);
+  const seek = play?.seek;
+  // 새 실 잇기: 처음 누른 핀(두 번째 핀을 누르면 잇는다)
+  const [firstPin, setFirstPin] = useState<NodeId | null>(null);
+  useEffect(() => setFirstPin(null), [seek?.key, seek?.newThread]);
   const zoneState = chapter.zone ? play?.zone : undefined;
   const obstacles = useMemo(() => (zoneState ? [layout.neutralZone] : []), [zoneState]);
-  const { pinIds, labels } = useMemo(() => boardLayout(edges, measure, edgeName, pins, obstacles), [edges, pins, obstacles, fontsVersion]);
+  const { pinIds: edgePins, labels } = useMemo(() => boardLayout(edges, measure, edgeName, pins, obstacles), [edges, pins, obstacles, fontsVersion]);
+  // 새 실을 이을 때는 아직 실이 없는 나라의 핀도 꽂아 둔다(1장 1-4 중국)
+  const pinIds = seek?.newThread ? [...new Set([...edgePins, ...seek.pair])] : edgePins;
+  const tieHint = seek?.newThread && seek.hint ? new Set<NodeId>(seek.pair) : new Set<NodeId>();
+  const pickPin = (id: NodeId) => {
+    if (!firstPin) setFirstPin(id);
+    else if (firstPin === id) setFirstPin(null);
+    else {
+      play?.onPins(firstPin, id);
+      setFirstPin(null);
+    }
+  };
   const animClass = (key: string) => (anim?.key === key ? (anim.kind === 'ok' ? ' settle' : ' shake') : '');
   const background = edges.filter((e) => e.background);
   const hotline = edges.find((e) => e.mark === 'hotline');
@@ -181,7 +200,7 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
               key={key}
               type="button"
               data-edge-key={key}
-              className={`edge-tag pending${animClass(key)}`}
+              className={`edge-tag${seek && !seek.hint ? '' : ' pending'}${animClass(key)}`}
               style={style}
               aria-label={fmt(strings.board.dialog.title, { a, b })}
               onClick={() => play.onPick(key)}
@@ -213,12 +232,25 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
       {pinIds.map((id) => {
         const a = pinTagAnchor(id, pins.side(id));
         const old = oldPinName(chapter, id, progress);
+        const style = { left: a.x, top: a.y, transform: `translate(${a.tx * 100}%, ${a.ty * 100}%)` };
+        if (seek?.newThread) {
+          // 새 실 잇기: 핀 이름표가 단추가 된다. 처음 누른 핀은 표시해 두고, 오래 못 찾으면 이을 두 핀이 반짝인다
+          return (
+            <button
+              key={id}
+              type="button"
+              className={`pin-tag pin-pick${firstPin === id ? ' picked' : ''}${tieHint.has(id) ? ' pending' : ''}`}
+              style={style}
+              aria-pressed={firstPin === id}
+              onClick={() => pickPin(id)}
+            >
+              {pins.text(id)}
+              {tieHint.has(id) && id === seek.pair[0] && <TapHint />}
+            </button>
+          );
+        }
         return (
-          <div
-            key={id}
-            className={`pin-tag${fresh.has(id) ? ' fresh' : ''}`}
-            style={{ left: a.x, top: a.y, transform: `translate(${a.tx * 100}%, ${a.ty * 100}%)` }}
-          >
+          <div key={id} className={`pin-tag${fresh.has(id) ? ' fresh' : ''}`} style={style}>
             {old && <s className="pin-old">{old}</s>}
             {pins.text(id)}
           </div>

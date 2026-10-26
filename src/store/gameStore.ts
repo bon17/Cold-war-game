@@ -13,7 +13,8 @@ export type BoardEvent =
   | { kind: 'reportLocked' }
   | { kind: 'ok'; key: string; allDone: boolean }
   | { kind: 'auto'; key: string }
-  | { kind: 'wrong'; key: string; rel?: Rel; option?: string };   // option: 중립 구역에서 고른 것
+  | { kind: 'wrong'; key: string; rel?: Rel; option?: string }    // option: 중립 구역에서 고른 것
+  | { kind: 'miss'; key?: string };   // 실을 찾을 때 다른 실(또는 다른 핀 두 개)을 누름. key: 누른 실
 
 export interface EdgeResult { wrong: number; auto?: boolean }
 
@@ -31,6 +32,7 @@ interface GameState {
   done: Record<string, EdgeResult>;// 끝난 실 과제(별, 도전 과제 perfect-board에 쓴다)
   event: (BoardEvent & { id: number }) | null;
   dialogEdge: string | null;       // 실 바꾸기 창이 열린 실(맞힌 뒤에도 '맞아요!'와 '다음 문서 보기'를 보여 주려고 열어 둔다)
+  foundEdge: string | null;        // 학생이 찾아 누른 실. 창에서 '문서 다시 보기'를 했다가 닫으면 그 창을 다시 연다
   clockShown: { minutes: number; year: number };   // 벽시계와 일력에 보이는 값
   revealed: string[];              // 끝난 시계 지점
   reports: Record<string, Report>; // 시계 지점마다 낸 보고서
@@ -40,10 +42,11 @@ interface GameState {
   aboutClock: boolean;             // 시계 설명 카드
   table: { focus: string | null } | null;   // 표로 보기(실 이력표). focus: 강조할 실
   openDocument: (docId: string) => void;
-  closeDocument: () => void;       // 다 읽었으면 짝인 실의 바꾸기 창을 연다
+  closeDocument: () => void;       // 처음 하는 장(프롤로그)이면 짝인 실의 바꾸기 창을 연다. 다른 장은 학생이 보드에서 실을 찾아 누른다
   finishDocument: () => void;      // '다 읽었어요': 실이 없는 문서면 다음 문서를 바로 열고, 아니면 닫는다
   openEdgeDialog: (key: string) => void;
   closeEdgeDialog: () => void;
+  missEdge: (key?: string) => void;   // 찾는 실이 아닌 것을 누름
   submitEdge: (key: string, rel: Rel) => void;
   submitZone: (option: string) => void;   // 2장 '어느 편도 아닌 나라' 칸
   openReport: () => void;
@@ -110,6 +113,7 @@ export function initialState(chapterId: string) {
     done: {},
     event: null,
     dialogEdge: null,
+    foundEdge: null,
     clockShown: { minutes: minutesOf(chapter.startClock ?? {}), year: chapter.calendarYear ?? Number(chapter.period.slice(0, 4)) },
     revealed: [],
     reports: {},
@@ -150,8 +154,11 @@ export const useGame = create<GameState>((set, get) => ({
     const chapter = chapterById(s.chapterId);
     const task = s.openDocId ? taskForDoc(chapter, s.openDocId) : undefined;
     const zone = chapter.zone && chapter.zone.doc === s.openDocId && !s.done[ZONE_KEY] ? ZONE_KEY : null;
-    const open = task && !s.done[taskKey(chapter, task)] ? pairKey(task.pair) : zone;
-    set({ openDocId: null, openDocFresh: false, dialogEdge: open, reveal: s.reveal ?? showToStart(s) });
+    const open = task && !s.done[taskKey(chapter, task)] ? pairKey(task.pair) : null;
+    // 1장부터는 창을 저절로 열지 않는다: 학생이 문서에 나온 두 나라의 실을 찾아 누른다(2026-10-26 교사 결정, 실을 잇는 느낌).
+    // 이미 찾았던 실(창에서 '문서 다시 보기')과 2장 '어느 편도 아닌 나라' 칸은 다시 연다
+    const dialog = chapter.tutorial || (open && open === s.foundEdge) ? open : zone;
+    set({ openDocId: null, openDocFresh: false, dialogEdge: dialog, reveal: s.reveal ?? showToStart(s) });
   },
 
   // 실이 없는 문서(프롤로그 P-2)에서 '다 읽었어요'를 누르면 닫지 않고 다음 문서로 넘어간다(2026-10-23 교사 의견).
@@ -167,9 +174,11 @@ export const useGame = create<GameState>((set, get) => ({
     get().closeDocument();
   },
 
-  openEdgeDialog: (key) => set({ dialogEdge: key }),
+  openEdgeDialog: (key) => set({ dialogEdge: key, foundEdge: key }),
 
   closeEdgeDialog: () => set({ dialogEdge: null }),
+
+  missEdge: (key) => set({ event: stamp({ kind: 'miss', key }) }),
 
   submitEdge: (key, rel) => {
     const s = get();

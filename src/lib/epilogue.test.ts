@@ -64,4 +64,10 @@ describe('에필로그', () => {
     expect(frames[frames.length - 1].chapter).toBe('epilogue');
     for (const c of chapters.filter((c) => c.id !== 'epilogue')) expect(c.window.link, c.id).toBeTruthy();
   });
+
+  it('1~5장 창밖에 그날의 당직 일지. 5장 일지의 선배(1945년부터)가 에필로그 편지를 쓴 사람', () => {
+    for (const id of ['ch1', 'ch2', 'ch3', 'ch4', 'ch5']) expect(chapterById(id).window.diary, id).toBeTruthy();
+    expect(chapterById('ch5').window.diary).toContain('1945년');
+    expect(ep.finale!.letter.signature).toContain('1945년');
+  });
 });

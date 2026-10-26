@@ -33,18 +33,27 @@ describe('게임 상태: 문서 하나 → 실 하나(2026-10-23 쉬운 흐름)'
     expect(game().openDocId).toBe('3-3');
   });
 
-  it('문서를 닫으면 짝인 실의 바꾸기 창이 저절로 열린다', () => {
+  it('1장부터는 문서를 닫아도 창이 저절로 열리지 않는다. 학생이 실을 찾아 누르면 열리고, 창에서 문서를 다시 보고 닫으면 다시 열린다', () => {
     game().openDocument('3-3');
     expect(game().dialogEdge).toBeNull();      // 읽는 동안에는 열지 않는다
     game().closeDocument();
     expect(game().openDocId).toBeNull();
-    expect(game().dialogEdge).toBe('CN-SU');
+    expect(game().dialogEdge).toBeNull();      // 2026-10-26: 학생이 보드에서 실을 찾는다
     expect(action()).toEqual({ kind: 'edge', key: 'CN-SU' });
+    game().missEdge('CN-US');                  // 다른 실을 누르면
+    expect(game().event).toMatchObject({ kind: 'miss', key: 'CN-US' });
+    game().openEdgeDialog('CN-SU');            // 찾았다
+    expect(game().dialogEdge).toBe('CN-SU');
+    game().openDocument('3-3');                // 창의 '문서 다시 보기'
+    expect(game().dialogEdge).toBeNull();
+    game().closeDocument();
+    expect(game().dialogEdge).toBe('CN-SU');   // 이미 찾은 실이라 다시 연다
   });
 
   it('맞으면 실이 바뀌고(균열은 사라짐) 다음 문서가 할 일이 된다', () => {
     game().openDocument('3-3');
     game().closeDocument();
+    game().openEdgeDialog('CN-SU');
     game().submitEdge('CN-SU', 'COLD');
     expect(edge('CN-SU')).toEqual({ pair: ['CN', 'SU'], rel: 'COLD' });
     expect(game().done['CN-SU']).toEqual({ wrong: 0 });
@@ -58,6 +67,7 @@ describe('게임 상태: 문서 하나 → 실 하나(2026-10-23 쉬운 흐름)'
   it('틀리면 창은 열린 채로 남고 틀린 횟수만 센다', () => {
     game().openDocument('3-3');
     game().closeDocument();
+    game().openEdgeDialog('CN-SU');
     game().submitEdge('CN-SU', 'ALLY');
     expect(game().event).toMatchObject({ kind: 'wrong', key: 'CN-SU', rel: 'ALLY' });
     expect(game().dialogEdge).toBe('CN-SU');

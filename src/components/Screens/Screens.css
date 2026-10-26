@@ -451,3 +451,38 @@ select.start-input {
   font: 700 26px/1.3 'Nanum Gothic Coding', monospace;
   text-align: center;
 }
+
+/* 그날의 당직 일지(2026-10-26): 창밖 장면 왼쪽 위에 붙은 손글씨 쪽지 */
+.window-diary {
+  position: absolute;
+  left: 3vw;
+  top: 64px;
+  box-sizing: border-box;
+  width: min(380px, 44vw);
+  padding: 10px 16px 12px;
+  background: #efe2c2;
+  background-image: var(--paper-grain);
+  border-radius: 2px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55);
+  color: #2e2418;
+  transform: rotate(-2deg);
+  animation: diary-in 900ms ease-out 1.2s both;
+}
+.window-diary-title {
+  font: 700 15px 'Gowun Batang', serif;
+  color: #6b5a44;
+  border-bottom: 1px solid rgba(46, 36, 24, 0.3);
+  margin-bottom: 4px;
+}
+.window-diary p {
+  margin: 0;
+  font: 700 23px/1.45 'Gaegu', 'Gowun Batang', cursive;
+  word-break: keep-all;
+}
+@keyframes diary-in {
+  from { opacity: 0; transform: rotate(-2deg) translateY(-12px); }
+  to { opacity: 1; transform: rotate(-2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .window-diary { animation: none; }
+}

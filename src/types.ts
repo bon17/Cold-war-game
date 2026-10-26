@@ -92,6 +92,9 @@ export interface Chapter {
   calendarYear?: number;       // 장 시작에 일력이 보여 줄 해. 없으면 period의 앞 네 자리(에필로그는 period가 '지금'이라 2026)
   code: string;                // 막 시작 코드(한글 4글자). 다른 곳에 두지 않는다
   room: RoomId;
+  // 처음 하는 장(프롤로그): 문서를 다 읽으면 실 바꾸기 창이 저절로 열리고, 핵심 구절 형광펜을 처음부터 보여 준다.
+  // 다른 장은 학생이 보드에서 실을 찾아 누르고(새 실은 핀 두 개를 이어), 형광펜은 틀렸을 때 보여 준다(2026-10-26 교사 결정)
+  tutorial?: boolean;
   cover: { image: string; alt: string; question: string };
   startClock: { minutes?: number; seconds?: number } | null;  // 프롤로그는 null(아직 걸리지 않음)
   startNote?: { text: string; signature: string };            // 장 시작 쪽지(2장)
@@ -123,7 +126,8 @@ export interface Chapter {
   paper?: { masthead: string; dateline: string; headlineCloser: string; headlineFarther: string };   // 1면 덮어쓰기(에필로그 BONSSAM)
   finale?: Finale;
   // link: 창밖 사람들과 보드의 실을 이어 주는 한 줄, note: 그 아래 한 줄 더(프롤로그만: 창의 의미). 2026-10-25 교사 의견
-  window: { image: string; caption: string; alt: string; link?: string; note?: string; crop?: { x: number; w: number } };
+  // diary: 그 시절 7번 자리 당직자의 손글씨 일지 한두 줄(허구, 1~5장). 5장 일지의 '선배'가 에필로그 편지를 쓴 1945년 당직자다(2026-10-26)
+  window: { image: string; caption: string; alt: string; link?: string; note?: string; diary?: string; crop?: { x: number; w: number } };
 }
 
 // 에필로그 끝맺음(2026-10-25 교사 결정, docs/drafts/epilogue.md): 시계 공개 뒤 80년의 창 → 서랍 속 편지 → 쓰기 화면 →

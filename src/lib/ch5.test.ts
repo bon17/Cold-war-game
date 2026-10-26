@@ -66,7 +66,8 @@ describe('5장', () => {
     playTo56();
     expect(action()).toEqual({ kind: 'doc', docId: '5-7' });
     read('5-7');
-    expect(game().dialogEdge).toBe('KR-SU');
+    expect(game().dialogEdge).toBeNull();   // 1장부터는 학생이 실을 찾아 누른다
+    expect(nextAction(chapterById(game().chapterId), game())).toEqual({ kind: 'edge', key: 'KR-SU' });
     expect(pinName(ch5, 'SU', game(), '5-7')).toBe('러시아');   // 질문: 남한–러시아
     game().submitEdge('KR-SU', 'NORMAL');
     expect(edge('CN-KR')?.rel).toBe('NORMAL');

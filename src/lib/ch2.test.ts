@@ -49,7 +49,8 @@ describe('2장 흐름', () => {
 
   it('정전(2-1): 남한–북한을 대립으로 맞히면 미국–중국, 남한–중국도 함께 대립', () => {
     read('2-1');
-    expect(game().dialogEdge).toBe('KR-NK');
+    expect(game().dialogEdge).toBeNull();   // 1장부터는 학생이 실을 찾아 누른다
+    expect(nextAction(chapterById(game().chapterId), game())).toEqual({ kind: 'edge', key: 'KR-NK' });
     game().submitEdge('KR-NK', 'COLD');
     expect(rels()).toMatchObject({ 'KR-NK': 'COLD', 'CN-US': 'COLD', 'CN-KR': 'COLD' });
   });

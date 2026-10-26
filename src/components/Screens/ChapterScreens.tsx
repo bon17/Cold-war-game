@@ -10,8 +10,10 @@ import { useGame } from '../../store/gameStore';
 import { useSession, type ArchiveEntry } from '../../store/sessionStore';
 import './Screens.css';
 
-// 머리말과 이어 주는 한 줄까지 읽을 수 있게(2026-10-25 교사 의견: 창밖 그림의 의미를 모른다) 8초 → 11초
+// 머리말과 이어 주는 한 줄까지 읽을 수 있게(2026-10-25 교사 의견: 창밖 그림의 의미를 모른다) 8초 → 11초,
+// 당직 일지가 붙는 장(1~5장)은 14초(2026-10-26)
 const WINDOW_MS = 11000;
+const WINDOW_DIARY_MS = 14000;
 const WINDOW_SKIP_AFTER_MS = 1500;
 
 // 허구 고지(기획서 13.2): '확인'을 눌러야 넘어간다
@@ -113,17 +115,24 @@ export function WindowScene() {
     if (phase !== 'window') return;
     setCanSkip(false);
     const skip = window.setTimeout(() => setCanSkip(true), WINDOW_SKIP_AFTER_MS);
-    const done = window.setTimeout(next, WINDOW_MS);
+    const done = window.setTimeout(next, chapter.window.diary ? WINDOW_DIARY_MS : WINDOW_MS);
     return () => {
       window.clearTimeout(skip);
       window.clearTimeout(done);
     };
-  }, [phase, next]);
+  }, [phase, next, chapter]);
   if (phase !== 'window') return null;
   return (
     <div className="window-scene">
       <img className="kenburns slow" src={assetUrl(chapter.window.image)} alt={chapter.window.alt} />
       <div className="window-header">{strings.windowScene.header}</div>
+      {chapter.window.diary && (
+        // 그날의 당직 일지(허구): 그 시대를 산 사람의 한두 줄. 에필로그의 1945년 편지로 이어진다
+        <div className="window-diary">
+          <div className="window-diary-title">{strings.windowScene.diaryTitle}</div>
+          <p>{chapter.window.diary}</p>
+        </div>
+      )}
       <div className="window-caption">
         <p className="window-caption-main">{chapter.window.caption}</p>
         {chapter.window.link && <p className="window-link">{chapter.window.link}</p>}

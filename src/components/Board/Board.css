@@ -308,3 +308,23 @@ button.edge-tag {
   transform: rotate(-8deg);
   pointer-events: none;
 }
+
+/* 새 실 잇기(1장부터, 2026-10-26): 핀 이름표를 차례로 누른다. 처음 누른 핀은 바늘이 꽂힌 듯 진하게 */
+.pin-tag.pin-pick {
+  cursor: pointer;
+  font-family: 'Gowun Batang', serif;
+}
+.pin-tag.pin-pick:hover,
+.pin-tag.pin-pick:focus-visible {
+  background: #fff8e4;
+}
+.pin-tag.pin-pick.picked {
+  background: #2a2118;
+  color: var(--tag-paper);
+  box-shadow: 0 0 0 5px rgba(243, 201, 105, 0.85);
+}
+.pin-tag.pin-pick.pending {
+  outline: 3px dashed var(--brass);
+  outline-offset: 3px;
+  animation: pin-glow 1.2s ease-in-out infinite alternate;
+}

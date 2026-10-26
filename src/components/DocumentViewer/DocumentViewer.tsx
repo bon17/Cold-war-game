@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { assetUrl } from '../../lib/assets';
-import { docFinished } from '../../lib/board';
+import { docFinished, taskKey, ZONE_KEY } from '../../lib/board';
 import { chapterById, glossary, strings } from '../../lib/data';
 import { glossaryByDoc, splitBody, type Chunk } from '../../lib/docText';
 import { fmt } from '../../lib/format';
 import { availableDocs } from '../../lib/docFlow';
-import { hasChoice } from '../../lib/validateEdge';
+import { hasChoice, taskForDoc } from '../../lib/validateEdge';
 import { useGame } from '../../store/gameStore';
 import type { Doc } from '../../types';
 import './DocumentViewer.css';
 
 // 문서 확대 보기(기획서 3·5.1). 무대 밖 층에 실제 화면 px로 띄운다(본문 22px).
-// 핵심 구절은 처음부터 형광펜으로 칠해져 있다. 밑줄 낱말을 누르면 풀이가 뜬다.
+// 핵심 구절 형광펜: 실을 고르는 문서는 처음에는 칠하지 않고, 틀렸거나 맞힌 뒤에 칠한다(2026-10-26 교사 결정: 형광펜 구절만 보고
+// 기계적으로 고르지 않고 글을 읽고 판단하게). 처음 하는 장(프롤로그)과 실이 없는 문서는 처음부터 칠한다. 밑줄 낱말을 누르면 풀이가 뜬다.
 // '다 읽었어요'를 누르면 닫히고, 그 문서와 짝인 실의 바꾸기 창이 열린다. 실이 없는 문서면 다음 문서가 바로 열린다.
 
 function docDate(doc: Doc): string {
@@ -19,7 +20,7 @@ function docDate(doc: Doc): string {
 }
 
 export function DocumentViewer() {
-  const { chapterId, openDocId, openDocFresh, readDocs, done, revealed, openDocument, closeDocument, finishDocument } = useGame();
+  const { chapterId, openDocId, openDocFresh, readDocs, done, wrong, revealed, openDocument, closeDocument, finishDocument } = useGame();
   const chapter = chapterById(chapterId);
   const wordsByDoc = useMemo(() => glossaryByDoc(chapter, Object.keys(glossary)), [chapter]);
   const doc = chapter.documents.find((d) => d.id === openDocId);
@@ -48,6 +49,11 @@ export function DocumentViewer() {
   if (!doc) return null;
 
   const isDone = (d: Doc) => docFinished(chapter, d.id, { readDocs, done });
+  const choiceKey = chapter.zone?.doc === doc.id ? ZONE_KEY : (() => {
+    const task = taskForDoc(chapter, doc.id);
+    return task ? taskKey(chapter, task) : undefined;
+  })();
+  const highlight = chapter.tutorial || !choiceKey || !!done[choiceKey] || (wrong[choiceKey] ?? 0) > 0;
 
   const showWord = (word: string, el: HTMLElement) => {
     const r = el.getBoundingClientRect();
@@ -125,7 +131,7 @@ export function DocumentViewer() {
               {strings.docs.types[doc.type]} · {docDate(doc)}
             </header>
             <h2 className="doc-title">{doc.title}</h2>
-            <p className="doc-body">{splitBody(doc.body, doc.keyPhrase, wordsByDoc.get(doc.id) ?? []).map(renderChunk)}</p>
+            <p className="doc-body">{splitBody(doc.body, highlight ? doc.keyPhrase : undefined, wordsByDoc.get(doc.id) ?? []).map(renderChunk)}</p>
             {doc.listLine && (
               <p className="doc-names">
                 {doc.listLabel && <span className="doc-names-label">{doc.listLabel}</span>}

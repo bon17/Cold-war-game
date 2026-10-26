@@ -32,6 +32,8 @@ import { useSession } from './store/sessionStore';
 // 에필로그는 시계 뒤 80년의 창 → 서랍 속 편지 → 쓰기 화면 → 마지막 매듭 → 끝 화면(근무 평정표 없음).
 // 프롤로그는 보고서 없이 문서 5개를 마치면 시계가 처음 걸리고, 별이 없어 근무 평정표를 건너뛴다.
 const ANIM_MS = 700;
+// 실을 찾다가 이만큼 지나도 못 찾으면 찾는 실(새 실이면 두 핀)을 반짝여 돕는다(2026-10-26 교사 결정)
+const SEEK_HINT_MS = 10000;
 // 장의 마지막 일을 마친 뒤 창밖 장면까지 잠깐 쉬는 시간(마지막 보드를 볼 수 있게)
 const WINDOW_PAUSE_MS = 1200;
 
@@ -64,7 +66,7 @@ function useSoundEffects() {
 }
 
 export default function App() {
-  const { chapterId, readDocs, board, done, event, revealed, reveal, dialogEdge, openDocId, openEdgeDialog, openTable } = useGame();
+  const { chapterId, readDocs, board, done, event, revealed, reveal, dialogEdge, openDocId, openEdgeDialog, openTable, missEdge } = useGame();
   const phase = useSession((s) => s.phase);
   const setPhase = useSession((s) => s.setPhase);
   const chapter = chapterById(chapterId);
@@ -97,11 +99,30 @@ export default function App() {
 
   const [anim, setAnim] = useState<BoardPlay['anim']>();
   useEffect(() => {
-    if (!event || (event.kind !== 'ok' && event.kind !== 'wrong')) return;
-    setAnim({ key: event.key, kind: event.kind, rel: event.kind === 'wrong' ? event.rel : undefined, id: event.id });
+    if (!event || (event.kind !== 'ok' && event.kind !== 'wrong' && event.kind !== 'miss') || !event.key) return;
+    // 찾는 실이 아닌 실을 누르면 그 실이 살짝 흔들린다
+    setAnim({ key: event.key, kind: event.kind === 'ok' ? 'ok' : 'wrong', rel: event.kind === 'wrong' ? event.rel : undefined, id: event.id });
     const timer = window.setTimeout(() => setAnim(undefined), ANIM_MS);
     return () => window.clearTimeout(timer);
   }, [event]);
+
+  // 실 찾기(1장부터): 문서를 읽고 바꿀 실이 남았는데 창이 닫혀 있으면 학생이 그 실을 보드에서 찾아 누른다.
+  // 보드에 아직 없는 실(1장 1-2 남한–북한, 1-4 중국–소련, 1-6 미국–중국)은 두 나라 핀을 차례로 눌러 잇는다.
+  const action = useMemo(() => nextAction(chapter, { readDocs, done, revealed, reveal }), [chapter, readDocs, done, revealed, reveal]);
+  const seekKey =
+    !chapter.tutorial && action.kind === 'edge' && action.key !== ZONE_KEY && !dialogEdge && !openDocId && phase === 'desk' ? action.key : undefined;
+  const [seekHint, setSeekHint] = useState(false);
+  useEffect(() => {
+    setSeekHint(false);
+    if (!seekKey) return;
+    const timer = window.setTimeout(() => setSeekHint(true), SEEK_HINT_MS);
+    return () => window.clearTimeout(timer);
+  }, [seekKey]);
+  const seek = useMemo(() => {
+    if (!seekKey) return undefined;
+    const task = chapter.edgeTasks.find((t) => t.mode === 'direct' && pairKey(t.pair) === seekKey)!;
+    return { key: seekKey, pair: task.pair, hint: seekHint, newThread: !board.some((e) => pairKey(e.pair) === seekKey) };
+  }, [seekKey, seekHint, chapter, board]);
 
   const play: BoardPlay = useMemo(() => {
     // 문서를 읽고 아직 바꾸지 않은 실만 누를 수 있게 빛나고, 이번 장에서 바뀌지 않는 실은 흐리게 그린다
@@ -113,13 +134,14 @@ export default function App() {
       ...chapter.edgeTasks.map((t) => pairKey(t.pair)),
       ...chapter.startBoard.filter((e) => e.untilDoc).map((e) => pairKey(e.pair)),
     ]);
-    const action = nextAction(chapter, { readDocs, done, revealed, reveal });
     const zoneRead = !!chapter.zone && readDocs.includes(chapter.zone.doc);
     return {
       pending: new Set(pending),
       zone: zoneRead ? (done[ZONE_KEY] ? 'done' : 'pending') : undefined,
       // '여기를 누르세요'는 책상 화면에서, 문서와 실 바꾸기 창을 닫은 뒤에(읽는 동안 문서 위로 비치지 않게)
-      hint: action.kind === 'edge' && !dialogEdge && !openDocId && phase === 'desk' ? action.key : undefined,
+      // 실 찾기에서는 오래 못 찾을 때만
+      hint: action.kind === 'edge' && !dialogEdge && !openDocId && phase === 'desk' && (!seek || seek.hint) ? action.key : undefined,
+      seek,
       // 에필로그는 남북 흰 실만 밝고 나머지는 1992년의 빛바랜 기록으로 흐리게(2026-10-26 교사 의견)
       faint: new Set(
         chapter.epilogueBoard
@@ -128,10 +150,12 @@ export default function App() {
       ),
       anim,
       onPick: (key) => openEdgeDialog(key),
-      onInfo: (key) => openTable(key),
+      // 실을 찾는 중에 다른 실을 누르면 '문서에 나온 두 나라를 찾아보세요'
+      onInfo: (key) => (seek ? missEdge(key) : openTable(key)),
+      onPins: (a, b) => (seek && pairKey([a, b]) === seek.key ? openEdgeDialog(seek.key) : missEdge()),
       onTable: () => openTable(),
     };
-  }, [chapter, readDocs, done, revealed, reveal, board, dialogEdge, openDocId, anim, openEdgeDialog, openTable, phase]);
+  }, [chapter, readDocs, done, board, dialogEdge, openDocId, anim, openEdgeDialog, openTable, missEdge, phase, action, seek]);
 
   const atDesk = phase === 'desk';
   const hung = clockHung(chapter, revealed, reveal);

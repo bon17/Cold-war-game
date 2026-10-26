@@ -164,7 +164,8 @@ describe('1장', () => {
 
   it('1948년 문서(1-2): 남한–북한을 대립으로 맞히면 핀 이름이 바뀌고, 점령 실은 배경 같은 편 실이 되고, 남한–소련도 대립', () => {
     play([['1-1', 'SU-US', 'COLD'], ['1-2']]);
-    expect(game().dialogEdge).toBe('KR-NK');
+    expect(game().dialogEdge).toBeNull();   // 1장부터는 학생이 실을 찾아 누른다
+    expect(nextAction(chapterById(game().chapterId), game())).toEqual({ kind: 'edge', key: 'KR-NK' });
     expect(pinName(ch1, 'KR', game())).toBe('38선 이남');   // 맞히기 전에는 그대로
     expect(rels()).toMatchObject({ 'KR-US': 'OCCUPY', 'NK-SU': 'OCCUPY' });
     game().submitEdge('KR-NK', 'COLD');
@@ -179,7 +180,8 @@ describe('1장', () => {
     play([['1-1', 'SU-US', 'COLD'], ['1-2', 'KR-NK', 'COLD'], ['1-3'], ['1-4', 'CN-SU', 'ALLY'], ['1-5']]);
     const war = ch1.edgeTasks.find((t) => t.doc === '1-5')!;
     expect(taskKey(ch1, war)).toBe('KR-NK@1-5');
-    expect(game().dialogEdge).toBe('KR-NK');
+    expect(game().dialogEdge).toBeNull();   // 1장부터는 학생이 실을 찾아 누른다
+    expect(nextAction(chapterById(game().chapterId), game())).toEqual({ kind: 'edge', key: 'KR-NK' });
     game().submitEdge('KR-NK', 'COLD');   // 이번에는 전쟁이 정답
     expect(game().done['KR-NK@1-5']).toBeUndefined();
     game().submitEdge('KR-NK', 'WAR');
