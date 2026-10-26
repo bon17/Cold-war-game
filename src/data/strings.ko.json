@@ -53,6 +53,7 @@
     "waiting": "다음 문서는 실을 바꾸면 와요."
   },
   "board": {
+    "flashBadge": "함께 바뀜",
     "guide": {
       "title": "지금 할 일",
       "readDoc": "문서 더미를 눌러 새 문서를 읽으세요.",

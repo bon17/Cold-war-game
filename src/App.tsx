@@ -66,7 +66,7 @@ function useSoundEffects() {
 }
 
 export default function App() {
-  const { chapterId, readDocs, board, done, event, revealed, reveal, dialogEdge, openDocId, openEdgeDialog, openTable, missEdge } = useGame();
+  const { chapterId, readDocs, board, done, event, flash, flashShown, revealed, reveal, dialogEdge, openDocId, openEdgeDialog, openTable, missEdge, flashDone } = useGame();
   const phase = useSession((s) => s.phase);
   const setPhase = useSession((s) => s.setPhase);
   const chapter = chapterById(chapterId);
@@ -92,10 +92,12 @@ export default function App() {
   // 시계 지점과 문서를 모두 마치면(5장은 예측 뒤에 오는 문서까지) 잠깐 마지막 보드를 보여 준 뒤 창밖 장면으로
   useEffect(() => {
     const docsDone = chapter.documents.every((d) => docFinished(chapter, d.id, { readDocs, done }));
-    if (phase !== 'desk' || reveal || dialogEdge || revealed.length !== chapter.clock.length || !docsDone) return;
+    // 함께 바뀐 실(해설 카드 때 붙은 직통선 매듭 등)을 보드에서 다 보여 준 뒤에 창밖으로
+    const flashWaiting = !!flash && flash.id !== flashShown;
+    if (phase !== 'desk' || reveal || dialogEdge || flashWaiting || revealed.length !== chapter.clock.length || !docsDone) return;
     const timer = window.setTimeout(() => setPhase('window'), WINDOW_PAUSE_MS);
     return () => window.clearTimeout(timer);
-  }, [phase, reveal, dialogEdge, revealed, readDocs, done, chapter, setPhase]);
+  }, [phase, reveal, dialogEdge, revealed, readDocs, done, chapter, setPhase, flash, flashShown]);
 
   const [anim, setAnim] = useState<BoardPlay['anim']>();
   useEffect(() => {
@@ -142,6 +144,10 @@ export default function App() {
       // 실 찾기에서는 오래 못 찾을 때만
       hint: action.kind === 'edge' && !dialogEdge && !openDocId && phase === 'desk' && (!seek || seek.hint) ? action.key : undefined,
       seek,
+      flash,
+      // 문서, 실 바꾸기 창, 시계 카드가 보드를 가리는 동안에는 함께 바뀐 실 효과를 미룬다
+      paused: !!openDocId || !!dialogEdge || !!reveal || phase !== 'desk',
+      onFlashDone: flashDone,
       // 에필로그는 남북 흰 실만 밝고 나머지는 1992년의 빛바랜 기록으로 흐리게(2026-10-26 교사 의견)
       faint: new Set(
         chapter.epilogueBoard
@@ -155,7 +161,7 @@ export default function App() {
       onPins: (a, b) => (seek && pairKey([a, b]) === seek.key ? openEdgeDialog(seek.key) : missEdge()),
       onTable: () => openTable(),
     };
-  }, [chapter, readDocs, done, board, dialogEdge, openDocId, anim, openEdgeDialog, openTable, missEdge, phase, action, seek]);
+  }, [chapter, readDocs, done, board, dialogEdge, openDocId, anim, openEdgeDialog, openTable, missEdge, phase, action, seek, flash, reveal, flashDone]);
 
   const atDesk = phase === 'desk';
   const hung = clockHung(chapter, revealed, reveal);

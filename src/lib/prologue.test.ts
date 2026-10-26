@@ -174,6 +174,9 @@ describe('1장', () => {
     expect(rels()).toEqual({ 'SU-US': 'COLD', 'KR-NK': 'COLD', 'KR-SU': 'COLD' });
     expect(background()).toEqual(['KR-US', 'NK-SU']);
     expect(game().done['KR-SU']).toEqual({ wrong: 0, auto: true });
+    // 함께 바뀐 실(2026-10-26): 남한–소련 대립(새 실), 내려간 점령 실 둘, 새로 나타난 배경 실 둘. 학생이 바꾼 남한–북한은 빼고
+    expect(game().flash).toMatchObject({ before: { 'KR-SU': null, 'KR-US': { rel: 'OCCUPY' }, 'NK-SU': { rel: 'OCCUPY' } }, backgrounds: ['KR-US', 'NK-SU'] });
+    expect(game().flash?.keys).not.toContain('KR-NK');
   });
 
   it('남한–북한은 두 번 바뀐다: 1948 대립(1-2), 1950 전쟁(1-5). 과제마다 따로 센다', () => {

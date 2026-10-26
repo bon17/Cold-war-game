@@ -19,15 +19,18 @@ import './EdgeDialog.css';
 const RENAME_STAMP_MS = 900;
 
 // '맞아요!' 창의 아래 단추: 다음 문서가 왔으면 '다음 문서 보기', 아니면 '확인'(중립 구역 창도 같이 쓴다)
+// 함께 바뀐 실이 있으면 '다음 문서 보기'를 눌렀을 때 창을 닫고 보드에서 바뀌는 모습을 먼저 보여 준 뒤 문서를 연다
+// (2026-10-26 교사 의견: 창이 보드 아래쪽을 가려 함께 바뀐 실을 놓친다)
 export function SolvedFoot() {
-  const { chapterId, done, readDocs, revealed, closeEdgeDialog, openDocument } = useGame();
+  const { chapterId, done, readDocs, revealed, flash, flashShown, closeEdgeDialog, openDocument, queueDoc } = useGame();
   const next = currentDoc(chapterById(chapterId), revealed, readDocs, done);
   const fresh = next && !readDocs.includes(next.id) ? next : undefined;
+  const unseen = !!flash && flash.id !== flashShown;
   return (
     <div className="edge-dialog-foot">
       <span />
       {fresh ? (
-        <button type="button" className="edge-dialog-close" onClick={() => openDocument(fresh.id)} autoFocus>
+        <button type="button" className="edge-dialog-close" onClick={() => (unseen ? queueDoc(fresh.id) : openDocument(fresh.id))} autoFocus>
           {strings.board.dialog.nextDoc}
         </button>
       ) : (

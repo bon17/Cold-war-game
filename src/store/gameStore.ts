@@ -37,6 +37,8 @@ interface GameState {
   done: Record<string, EdgeResult>;// 끝난 실 과제(별, 도전 과제 perfect-board에 쓴다)
   event: (BoardEvent & { id: number }) | null;
   flash: AutoFlash | null;
+  flashShown: number;              // 보드에서 다 보여 준 함께 바뀐 실 효과의 id
+  pendingDoc: string | null;       // 함께 바뀐 실을 보드에서 먼저 보여 준 뒤 열 다음 문서
   dialogEdge: string | null;       // 실 바꾸기 창이 열린 실(맞힌 뒤에도 '맞아요!'와 '다음 문서 보기'를 보여 주려고 열어 둔다)
   foundEdge: string | null;        // 학생이 찾아 누른 실. 창에서 '문서 다시 보기'를 했다가 닫으면 그 창을 다시 연다
   clockShown: { minutes: number; year: number };   // 벽시계와 일력에 보이는 값
@@ -53,6 +55,8 @@ interface GameState {
   openEdgeDialog: (key: string) => void;
   closeEdgeDialog: () => void;
   missEdge: (key?: string) => void;   // 찾는 실이 아닌 것을 누름
+  queueDoc: (docId: string) => void;  // '다음 문서 보기': 창을 닫고 함께 바뀐 실을 보드에서 보여 준 뒤 그 문서를 연다
+  flashDone: (id: number) => void;    // 보드가 함께 바뀐 실 효과를 다 보여 줌
   submitEdge: (key: string, rel: Rel) => void;
   submitZone: (option: string) => void;   // 2장 '어느 편도 아닌 나라' 칸
   openReport: () => void;
@@ -135,6 +139,8 @@ export function initialState(chapterId: string) {
     done: {},
     event: null,
     flash: null,
+    flashShown: 0,
+    pendingDoc: null,
     dialogEdge: null,
     foundEdge: null,
     clockShown: { minutes: minutesOf(chapter.startClock ?? {}), year: chapter.calendarYear ?? Number(chapter.period.slice(0, 4)) },
@@ -204,6 +210,14 @@ export const useGame = create<GameState>((set, get) => ({
   closeEdgeDialog: () => set({ dialogEdge: null }),
 
   missEdge: (key) => set({ event: stamp({ kind: 'miss', key }) }),
+
+  queueDoc: (docId) => set({ dialogEdge: null, pendingDoc: docId }),
+
+  flashDone: (id) => {
+    const next = get().pendingDoc;
+    set({ flashShown: id, pendingDoc: null });
+    if (next) get().openDocument(next);
+  },
 
   submitEdge: (key, rel) => {
     const s = get();
