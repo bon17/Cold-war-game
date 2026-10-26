@@ -32,7 +32,7 @@ import { useSession } from './store/sessionStore';
 // 에필로그는 시계 뒤 80년의 창 → 서랍 속 편지 → 쓰기 화면 → 마지막 매듭 → 끝 화면(근무 평정표 없음).
 // 프롤로그는 보고서 없이 문서 5개를 마치면 시계가 처음 걸리고, 별이 없어 근무 평정표를 건너뛴다.
 const ANIM_MS = 700;
-// 실을 찾다가 이만큼 지나도 못 찾으면 찾는 실(새 실이면 두 핀)을 반짝여 돕는다(2026-10-26 교사 결정)
+// 실을 찾다가 이만큼 지나도 못 찾으면 찾는 실(새 실이면 두 핀)을 반짝여 돕는다(2026-10-26 교사 결정). 1장(hints)은 처음부터 반짝인다
 const SEEK_HINT_MS = 10000;
 // 장의 마지막 일을 마친 뒤 창밖 장면까지 잠깐 쉬는 시간(마지막 보드를 볼 수 있게)
 const WINDOW_PAUSE_MS = 1200;
@@ -113,11 +113,11 @@ export default function App() {
     !chapter.tutorial && action.kind === 'edge' && action.key !== ZONE_KEY && !dialogEdge && !openDocId && phase === 'desk' ? action.key : undefined;
   const [seekHint, setSeekHint] = useState(false);
   useEffect(() => {
-    setSeekHint(false);
-    if (!seekKey) return;
+    setSeekHint(!!chapter.hints);
+    if (!seekKey || chapter.hints) return;
     const timer = window.setTimeout(() => setSeekHint(true), SEEK_HINT_MS);
     return () => window.clearTimeout(timer);
-  }, [seekKey]);
+  }, [seekKey, chapter.hints]);
   const seek = useMemo(() => {
     if (!seekKey) return undefined;
     const task = chapter.edgeTasks.find((t) => t.mode === 'direct' && pairKey(t.pair) === seekKey)!;

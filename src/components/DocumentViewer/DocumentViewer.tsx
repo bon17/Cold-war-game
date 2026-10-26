@@ -12,7 +12,7 @@ import './DocumentViewer.css';
 
 // 문서 확대 보기(기획서 3·5.1). 무대 밖 층에 실제 화면 px로 띄운다(본문 22px).
 // 핵심 구절 형광펜: 실을 고르는 문서는 처음에는 칠하지 않고, 틀렸거나 맞힌 뒤에 칠한다(2026-10-26 교사 결정: 형광펜 구절만 보고
-// 기계적으로 고르지 않고 글을 읽고 판단하게). 처음 하는 장(프롤로그)과 실이 없는 문서는 처음부터 칠한다. 밑줄 낱말을 누르면 풀이가 뜬다.
+// 기계적으로 고르지 않고 글을 읽고 판단하게). 힌트를 주는 장(프롤로그, 1장)과 실이 없는 문서는 처음부터 칠한다. 밑줄 낱말을 누르면 풀이가 뜬다.
 // '다 읽었어요'를 누르면 닫히고, 그 문서와 짝인 실의 바꾸기 창이 열린다. 실이 없는 문서면 다음 문서가 바로 열린다.
 
 function docDate(doc: Doc): string {
@@ -53,7 +53,7 @@ export function DocumentViewer() {
     const task = taskForDoc(chapter, doc.id);
     return task ? taskKey(chapter, task) : undefined;
   })();
-  const highlight = chapter.tutorial || !choiceKey || !!done[choiceKey] || (wrong[choiceKey] ?? 0) > 0;
+  const highlight = chapter.tutorial || chapter.hints || !choiceKey || !!done[choiceKey] || (wrong[choiceKey] ?? 0) > 0;
 
   const showWord = (word: string, el: HTMLElement) => {
     const r = el.getBoundingClientRect();

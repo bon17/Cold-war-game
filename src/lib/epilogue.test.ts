@@ -68,6 +68,16 @@ describe('에필로그', () => {
   it('1~5장 창밖에 그날의 당직 일지. 5장 일지의 선배(1945년부터)가 에필로그 편지를 쓴 사람', () => {
     for (const id of ['ch1', 'ch2', 'ch3', 'ch4', 'ch5']) expect(chapterById(id).window.diary, id).toBeTruthy();
     expect(chapterById('ch5').window.diary).toContain('1945년');
+    expect(chapterById('ch1').window.diary).not.toContain('풀리');   // 실은 나라 사이의 관계라 '풀린다'는 어색하다(교사 댓글)
     expect(ep.finale!.letter.signature).toContain('1945년');
+  });
+
+  it('힌트는 1장까지(프롤로그는 창이 저절로, 1장은 찾을 실이 처음부터 반짝임), 2장부터는 직접 찾는다', () => {
+    expect(chapterById('prologue').tutorial).toBe(true);
+    expect(chapterById('ch1').hints).toBe(true);
+    for (const id of ['ch2', 'ch3', 'ch4', 'ch5']) {
+      expect(chapterById(id).tutorial, id).toBeFalsy();
+      expect(chapterById(id).hints, id).toBeFalsy();
+    }
   });
 });

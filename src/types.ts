@@ -95,6 +95,9 @@ export interface Chapter {
   // 처음 하는 장(프롤로그): 문서를 다 읽으면 실 바꾸기 창이 저절로 열리고, 핵심 구절 형광펜을 처음부터 보여 준다.
   // 다른 장은 학생이 보드에서 실을 찾아 누르고(새 실은 핀 두 개를 이어), 형광펜은 틀렸을 때 보여 준다(2026-10-26 교사 결정)
   tutorial?: boolean;
+  // 힌트를 주는 장(1장): 실은 학생이 찾아 누르지만(새 실은 핀 두 개를 이어), 찾을 실을 처음부터 반짝여 알려 주고 형광펜도 처음부터.
+  // 2장부터는 반짝임 없이 직접 찾고 형광펜은 틀렸을 때(2026-10-26 교사 의견: 전반적으로 어려워졌다)
+  hints?: boolean;
   cover: { image: string; alt: string; question: string };
   startClock: { minutes?: number; seconds?: number } | null;  // 프롤로그는 null(아직 걸리지 않음)
   startNote?: { text: string; signature: string };            // 장 시작 쪽지(2장)

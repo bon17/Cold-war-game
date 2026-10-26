@@ -57,7 +57,9 @@ export function BoardNote() {
   else if (action.kind === 'edge') {
     // 1장부터는 반짝이지 않는 실을 찾아 누르고, 보드에 아직 없는 실은 두 핀을 이어 건다(2026-10-26)
     const fresh = !board.some((e) => pairKey(e.pair) === action.key);
-    text = action.key === ZONE_KEY ? g.pickZone : chapter.tutorial ? g.pickEdge : fresh ? g.tieEdge : g.findEdge;
+    // 1장(hints)은 찾을 실이 처음부터 반짝인다
+    const hinted = chapter.tutorial || chapter.hints;
+    text = action.key === ZONE_KEY ? g.pickZone : fresh ? (hinted ? g.tieEdgeHint : g.tieEdge) : hinted ? g.pickEdge : g.findEdge;
   }
   else if (action.kind === 'report') {
     text = g.reportReady;
