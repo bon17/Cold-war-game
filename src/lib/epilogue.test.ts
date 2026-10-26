@@ -29,6 +29,12 @@ describe('에필로그', () => {
     expect(chapterForCode('바늘과실')).toBe('epilogue');
   });
 
+  it("초록 실만 보고 '사이가 좋은데 왜 위험?'이 되지 않게: 보드는 '1992년 기록', 보고서 도움말, 큰 나라들 이야기", () => {
+    expect(ep.epilogueBoard?.stamp).toBe('1992년 기록');
+    expect(ep.clock[0].hint).toContain('1992년');
+    expect(ep.documents.find((d) => d.id === 'E-2')?.keyPhrase).toContain('큰 나라들');
+  });
+
   it('문서 2개를 읽으면 보고서. 공개 뒤 시계는 85초, 숫자판은 초로', () => {
     expect(action()).toEqual({ kind: 'doc', docId: 'E-1' });
     read('E-1');

@@ -117,8 +117,9 @@ export interface Chapter {
   zone?: ZoneTask;
   clock: ClockCheckpoint[];    // 시계는 장마다 한 번
   endEvents?: ('renameSU' | 'weakenNKSU' | 'greenCascade')[];  // 5장 끝. greenCascade는 이미 녹색인 실을 다시 울리는 확인 연출
-  // 에필로그 남북 실: 지금의 관계를 단정하지 않도록 색을 뺀 흰 실과 '지금은?' 이름표(기획서 7.2). caption은 실 이력표 끝에 붙인다
-  epilogueBoard?: { pair: Pair; style: 'undyed'; label: string; caption: string };
+  // 에필로그 남북 실: 지금의 관계를 단정하지 않도록 색을 뺀 흰 실과 '지금은?' 이름표(기획서 7.2). caption은 실 이력표 끝에 붙인다.
+  // stamp: 보드가 옛 기록임을 알리는 딱지(2026-10-26 교사 의견: 초록 실만 보고 '사이가 좋은데 왜 위험?'). 이때 다른 실은 흐리게 그린다
+  epilogueBoard?: { pair: Pair; style: 'undyed'; label: string; caption: string; stamp?: string };
   paper?: { masthead: string; dateline: string; headlineCloser: string; headlineFarther: string };   // 1면 덮어쓰기(에필로그 BONSSAM)
   finale?: Finale;
   // link: 창밖 사람들과 보드의 실을 이어 주는 한 줄, note: 그 아래 한 줄 더(프롤로그만: 창의 의미). 2026-10-25 교사 의견

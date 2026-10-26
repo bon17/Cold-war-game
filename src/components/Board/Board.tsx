@@ -238,6 +238,12 @@ export function Board({ chapter, edges: shown, play, progress }: { chapter: Chap
           {strings.boardTable.open}
         </button>
       )}
+      {chapter.epilogueBoard?.stamp && (
+        // 에필로그: 이 보드는 1992년 기록(차트 종이 왼쪽 위 빈 곳, 2장 '어느 편도 아닌 나라' 칸 자리)
+        <div className="board-stamp" style={{ left: layout.neutralZone.x + 12, top: layout.neutralZone.y + 14 }}>
+          {chapter.epilogueBoard.stamp}
+        </div>
+      )}
       <div
         className={`legend-card${legendRows > 4 ? ' dense' : ''}`}
         style={{ left: layout.legend.x, top: layout.legend.y, width: layout.legend.w }}

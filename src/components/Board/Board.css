@@ -293,3 +293,18 @@ button.edge-tag {
 @media (prefers-reduced-motion: reduce) {
   .edge-undyed { animation: none; filter: drop-shadow(0 0 5px rgba(255, 236, 190, 0.85)); }
 }
+
+/* 에필로그: '1992년 기록' 딱지. 붉은 잉크 도장처럼 비스듬히 */
+.board-stamp {
+  position: absolute;
+  padding: 4px 16px;
+  border: 4px double #a8322a;
+  border-radius: 6px;
+  color: #a8322a;
+  background: rgba(244, 239, 228, 0.7);
+  font: 800 34px/1.2 'Nanum Myeongjo', serif;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}

@@ -120,8 +120,12 @@ export default function App() {
       zone: zoneRead ? (done[ZONE_KEY] ? 'done' : 'pending') : undefined,
       // '여기를 누르세요'는 책상 화면에서, 문서와 실 바꾸기 창을 닫은 뒤에(읽는 동안 문서 위로 비치지 않게)
       hint: action.kind === 'edge' && !dialogEdge && !openDocId && phase === 'desk' ? action.key : undefined,
-      // 바꾸는 실이 없는 에필로그는 흐리게 그리지 않는다
-      faint: new Set(chapter.edgeTasks.length ? board.map((e) => pairKey(e.pair)).filter((k) => !changing.has(k)) : []),
+      // 에필로그는 남북 흰 실만 밝고 나머지는 1992년의 빛바랜 기록으로 흐리게(2026-10-26 교사 의견)
+      faint: new Set(
+        chapter.epilogueBoard
+          ? board.map((e) => pairKey(e.pair)).filter((k) => k !== pairKey(chapter.epilogueBoard!.pair))
+          : board.map((e) => pairKey(e.pair)).filter((k) => !changing.has(k)),
+      ),
       anim,
       onPick: (key) => openEdgeDialog(key),
       onInfo: (key) => openTable(key),
