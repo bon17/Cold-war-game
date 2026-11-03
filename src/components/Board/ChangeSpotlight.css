@@ -21,7 +21,8 @@
   transform-origin: 0 0;
   pointer-events: none;
 }
-.spot-stage svg {
+/* 보드 그림 한 장에만(이름표 안의 실 견본 svg까지 덮으면 견본이 글자 위로 올라간다, 2026-11-03 교사 댓글) */
+.spot-stage > svg {
   position: absolute;
   inset: 0;
   overflow: visible;
@@ -108,12 +109,36 @@
   line-height: 1.5;
   word-break: keep-all;
 }
+.spot-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
 .spot-count {
-  display: block;
-  margin-top: 4px;
   font-size: 15px;
   color: #6b5a44;
-  text-align: right;
+}
+/* 눌러야 넘어간다(2026-11-03): 새 실이 다 그어진 뒤에 나타나 숨 쉬듯 빛난다 */
+.spot-next {
+  padding: 4px 14px;
+  border-radius: 3px;
+  background: #2a2118;
+  color: #fff8ec;
+  font-size: 18px;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 250ms ease-out;
+}
+.spot-scene.ready .spot-next {
+  opacity: 1;
+  animation: spot-next-pulse 1.1s ease-in-out 250ms infinite alternate;
+}
+@keyframes spot-next-pulse {
+  to { box-shadow: 0 0 0 3px rgba(243, 201, 105, 0.95), 0 0 14px 3px rgba(243, 201, 105, 0.6); }
+}
+.spot-scene:not(.ready) {
+  cursor: default;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -121,4 +146,5 @@
   .spot-old { animation: none; opacity: 0; }
   .spot-draw { animation: none; stroke-dashoffset: 0; }
   .spot-tag { animation: none; opacity: 1; }
+  .spot-scene.ready .spot-next { animation: none; box-shadow: 0 0 0 3px rgba(243, 201, 105, 0.95); }
 }

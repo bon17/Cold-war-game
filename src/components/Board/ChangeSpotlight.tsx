@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { assetUrl, layout } from '../../lib/assets';
 import { edgeCurve, nodeAt, pinTagAnchor } from '../../lib/boardLayout';
 import { chapterById, nodes, pinName, pinSide, strings } from '../../lib/data';
@@ -15,8 +15,8 @@ import './ChangeSpotlight.css';
 // 학생이 실을 고르면 그 실부터, 바로 이어서 함께 바뀐 실이 하나씩: 보드의 나머지가 어두워지고, 예전 실이 사라지며
 // 새 실이 한쪽 핀에서 다른 핀으로 그어지듯 걸린다. 화면 아래에 큰 설명 한 줄. 누르면 다음 실로 넘어간다.
 // 다 보여 주면 '맞아요!' 창이 나온다. 문서나 시계 카드가 보드를 가리는 동안(paused)에는 기다렸다가 닫히면 보여 준다.
-const MAIN_MS = 1900;   // 학생이 고른 실
-const ITEM_MS = 2800;   // 함께 바뀐 실 하나
+// 2026-11-03 교사 의견(함께 바뀐 실이 너무 금방 사라진다): 저절로 넘어가지 않고, 학생이 눌러야 다음 실로 간다.
+// 새 실이 다 그어지기 전의 누름은 받지 않는다(잘못 눌러 못 보고 넘어가지 않게). 키보드는 Enter·스페이스·→.
 const DRAW_END_MS = 1250;   // 새 실이 다 그어지는 때(ChangeSpotlight.css의 애니메이션과 같게)
 
 function relName(e: BoardEdge): string {
@@ -30,6 +30,7 @@ export function ChangeSpotlight({ paused }: { paused: boolean }) {
   const chapter = chapterById(chapterId);
   const fit = useStageFit();
   const [step, setStep] = useState(0);
+  const [ready, setReady] = useState(false);
   const active = !!flash && flash.id !== flashShown && !paused;
 
   useEffect(() => {
@@ -43,13 +44,29 @@ export function ChangeSpotlight({ paused }: { paused: boolean }) {
       flashDone(flash.id);
       return;
     }
-    const ting = window.setTimeout(() => item.after && sfx.ting(item.after.rel), DRAW_END_MS);
-    const next = window.setTimeout(() => setStep((n) => n + 1), item.main ? MAIN_MS : ITEM_MS);
-    return () => {
-      window.clearTimeout(ting);
-      window.clearTimeout(next);
-    };
+    setReady(false);
+    const drawn = window.setTimeout(() => {
+      if (item.after) sfx.ting(item.after.rel);
+      setReady(true);
+    }, DRAW_END_MS);
+    return () => window.clearTimeout(drawn);
   }, [active, flash, step, flashDone]);
+
+  const next = useCallback(() => {
+    if (ready) setStep((n) => n + 1);
+  }, [ready]);
+
+  useEffect(() => {
+    if (!active) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      e.stopPropagation();
+      next();
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [active, next]);
 
   if (!active || !flash) return null;
   const item: FlashItem | undefined = flash.items[step];
@@ -66,7 +83,7 @@ export function ChangeSpotlight({ paused }: { paused: boolean }) {
   const title = after ? `${fmt(strings.report.edgeName, { a, b })} ${relName(after)}` : fmt(strings.board.spot.removed, { a, b });
 
   return (
-    <div className="spot-scene" onClick={() => setStep((n) => n + 1)} role="status" aria-live="polite">
+    <div className={`spot-scene${ready ? ' ready' : ''}`} onClick={next} role="status" aria-live="polite">
       <div className="spot-shade" />
       <div
         className="spot-stage"
@@ -115,9 +132,12 @@ export function ChangeSpotlight({ paused }: { paused: boolean }) {
           <strong>{title}</strong>
         </div>
         {!item.main && item.text && <p>{item.text}</p>}
-        <span className="spot-count">
-          {fmt(strings.board.spot.count, { n: step + 1, total: flash.items.length })} · {strings.board.spot.tap}
-        </span>
+        <div className="spot-foot">
+          <span className="spot-count">{fmt(strings.board.spot.count, { n: step + 1, total: flash.items.length })}</span>
+          <span className="spot-next" aria-hidden={!ready}>
+            {step + 1 < flash.items.length ? strings.board.spot.tap : strings.board.spot.tapLast} ▶
+          </span>
+        </div>
       </div>
     </div>
   );

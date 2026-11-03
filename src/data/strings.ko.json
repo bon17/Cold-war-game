@@ -58,7 +58,8 @@
       "together": "함께 바뀐 실",
       "removed": "{a}–{b} 실이 내려갔어요",
       "count": "{n}/{total}",
-      "tap": "누르면 다음"
+      "tap": "눌러서 다음 실 보기",
+      "tapLast": "눌러서 계속하기"
     },
     "guide": {
       "title": "지금 할 일",
