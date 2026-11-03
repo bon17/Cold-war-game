@@ -98,12 +98,12 @@ export function ChangeSpotlight({ paused }: { paused: boolean }) {
           <path className="spot-glow" d={pathD(curve)} />
           {item.before && (
             <g className={after ? 'spot-old' : 'spot-old gone'}>
-              <EdgeStroke curve={edgeCurve(item.before)} rel={item.before.rel} fray={item.before.fray} hotline={item.before.mark === 'hotline'} />
+              <EdgeStroke curve={edgeCurve(item.before)} rel={item.before.rel} fray={item.before.fray} hotline={item.before.mark === 'hotline'} undyed={item.before.undyed} />
             </g>
           )}
           {after && (
             <g mask={`url(#${maskId})`}>
-              <EdgeStroke curve={curve} rel={after.rel} fray={after.fray} hotline={after.mark === 'hotline'} />
+              <EdgeStroke curve={curve} rel={after.rel} fray={after.fray} hotline={after.mark === 'hotline'} undyed={after.undyed} />
             </g>
           )}
           {item.pair.map((id) => {
@@ -121,14 +121,16 @@ export function ChangeSpotlight({ paused }: { paused: boolean }) {
         })}
         {after && (
           <div key={`tag-${flash.id}-${step}`} className="edge-tag spot-tag" style={{ left: mid.x, top: mid.y }}>
-            <RelSwatch rel={after.rel} hotline={after.mark === 'hotline'} />
+            <RelSwatch rel={after.rel} hotline={after.mark === 'hotline'} undyed={after.undyed} />
             <span>{relName(after)}</span>
           </div>
         )}
       </div>
       <div key={`cap-${flash.id}-${step}`} className={`spot-caption${item.main ? ' main' : ''}`}>
         <div className="spot-caption-head">
-          <span className="spot-chip">{item.main ? strings.board.spot.main : strings.board.spot.together}</span>
+          <span className={`spot-chip${item.carried ? ' carried' : ''}`}>
+            {item.main ? strings.board.spot.main : item.carried ? strings.board.spot.carried : strings.board.spot.together}
+          </span>
           <strong>{title}</strong>
         </div>
         {!item.main && item.text && <p>{item.text}</p>}

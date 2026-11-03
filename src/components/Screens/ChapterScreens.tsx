@@ -57,46 +57,51 @@ export function CoverScreen() {
 export function MissionCard() {
   const { phase, setPhase } = useSession();
   const chapter = chapterById(useGame((s) => s.chapterId));
+  const showCarried = useGame((s) => s.showCarried);
   const go = useRef<HTMLButtonElement>(null);
-  // 카드가 화면보다 길면(작은 화면, 지난 장에서 이어진 것) autoFocus가 카드를 맨 아래로 내려 맨 위 상황 글이 가려졌다. 위에서 시작한다
+  // 카드가 화면보다 길면(작은 화면) autoFocus가 카드를 맨 아래로 내려 맨 위 글이 가려졌다. 위에서 시작한다
   useEffect(() => {
     if (phase === 'mission') go.current?.focus({ preventScroll: true });
   }, [phase, chapter]);
   if (phase !== 'mission') return null;
   const m = strings.mission;
-  const title = chapter.mission.title ?? m.title;
-  const room = chapter.mission.room ?? [m.clockLine, m.boardLine];
-  const steps = chapter.mission.steps ?? m.steps;
+  const mission = chapter.mission;
+  const steps = mission.steps ?? m.steps;
+  const period = /\d$/.test(chapter.period) ? `${chapter.period}년` : chapter.period;
+  const chip = [chapterLabel(chapter), mission.title ?? chapter.title, period].join(' · ');
+  // 시작하면 지난 장에서 이어진 실을 보드에서 하나씩 비춘다(장 데이터 carried)
+  const start = () => {
+    setPhase('desk');
+    showCarried();
+  };
   return (
     <div className="screen-backdrop">
-      <div className="screen-card mission" role="dialog" aria-modal="true" aria-label={title}>
-        <div className="result-title">{title}</div>
-        {chapter.mission.lines.map((line, i) => (
-          <p key={i} className="mission-line">{line}</p>
-        ))}
-        {chapter.mission.carried && (
-          <div className="mission-room carried">
-            <div className="mission-label">{m.carriedTitle}</div>
-            {chapter.mission.carried.map((line, i) => (
+      <div className="screen-card mission" role="dialog" aria-modal="true" aria-label={chip}>
+        <div className="mission-chip">{chip}</div>
+        <h2 className="mission-question">{mission.question}</h2>
+        {mission.sub && <p className="mission-sub">{mission.sub}</p>}
+        {mission.room && (
+          <div className="mission-room">
+            <div className="mission-label">{m.roomTitle}</div>
+            {mission.room.map((line, i) => (
               <p key={i}>{line}</p>
             ))}
           </div>
         )}
-        <div className="mission-room">
-          <div className="mission-label">{m.roomTitle}</div>
-          {room.map((line, i) => (
-            <p key={i}>{line}</p>
-          ))}
-        </div>
-        <div className="mission-label">{m.stepsTitle}</div>
-        <ol className="mission-steps">
+        <ol className="mission-steps" aria-label={m.stepsTitle}>
           {steps.map((step, i) => (
-            <li key={i}>{fmt(step, { n: chapter.documents.length })}</li>
+            <li key={i}>
+              <b aria-hidden="true">{i + 1}</b>
+              <span>{fmt(step, { n: chapter.documents.length })}</span>
+            </li>
           ))}
         </ol>
-        <button ref={go} type="button" className="reveal-ok" onClick={() => setPhase('desk')}>
-          {m.go}
-        </button>
+        {mission.note && <p className="mission-note">{mission.note}</p>}
+        <div className="mission-foot">
+          <button ref={go} type="button" className="reveal-ok" onClick={start}>
+            {m.go}
+          </button>
+        </div>
       </div>
     </div>
   );

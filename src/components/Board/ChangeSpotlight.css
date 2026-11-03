@@ -103,6 +103,10 @@
 .spot-caption.main .spot-chip {
   background: #2a2118;
 }
+/* 장 시작: 지난 장에서 이어진 실(2026-11-03) */
+.spot-chip.carried {
+  background: #4f6f8c;
+}
 .spot-caption p {
   margin: 6px 0 0;
   font-size: 21px;

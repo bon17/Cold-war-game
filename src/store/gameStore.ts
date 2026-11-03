@@ -22,7 +22,8 @@ export interface EdgeResult { wrong: number; auto?: boolean }
 // 학생이 실을 고르면 그 실이 바뀌고(main), 바로 이어서 함께 바뀐 실(저절로 바뀐 실, 내려간 실, 새로 나타난 배경 실,
 // 해설 카드 때 붙은 매듭)이 하나씩 조명을 받으며 바뀐다(ChangeSpotlight). 다 보여 준 뒤 '맞아요!' 창이 나온다.
 // before/after: 바뀌기 전과 뒤의 실(없으면 null, after가 배경 실이면 background), text: 그 실의 한 줄 설명
-export interface FlashItem { key: string; pair: Pair; before: BoardEdge | null; after: BoardEdge | null; main?: boolean; text: string }
+// main: 학생이 고른 실, carried: 장 시작에 비춰 주는 지난 장에서 이어진 실(바뀌지 않음)
+export interface FlashItem { key: string; pair: Pair; before: BoardEdge | null; after: BoardEdge | null; main?: boolean; carried?: boolean; text: string }
 export interface AutoFlash { id: number; items: FlashItem[] }
 
 // 시계 공개 순서(기획서 8.1): 바늘 → 해설(발표 이유, 저절로 바뀐 실) → 본샘일보 1면(예측만)
@@ -40,6 +41,7 @@ interface GameState {
   event: (BoardEvent & { id: number }) | null;
   flash: AutoFlash | null;
   flashShown: number;              // 다 보여 준 함께 바뀐 실 효과의 id
+  byCode: boolean;                 // 막 시작 코드로 이 장에 바로 들어옴(장 시작에 앞 장의 실을 더 비춘다). 저장하지 않는다
   dialogEdge: string | null;       // 실 바꾸기 창이 열린 실(맞힌 뒤에도 '맞아요!'와 '다음 문서 보기'를 보여 주려고 열어 둔다)
   foundEdge: string | null;        // 학생이 찾아 누른 실. 창에서 '문서 다시 보기'를 했다가 닫으면 그 창을 다시 연다
   clockShown: { minutes: number; year: number };   // 벽시계와 일력에 보이는 값
@@ -57,6 +59,7 @@ interface GameState {
   closeEdgeDialog: () => void;
   missEdge: (key?: string) => void;   // 찾는 실이 아닌 것을 누름
   flashDone: (id: number) => void;    // 함께 바뀐 실 효과를 다 보여 줌
+  showCarried: () => void;            // 할 일 카드 다음: 지난 장에서 이어진 실을 보드에서 비춘다
   submitEdge: (key: string, rel: Rel) => void;
   submitZone: (option: string) => void;   // 2장 '어느 편도 아닌 나라' 칸
   openReport: () => void;
@@ -101,6 +104,22 @@ function flashOf(chapter: Chapter, prev: Snap, next: Snap, main?: { key: string;
     items.unshift({ key: main.key, pair: (nextMap.get(main.key) ?? prevMap.get(main.key))!.pair, before: prevMap.get(main.key) ?? null, after: nextMap.get(main.key) ?? null, main: true, text: main.text });
   }
   return { id: ++eventId, items };
+}
+
+// 장 시작에 비춰 줄 '지난 장에서 이어진 실'(장 데이터 carried). 배경 실(미국–일본)도, 에필로그 흰 실('지금은?')도 보이는 모습 그대로
+function carriedFlash(chapter: Chapter, s: Snap, byCode: boolean): AutoFlash | null {
+  const edges = [...backgroundFor(chapter, s), ...s.board];
+  const ep = chapter.epilogueBoard;
+  const items: FlashItem[] = (chapter.carried ?? [])
+    .filter((c) => byCode || !c.codeOnly)
+    .flatMap((c) => {
+      const key = pairKey(c.pair);
+      const found = edges.find((e) => pairKey(e.pair) === key);
+      if (!found) return [];
+      const edge = ep && pairKey(ep.pair) === key ? { ...found, undyed: true, label: ep.label } : found;
+      return [{ key, pair: edge.pair, before: edge, after: edge, carried: true, text: c.text }];
+    });
+  return items.length ? { id: ++eventId, items } : null;
 }
 
 function setEdge(board: BoardEdge[], task: EdgeTask): BoardEdge[] {
@@ -157,6 +176,7 @@ export function initialState(chapterId: string) {
     event: null,
     flash: null,
     flashShown: 0,
+    byCode: false,
     dialogEdge: null,
     foundEdge: null,
     clockShown: { minutes: minutesOf(chapter.startClock ?? {}), year: chapter.calendarYear ?? Number(chapter.period.slice(0, 4)) },
@@ -228,6 +248,12 @@ export const useGame = create<GameState>((set, get) => ({
   missEdge: (key) => set({ event: stamp({ kind: 'miss', key }) }),
 
   flashDone: (id) => set({ flashShown: id }),
+
+  showCarried: () => {
+    const s = get();
+    const flash = carriedFlash(chapterById(s.chapterId), s, s.byCode);
+    if (flash) set({ flash });
+  },
 
   submitEdge: (key, rel) => {
     const s = get();

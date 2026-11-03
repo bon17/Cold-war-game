@@ -155,3 +155,29 @@ describe('1차시 끝', () => {
     expect(useSession.getState().phase).toBe('cover');
   });
 });
+
+describe('장 시작: 지난 장에서 이어진 실(2026-11-03)', () => {
+  it('3장(2차시 첫 장)은 미국–일본과 미국–소련 직통선 매듭을 비춘다', () => {
+    useGame.setState(initialState('ch3'));
+    game().showCarried();
+    const items = game().flash?.items ?? [];
+    expect(items.map((i) => i.key)).toEqual(['JP-US', 'SU-US']);
+    expect(items.every((i) => i.carried && i.before === i.after)).toBe(true);
+    expect(items[1].after).toMatchObject({ rel: 'COLD', mark: 'hotline' });
+  });
+
+  it('2장은 앞 장을 하고 왔으면 비출 것이 없고, 코드로 들어왔으면 미국–일본', () => {
+    useGame.setState(initialState('ch2'));
+    game().showCarried();
+    expect(game().flash).toBeNull();
+    useGame.setState({ ...initialState('ch2'), byCode: true });
+    game().showCarried();
+    expect(game().flash?.items.map((i) => i.key)).toEqual(['JP-US']);
+  });
+
+  it("에필로그는 남북 흰 실('지금은?')을 그 모습 그대로 비춘다", () => {
+    useGame.setState(initialState('epilogue'));
+    game().showCarried();
+    expect(game().flash?.items[0]).toMatchObject({ key: 'KR-NK', after: { undyed: true, label: '지금은?' } });
+  });
+});

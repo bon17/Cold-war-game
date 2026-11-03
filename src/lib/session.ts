@@ -43,6 +43,7 @@ export function startWithCode(name: string, chapterId: string) {
     archive: (slot?.archive as never[]) ?? [],
   });
   startChapter(chapterId, slot?.achievements ?? []);
+  useGame.setState({ byCode: true });
   useSession.getState().setPhase('cover');
 }
 

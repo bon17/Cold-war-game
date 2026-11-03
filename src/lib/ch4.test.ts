@@ -25,9 +25,23 @@ describe('4장', () => {
     expect(sig(ch4.startBoard)).toEqual(sig(endBoard(chapterById('ch3'))));
   });
 
-  it('지난 장 시계 카드에서 바뀐 미국–소련 대화를 할 일 카드에 알리고, 보고서에 미국·소련을 보라는 도움말이 있다', () => {
-    expect(ch4.mission.carried?.join(' ')).toContain('대화');
+  it('보고서에 미국·소련을 보라는 도움말이 있다', () => {
     expect(ch4.clock[0].hint).toContain('미국과 소련');
+  });
+
+  // 2026-11-03 교사 의견(일본이 갑자기 왜 생겼는지, 대립인데 매듭은 왜 있는지): 할 일 카드 대신 보드에서 비춘다
+  it('장 시작에 지난 장에서 이어진 미국–소련 대화를 비추고, 코드로 들어왔으면 미국–일본도', () => {
+    game().showCarried();
+    expect(game().flash?.items.map((i) => [i.key, i.carried, i.after?.rel])).toEqual([['SU-US', true, 'TALK']]);
+    expect(game().flash?.items[0].text).toContain('1972년');
+    useGame.setState({ ...initialState('ch4'), byCode: true });
+    game().showCarried();
+    expect(game().flash?.items.map((i) => i.key)).toEqual(['JP-US', 'SU-US']);
+    expect(game().flash?.items[0].after).toMatchObject({ rel: 'ALLY', background: true });
+  });
+
+  it('4-4를 맞히면 직통선은 끊지 않았다는 설명이 나온다', () => {
+    expect(ch4.edgeTasks.find((t) => t.doc === '4-4')?.explanation).toContain('직통선은 끊지 않았어요');
   });
 
   it('미국–중국은 수교·협력, 미국–소련과 남한–북한은 대립. 직통선 매듭은 남는다', () => {

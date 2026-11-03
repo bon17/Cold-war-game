@@ -65,9 +65,13 @@ describe('에필로그', () => {
     for (const c of chapters.filter((c) => c.id !== 'epilogue')) expect(c.window.link, c.id).toBeTruthy();
   });
 
-  it('1~5장 창밖에 그날의 당직 일지. 5장 일지의 선배(1945년부터)가 에필로그 편지를 쓴 사람', () => {
-    for (const id of ['ch1', 'ch2', 'ch3', 'ch4', 'ch5']) expect(chapterById(id).window.diary, id).toBeTruthy();
-    expect(chapterById('ch5').window.diary).toContain('1945년');
+  // 2026-11-03 교사 의견(편지의 어머니 이야기가 뜬금없다, 빌드업): 일지는 1945년의 7번 자리 당직자 한 사람이 40년 동안 쓴 것.
+  // 프롤로그부터 장마다 북쪽 고향·어머니가 조금씩 나오고, 편지를 찾을 때 '창밖 일지와 같은 글씨'
+  it('프롤로그~5장 창밖에 한 사람의 당직 일지. 고향 이야기가 이어지고, 에필로그 편지가 그 사람의 것', () => {
+    for (const id of ['prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5']) expect(chapterById(id).window.diary, id).toBeTruthy();
+    expect(chapterById('prologue').window.diary).toContain('어머니');
+    expect(chapterById('ch5').window.diary).toContain('내 이름');
+    expect(ep.finale!.letter.found).toContain('일지');
     expect(chapterById('ch1').window.diary).not.toContain('풀리');   // 실은 나라 사이의 관계라 '풀린다'는 어색하다(교사 댓글)
     expect(ep.finale!.letter.signature).toContain('1945년');
   });

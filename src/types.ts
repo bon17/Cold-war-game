@@ -116,10 +116,14 @@ export interface Chapter {
   cover: { image: string; alt: string; question: string };
   startClock: { minutes?: number; seconds?: number } | null;  // 프롤로그는 null(아직 걸리지 않음)
   startNote?: { text: string; signature: string };            // 장 시작 쪽지(2장)
-  // 장 표지 다음 '할 일' 카드: lines는 이 장의 상황(1~2문장씩, 카드 맨 위). title, room, steps는 카드 제목,
-  // '이 방에서 알아 둘 것', 할 일을 장마다 바꿀 때만 쓴다(프롤로그: 첫날, 시계가 아직 없음). 없으면 strings.mission의 공통 문구.
-  // carried: '지난 장에서 이어진 것'. 앞 장 시계 카드에서만 바뀌어 놓치기 쉬운 것(직통선 매듭, 3장 끝 미국–소련 대화)
-  mission: { lines: string[]; title?: string; room?: string[]; steps?: string[]; carried?: string[] };
+  // 장 표지 다음 '할 일' 카드(2026-11-03 교사 의견 '가독성이 많이 떨어진다'로 짧게 다시 만듦). 맨 위 칩(장 · 제목 · 시기),
+  // question(큰 글씨 한 줄), sub(짧은 설명 한 줄), 할 일 세 칸(steps, 없으면 strings.mission.steps), note(칸 아래 한 줄).
+  // room('이 방에서 알아 둘 것')은 시계와 실을 처음 만나는 프롤로그·1장에만. title은 칩에서 장 제목 대신(프롤로그 '분석실의 첫날')
+  mission: { question: string; sub?: string; title?: string; room?: string[]; steps?: string[]; note?: string };
+  // 장이 시작될 때(할 일 카드 다음) 보드에서 하나씩 비춰 주는 '지난 장에서 이어진 실'(2026-11-03 교사 의견: 일본이 갑자기 왜
+  // 생겼는지, 대립인데 매듭은 왜 있는지). 할 일 카드의 '지난 장에서 이어진 것' 칸을 대신한다.
+  // codeOnly: 막 시작 코드로 이 장에 바로 들어왔을 때만(앞 장을 하지 않아 처음 보는 실)
+  carried?: { pair: Pair; text: string; codeOnly?: boolean }[];
   nodeLabels?: Partial<Record<NodeId, string>>;   // 핀 이름 덮어쓰기(프롤로그: 남한 → '38선 이남')
   nodeSides?: Partial<Record<NodeId, LabelSide>>; // 핀 이름표 방향 덮어쓰기(이름이 길어 실을 가릴 때)
   nodeLabelsUntil?: string;    // 이 문서를 마치면 덮어쓰기를 그만둔다(1장: 1948년 정부 수립 문서 → '남한', '북한')
