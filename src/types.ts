@@ -22,6 +22,8 @@ export interface Doc {
   source?: string;             // 예: '교과서 222쪽 자료 1'
   outsideTextbook?: boolean;
   map?: DocMap;                // 문서 옆 지도(2-6 쿠바 미사일 위기, 2026-10-26 교사 의견)
+  // 이 문서를 마치면 실에 붙는 표시(2-7 직통선 매듭, 2026-11-03 교사 의견: 예측 전에 알아야 한다). note: 그때 보드에 띄우는 한 줄
+  annotateEdge?: EdgeAnnotation;
 }
 
 // 문서 옆 지도: 해안선은 src/data/maps/<id>.json(Natural Earth로 만든 코드 SVG), 글은 여기(한국어)
@@ -73,6 +75,9 @@ export interface ClockEntry {
 // 시계 카드가 가리키는 화면 물건(프롤로그 '천천히 읽는 시계 카드')
 export type Spot = 'clock' | 'hand' | 'board';
 
+// 실에 붙는 표시(직통선 매듭). 실 종류가 바뀌어도 끝까지 남는다. note: 매듭이 생길 때 보드에 띄우는 한 줄
+export interface EdgeAnnotation { pair: Pair; mark: 'hotline'; note?: string }
+
 export interface ClockCheckpoint {
   id: string;
   mode: 'show' | 'predict';
@@ -84,7 +89,7 @@ export interface ClockCheckpoint {
   explanation: string;         // 해설 카드(건너뛸 수 없음)
   wrongNote?: string;          // 정정 보도 문구
   achievement?: string;
-  annotateEdge?: { pair: Pair; mark: 'hotline'; note?: string };  // 2장 직통선 매듭(끝까지 남음). note: 매듭이 생길 때 보드에 띄우는 한 줄
+  annotateEdge?: EdgeAnnotation;  // 해설 카드 때 실에 붙는 표시(끝까지 남음). 2장 직통선은 2026-11-03부터 문서 2-7에서 붙는다
   question?: string;           // 보고서 질문 덮어쓰기(에필로그: '1991년 이후 지금까지, …')
   hint?: string;               // 보고서 질문 아래 도움말(4장: 미국–중국은 가까워졌지만 시계는 미국·소련을 본다는 단서)
   // 나눠 읽는 시계 카드(2026-10-23 교사 결정, 프롤로그): 발표 이유(bulletin.reason)와 explanation을 줄('\n')마다 한 장씩

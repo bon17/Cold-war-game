@@ -8,8 +8,9 @@ import { chapterAchievements, chapterStars } from './scoring';
 import { endsSession, goNextChapter, resume } from './session';
 import type { Rel } from '../types';
 
-// 2장 「다른 길」(2026-10-25 교사 결정): 문서 6개. 정전(실) → 아시아·아프리카 회의 → 중소 균열(실) → 아프리카의 해
-// → 비동맹 회의('어느 편도 아닌 나라' 칸) → 쿠바 위기. 시계는 1963년 멀어짐, 해설 때 미국–소련 실에 직통선 매듭.
+// 2장 「다른 길」(2026-10-25 교사 결정): 정전(실) → 아시아·아프리카 회의 → 중소 균열(실) → 아프리카의 해
+// → 비동맹 회의('어느 편도 아닌 나라' 칸) → 쿠바 위기 → 위기 뒤에 맺은 약속(2026-11-03 더함, 읽으면 미국–소련 직통선 매듭).
+// 시계는 1963년 멀어짐.
 const ch2 = chapterById('ch2');
 const game = () => useGame.getState();
 const rels = () => Object.fromEntries(game().board.map((e) => [pairKey(e.pair), e.rel]));
@@ -28,6 +29,7 @@ const playAll = () => {
   read('2-5');
   game().submitZone(ch2.zone!.answer);
   read('2-6');
+  read('2-7');
 };
 
 describe('2장 데이터', () => {
@@ -89,11 +91,33 @@ describe('2장 흐름', () => {
     expect(action()).toEqual({ kind: 'doc', docId: '2-6' });
   });
 
-  it('쿠바 위기(2-6)까지 읽으면 보고서, 공개 때 미국–소련 실에 직통선 매듭이 생긴다', () => {
-    playAll();
+  it('쿠바 위기(2-6) 뒤에 약속 문서(2-7)가 오고, 그것을 읽으면 예측 전에 미국–소련 실에 직통선 매듭이 생긴다', () => {
+    const hotline = () => game().board.find((e) => pairKey(e.pair) === 'SU-US')?.mark;
+    read('2-1');
+    game().submitEdge('KR-NK', 'COLD');
+    read('2-2');
+    read('2-3');
+    game().submitEdge('CN-SU', 'ALLY');
+    read('2-4');
+    read('2-5');
+    game().submitZone(ch2.zone!.answer);
+    read('2-6');
+    expect(action()).toEqual({ kind: 'doc', docId: '2-7' });
+    expect(hotline()).toBeUndefined();
+    game().openDocument('2-7');
+    expect(hotline()).toBe('hotline');
+    // 함께 바뀐 실 조명: 매듭이 붙은 미국–소련 실 하나와 그 한 줄
+    expect(game().flash?.items).toEqual([
+      expect.objectContaining({ key: 'SU-US', before: expect.objectContaining({ rel: 'COLD' }), after: expect.objectContaining({ rel: 'COLD', mark: 'hotline' }), text: ch2.documents[6].annotateEdge!.note }),
+    ]);
+    game().closeDocument();
     expect(action()).toEqual({ kind: 'report' });
+  });
+
+  it('보고서를 내면 바늘이 1963년 12분으로, 매듭은 그대로 남는다', () => {
+    playAll();
     game().openReport();
-    game().submitReport({ direction: 'closer' });   // 일부러 틀리기(쿠바의 역설)
+    game().submitReport({ direction: 'closer' });   // 일부러 틀리기
     game().advanceReveal();
     expect(game().board.find((e) => pairKey(e.pair) === 'SU-US')).toMatchObject({ rel: 'COLD', mark: 'hotline' });
     expect(game().clockShown).toEqual({ minutes: 12, year: 1963 });

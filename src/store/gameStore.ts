@@ -4,7 +4,7 @@ import { isUnlocked, nextCheckpoint, nextPredict, revealPath, minutesOf } from '
 import { chapterById, chapters } from '../lib/data';
 import { currentDoc } from '../lib/docFlow';
 import { autoTasksFor, directTask, hasChoice, judge, revealTasksFor, taskForDoc } from '../lib/validateEdge';
-import type { BoardEdge, Chapter, ClockCheckpoint, EdgeTask, Pair, Rel } from '../types';
+import type { BoardEdge, Chapter, EdgeAnnotation, EdgeTask, Pair, Rel } from '../types';
 
 // 게임 진행 상태(기획서 3장, 2026-10-23 쉬운 흐름): 문서 읽기 → 그 문서와 짝인 실 바꾸기(둘 중 하나) → 3번 → 시계 예측.
 
@@ -123,21 +123,23 @@ function applyAuto(chapter: Chapter, s: Pick<GameState, 'board' | 'done' | 'even
   return { board, done, event };
 }
 
-// 문서를 마치면 함께 바뀌는 것: 보드에서 내려가는 실(1장 점령 실)과 저절로 바뀌는 실
+// 문서를 마치면 함께 바뀌는 것: 보드에서 내려가는 실(1장 점령 실), 저절로 바뀌는 실, 실에 붙는 표시(2-7 직통선 매듭)
 function finishDoc(chapter: Chapter, s: Pick<GameState, 'board' | 'done' | 'event'>, docId: string) {
   const ending = endingAt(chapter, docId);
   const board = s.board.filter((e) => !ending.has(pairKey(e.pair)));
-  return applyAuto(chapter, { ...s, board }, autoTasksFor(chapter, docId));
+  const auto = applyAuto(chapter, { ...s, board }, autoTasksFor(chapter, docId));
+  return { ...auto, board: annotate(auto.board, docNote(chapter, docId)) };
 }
+
+const docNote = (chapter: Chapter, docId: string | undefined) => chapter.documents.find((d) => d.id === docId)?.annotateEdge;
 
 function allDirectDone(chapter: Chapter, done: Record<string, EdgeResult>): boolean {
   const zoneDone = !chapter.zone || !!done[ZONE_KEY];
   return zoneDone && chapter.edgeTasks.filter((t) => t.mode === 'direct').every((t) => done[taskKey(chapter, t)]);
 }
 
-// 해설 카드 때 실에 다는 표시(2장 미국–소련 '직통선' 매듭). 실 종류가 바뀌어도 끝까지 남는다.
-function annotate(board: BoardEdge[], point: ClockCheckpoint): BoardEdge[] {
-  const note = point.annotateEdge;
+// 실에 다는 표시(2장 미국–소련 '직통선' 매듭: 문서 2-7을 마칠 때, 또는 시계 지점의 해설 카드 때). 실 종류가 바뀌어도 끝까지 남는다.
+function annotate(board: BoardEdge[], note: EdgeAnnotation | undefined): BoardEdge[] {
   if (!note) return board;
   return board.map((e) => (pairKey(e.pair) === pairKey(note.pair) ? { ...e, mark: note.mark } : e));
 }
@@ -190,7 +192,7 @@ export const useGame = create<GameState>((set, get) => ({
     const first = !s.readDocs.includes(docId);
     const auto = first && !hasChoice(chapter, docId) ? finishDoc(chapter, s, docId) : undefined;
     const readDocs = first ? [...s.readDocs, docId] : s.readDocs;
-    const flash = auto ? flashOf(chapter, s, { board: auto.board, readDocs, done: auto.done }) : null;
+    const flash = auto ? flashOf(chapter, s, { board: auto.board, readDocs, done: auto.done }, undefined, docNote(chapter, docId)?.note) : null;
     set({ ...(auto ?? {}), ...(flash ? { flash } : {}), openDocId: docId, openDocFresh: first, dialogEdge: null, readDocs });
   },
 
@@ -237,7 +239,7 @@ export const useGame = create<GameState>((set, get) => ({
     if (judge(task, rel)) {
       const solved = { board: setEdge(s.board, task), done: { ...s.done, [tk]: { wrong: s.wrong[tk] ?? 0 } }, event: s.event };
       const withAuto = task.doc ? finishDoc(chapter, solved, task.doc) : solved;
-      const flash = flashOf(chapter, s, { board: withAuto.board, readDocs: s.readDocs, done: withAuto.done }, { key, text: task.explanation });
+      const flash = flashOf(chapter, s, { board: withAuto.board, readDocs: s.readDocs, done: withAuto.done }, { key, text: task.explanation }, docNote(chapter, task.doc)?.note);
       set({
         board: withAuto.board,
         done: withAuto.done,
@@ -297,7 +299,7 @@ export const useGame = create<GameState>((set, get) => ({
       // 바늘이 멈추면 과학자들이 든 이유와 함께 그 지점의 실이 저절로 바뀌고, 실에 표시가 붙는다(직통선)
       const last = revealPath(point).pop()!;
       const auto = applyAuto(chapter, s, revealTasksFor(chapter, point.id));
-      const board = annotate(auto.board, point);
+      const board = annotate(auto.board, point.annotateEdge);
       const flash = flashOf(chapter, s, { board, readDocs: s.readDocs, done: auto.done }, undefined, point.annotateEdge?.note);
       set({
         ...auto,

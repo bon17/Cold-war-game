@@ -84,12 +84,11 @@ export function endBoard(chapter: Chapter): Chapter['startBoard'] {
     const key = pairKey(task.pair);
     board.set(key, applyTask(board.get(key), task));
   }
-  for (const point of chapter.clock) {
-    if (point.annotateEdge) {
-      const key = pairKey(point.annotateEdge.pair);
-      const prev = board.get(key);
-      if (prev) board.set(key, { ...prev, mark: point.annotateEdge.mark });
-    }
+  for (const note of [...chapter.documents.map((d) => d.annotateEdge), ...chapter.clock.map((p) => p.annotateEdge)]) {
+    if (!note) continue;
+    const key = pairKey(note.pair);
+    const prev = board.get(key);
+    if (prev) board.set(key, { ...prev, mark: note.mark });
   }
   return [...board.values()];
 }
