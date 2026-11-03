@@ -10,6 +10,13 @@ export function assetUrl(path: string): string {
   return `${import.meta.env.BASE_URL}assets/${rel}`;
 }
 
+// CSS 변수(--paper-grain 등)에 넣는 url(). 변수 속 상대 주소는 그 변수를 쓰는 CSS 파일(static/) 기준으로
+// 풀려 그림을 못 찾으므로(링크판·배포판) 페이지 기준 절대 주소로 바꿔 넣는다.
+export function cssAssetUrl(path: string): string {
+  const base = typeof document === 'undefined' ? 'http://localhost/' : document.baseURI;
+  return `url("${new URL(assetUrl(path), base).href}")`;
+}
+
 // 1980년대 방과 지금의 방은 금속 창틀이라 창 좌표가 다르다(eraOverrides).
 export function windowFor(room: RoomId): WindowLayout {
   return layout.eraOverrides[room]?.window ?? layout.window;

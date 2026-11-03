@@ -9,8 +9,8 @@
 
 설치할 것이 없다. 아래 링크를 누르기만 하면 된다.
 
-- 체험판 링크: https://claude.ai/artifact/XuA4oj5YFn1HKLfaANBuqu (2026-10-23 새 링크. 2026-10-26 24판: 프롤로그~에필로그 전체(2장 뒤 3장으로 바로), 실 찾기·잇기(1장은 힌트, 2장부터 직접), 함께 바뀐 실 효과, 형광펜은 틀렸을 때, 당직 일지)
-  - 예전 링크(https://claude.ai/artifact/YZrqj4SFsHZr3k4iy3e7TK)는 다음 세션에서 열 수 없어 고칠 수 없었다. 이제 새 링크만 쓴다.
+- 체험판 링크: https://claude.ai/artifact/9Wnk9EGhUHNXyRrbAk5dpi (2026-11-03 새 링크, 26판. 내용은 25판과 같고, 문서·보드 종이 결 무늬가 링크에서 안 보이던 것만 고침. 프롤로그~에필로그 전체, 실 조명 효과, 실 무늬(대화 홑실선·대립 긴 파선), 2-6 쿠바 지도)
+  - 예전 링크 두 개(https://claude.ai/artifact/XuA4oj5YFn1HKLfaANBuqu, https://claude.ai/artifact/YZrqj4SFsHZr3k4iy3e7TK)는 다른 계정에서 올린 것이라 지금 계정의 세션에서 읽거나 고칠 수 없다. 이제 새 링크만 쓴다.
 - **비공개**다. 교사의 claude.ai 계정으로 로그인한 상태에서만 열린다. 학생이나 다른 사람은 열 수 없다(인터넷 공개 배포가 아니다).
 - 진행 저장은 그 링크를 연 브라우저에만 남는다. 다른 컴퓨터에서 열면 처음부터 한다.
 - 링크 화면 안에서는 '전체 화면' 단추가 안 될 수 있다. 그때는 브라우저 창을 크게 키운다.
@@ -31,7 +31,7 @@
 
 1. https://desktop.github.com 에서 GitHub Desktop을 설치하고, 깃허브 계정으로 로그인한다.
 2. **File → Clone repository** → 목록에서 `bon17/Cold-war-game`을 고르고 **Clone**을 누른다. 저장할 폴더는 기본값 그대로 둔다.
-3. 위쪽 **Current branch**를 눌러 **`claude/inspiring-euler-r60svo`**를 고른다(2026-10-23부터. 프롤로그가 들어간 가지).
+3. 위쪽 **Current branch**를 눌러 **`claude/gracious-mccarthy-cm9xtg`**를 고른다(2026-11-03부터. 그전 가지 `claude/inspiring-euler-r60svo`의 내용을 모두 담고 있다).
    - 저장소의 기본 가지(`claude/determined-galileo-7vzo49`)에는 아직 게임 코드가 없다. 꼭 이 가지로 바꾼다.
 
 ---
@@ -73,5 +73,5 @@ Claude가 "올렸습니다"라고 하면:
 ## 5. 개발자용 메모
 
 - 실행 파일이 하는 일: `npm install` → `npm run assets` → `npm run dev -- --open`.
-- 비공개 링크 갱신: `npm run assets` → `npm run build:link`(결과는 `dist-link/`, 글꼴 파일 대신 구글 폰트를 씀). `build:link`가 끝에 `scripts/link-page.mjs`를 돌려 링크용 페이지 `dist-link/link-page.html`과 올릴 파일 목록 `dist-link/link-files.json`(코드 2개 + 그림 전부, 약 4MB)을 만든다. 그 페이지를 위 링크(`url`)로 다시 게시하고 `files`에 목록을 넣는다. 바뀐 `static/` 파일은 새 이름으로 올라가므로 옛 이름은 지운다(`null`). 다른 세션에서 고칠 때는 먼저 링크를 읽고(read) 게시한다.
+- 비공개 링크 갱신: `npm run assets` → `npm run build:link`(결과는 `dist-link/`, 글꼴 파일 대신 구글 폰트를 씀). `build:link`가 끝에 `scripts/link-page.mjs`를 돌려 링크용 페이지 `dist-link/link-page.html`과 올릴 파일 목록 `dist-link/link-files.json`(코드 2개 + 그림 전부, 약 4MB)을 만든다. 그 페이지를 위 링크(`url`)로 다시 게시하고 `files`에 목록을 넣는다. 바뀐 `static/` 파일은 새 이름으로 올라가므로 옛 이름은 지운다(`null`). 다른 세션에서 고칠 때는 먼저 링크를 읽고(read) 게시한다. 링크는 올린 계정의 세션에서만 읽고 고칠 수 있다(2026-11-03 계정이 바뀌어 새 링크를 만듦).
 - 학교의 가장 느린 크롬북 시험(아트 계획서 5.6)은 크롬북에서 로컬 서버를 열기 어려우므로 마지막 배포 때 한다.

@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { assetUrl, layout, windowFor } from '../../lib/assets';
+import { assetUrl, cssAssetUrl, layout, windowFor } from '../../lib/assets';
 import type { Rect, RoomId } from '../../types';
 import './Desk.css';
 
@@ -36,7 +36,7 @@ export function Desk({ room, wallClock = 'hung', children, front }: { room: Room
       )}
       <div
         className="desk-chart-paper"
-        style={{ ...place(board.paper), ['--paper-grain' as string]: `url(${assetUrl('tex/paper-grain.webp')})` }}
+        style={{ ...place(board.paper), ['--paper-grain' as string]: cssAssetUrl('tex/paper-grain.webp') }}
       />
       {children}
       <img src={assetUrl(lamp.src)} style={place(lamp)} alt="" />

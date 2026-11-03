@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
-import { assetUrl } from '../../lib/assets';
+import { cssAssetUrl } from '../../lib/assets';
 import { DocMap } from './DocMap';
 import { docFinished, taskKey, ZONE_KEY } from '../../lib/board';
 import { chapterById, glossary, strings } from '../../lib/data';
@@ -126,7 +126,7 @@ export function DocumentViewer() {
             ref={paperRef}
             tabIndex={-1}
             className={`doc-paper doc-${doc.type}${doc.map ? ' has-map' : ''}`}
-            style={{ ['--paper-grain' as string]: `url(${assetUrl('tex/paper-grain.webp')})` }}
+            style={{ ['--paper-grain' as string]: cssAssetUrl('tex/paper-grain.webp') }}
           >
             <div className="doc-text">
             <header className="doc-head">
