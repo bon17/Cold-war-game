@@ -146,7 +146,7 @@ describe('5장 보드 이름표 자리', () => {
     expect(problems(startEdges(ch5), pinsOf(ch5, { readDocs: [], done: {} }))).toEqual([]);
   });
 
-  it("끝 보드(초록 실 다섯, '러시아', '협력 · 직통선', '관계 정상화'): 겹치지 않는다", () => {
+  it("끝 보드(초록 실 다섯, '러시아', '수교·협력 · 직통선'): 겹치지 않는다", () => {
     expect(problems([...backgroundFor(ch5, allDone), ...endBoard(ch5)], pinsOf(ch5, allDone))).toEqual([]);
   });
 });

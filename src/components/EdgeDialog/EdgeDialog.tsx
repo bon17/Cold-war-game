@@ -150,7 +150,7 @@ export function EdgeDialog() {
 
       <div className="edge-dialog-rels">
         {options.map((rel, i) => {
-          // 2장 중국–소련: 종류는 같은 편 그대로, 금만 가는 선택지. 5장 '협력', '관계 정상화'처럼 이름표를 덮어쓰는 정답은 그 이름으로
+          // 2장 중국–소련: 종류는 같은 편 그대로, 금만 가는 선택지. 이름표를 덮어쓰는 정답(label)은 그 이름으로(2026-11-03부터 쓰는 장 없음)
           const frayed = !!task.fray && rel === task.to;
           const label = task.label && rel === task.to ? task.label : strings.relations[rel];
           return (

@@ -45,7 +45,7 @@ export interface EdgeTask {
   doc?: string;                // direct, auto: 이 실과 짝인 문서
   point?: string;              // reveal: 이 실을 바꾸는 시계 지점
   options?: Rel[];             // direct: 보여 줄 실 종류 2개(정답 포함)
-  label?: string;              // 이름표 덮어쓰기(예: 미국–소련 '협력', 중국–소련 '관계 정상화')
+  label?: string;              // 이름표 덮어쓰기. 2026-11-03부터 쓰지 않음(교사 의견: 범례 이름과 하나로. 예전 미국–소련 '협력', 중국–소련 '관계 정상화')
   explanation: string;         // 성공(또는 자동 적용) 시 한 줄 설명
   fray?: boolean;              // 색은 유지하고 균열 표시만(종류가 바뀌면 균열은 사라짐)
 }
@@ -156,6 +156,7 @@ export interface Finale {
   writing: {
     title: string; guide: string; question: string; historyTitle: string; frameTitle: string; frame: string;
     wordsTitle: string; wordsHint: string; words: string[]; done: string;
+    needWord: string;          // 풀이가 있는 낱말을 한 번도 누르지 않았을 때(2026-11-03 교사 의견: 한 번은 눌러 보게)
   };
   knot: { prompt: string; after: string; button: string };
   end: { title: string; thanks: string; notesTitle: string; notes: string[] };

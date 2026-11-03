@@ -128,13 +128,17 @@ export function LetterScene() {
 }
 
 // 쓰기 화면: 다음 당직자에게 남기는 인계 메모. 게임은 글을 저장하지 않는다(종이 활동지, 기획서 4.3)
+// 낱말 상자: 풀이가 있는 낱말을 한 번은 눌러 봐야 '다 썼어요'를 누를 수 있다(2026-11-03 교사 의견). 그전에는 그 낱말들이 살짝 빛난다
 export function WritingScreen() {
   const { phase, setPhase } = useSession();
   const { chapter, finale } = useEpilogue();
   const done = useGame((s) => s.done);
   const [word, setWord] = useState<string | null>(null);
+  const [looked, setLooked] = useState(false);
   useEffect(() => {
-    if (phase === 'writing') setWord(null);
+    if (phase !== 'writing') return;
+    setWord(null);
+    setLooked(false);
   }, [phase]);
   if (phase !== 'writing' || !finale || !chapter.epilogueBoard) return null;
   const w = finale.writing;
@@ -169,15 +173,20 @@ export function WritingScreen() {
             <button
               key={x}
               type="button"
-              className={`writing-word${glossary[x] ? ' has-meaning' : ''}${word === x ? ' on' : ''}`}
-              onClick={() => setWord(word === x ? null : x)}
+              className={`writing-word${glossary[x] ? ' has-meaning' : ''}${glossary[x] && !looked ? ' beckon' : ''}${word === x ? ' on' : ''}`}
+              onClick={() => {
+                setWord(word === x ? null : x);
+                if (glossary[x]) setLooked(true);
+              }}
             >
               {x}
             </button>
           ))}
         </div>
-        <p className="writing-meaning" aria-live="polite">{meaning ? `${word}: ${meaning}` : ' '}</p>
-        <button type="button" className="reveal-ok" onClick={() => setPhase('finale')}>
+        <p className={`writing-meaning${looked ? '' : ' need'}`} aria-live="polite">
+          {meaning ? `${word}: ${meaning}` : looked ? ' ' : w.needWord}
+        </p>
+        <button type="button" className="reveal-ok" disabled={!looked} onClick={() => setPhase('finale')}>
           {w.done}
         </button>
       </div>

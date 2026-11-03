@@ -47,7 +47,8 @@ describe('5장', () => {
     read('5-2');
     read('5-3');
     game().submitEdge('CN-SU', 'NORMAL');
-    expect(edge('CN-SU')).toMatchObject({ rel: 'NORMAL', label: '관계 정상화' });
+    // 이름표는 범례와 같은 '수교·협력' 하나로(2026-11-03 교사 의견: '관계 정상화'·'협력'과 범례가 달라 헷갈린다)
+    expect(edge('CN-SU')).toEqual({ pair: ['CN', 'SU'], rel: 'NORMAL' });
     read('5-4');
     read('5-5');
     game().submitEdge('KR-NK', 'TALK');
@@ -58,7 +59,8 @@ describe('5장', () => {
     expect(pinName(ch5, 'SU', game())).toBe('러시아');
     expect(oldPinName(ch5, 'SU', game())).toBe('소련');      // 보드 이름표 위에 줄 그어 붙이는 옛 이름
     expect(oldPinName(ch5, 'US', game())).toBeUndefined();
-    expect(edge('SU-US')).toMatchObject({ rel: 'NORMAL', label: '협력', mark: 'hotline' });
+    expect(edge('SU-US')).toMatchObject({ rel: 'NORMAL', mark: 'hotline' });
+    expect(edge('SU-US')?.label).toBeUndefined();
     expect(pinName(ch5, 'SU')).toBe('러시아');               // 장 끝(보고서, 근무 평정표)
   });
 
