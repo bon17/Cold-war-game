@@ -26,7 +26,8 @@ export function splitBody(body: string, keyPhrase: string | undefined, words: st
     const i = body.indexOf(keyPhrase);
     if (i >= 0) for (let k = i; k < i + keyPhrase.length; k++) keyAt[k] = keyPhrase;
   }
-  for (const word of words) {
+  // 긴 낱말을 나중에 칠해 짧은 낱말을 덮는다('7·4 남북 공동 성명' 안의 '성명', 2026-11-03)
+  for (const word of [...words].sort((a, b) => a.length - b.length)) {
     const i = body.indexOf(word);
     if (i >= 0) for (let k = i; k < i + word.length; k++) wordAt[k] = word;
   }

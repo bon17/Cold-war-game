@@ -10,7 +10,8 @@ describe('낱말 풀이 밑줄 자리(장마다 처음 나올 때)', () => {
     const byDoc = glossaryByDoc(ch3, words);
     expect(byDoc.get('3-3')).toEqual(expect.arrayContaining(['공산주의', '국경']));
     expect(byDoc.get('3-5')).toEqual(['외교']);
-    expect(byDoc.get('3-6')).toEqual(['성명']);
+    // '성명'은 '7·4 남북 공동 성명' 안에 있어 화면에는 긴 낱말 하나로 칠해진다(풀이에 '성명'의 뜻을 함께 담음)
+    expect(byDoc.get('3-6')).toEqual(['성명', '7·4 남북 공동 성명']);
   });
 });
 
@@ -33,5 +34,13 @@ describe('본문 나누기', () => {
   it('밑줄은 그 문서에서 처음 나온 곳에만', () => {
     const pieces = splitBody('국경에서 싸웠다. 다시 국경에서.', undefined, ['국경']).flatMap((c) => c.pieces);
     expect(pieces.filter((p) => p.word === '국경')).toHaveLength(1);
+  });
+});
+
+describe('겹치는 낱말(2026-11-03)', () => {
+  it("긴 낱말이 짧은 낱말을 덮는다: '7·4 남북 공동 성명' 안의 '성명'", () => {
+    const body = "남한과 북한이 7·4 남북 공동 성명을 발표했어요.";
+    const words = splitBody(body, undefined, ['성명', '7·4 남북 공동 성명']).flatMap((c) => c.pieces).filter((p) => p.word);
+    expect(words.map((p) => [p.word, p.text])).toEqual([['7·4 남북 공동 성명', '7·4 남북 공동 성명']]);
   });
 });
